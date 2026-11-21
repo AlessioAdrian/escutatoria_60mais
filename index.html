@@ -1102,24 +1102,51 @@
 
       if (!name || !crp) return;
 
-      if (appState.dbReady && appState.user) {
-        const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
-        if (editId) {
-          await updateDoc(doc(psychCol, editId), { name, crp, specialty });
-          showToast('Dados do psicólogo atualizados!');
-        } else {
-          const newId = `psi-${Date.now()}`;
-          await setDoc(doc(psychCol, newId), {
-            id: newId,
-            name,
-            crp,
-            specialty,
-            online: true
-          });
-          showToast('Psicólogo cadastrado na base de dados!');
+      const targetId = editId || `psi-${Date.now()}`;
+      const psychPayload = {
+        id: targetId,
+        name,
+        crp,
+        specialty,
+        online: editId
+          ? Boolean(appState.psychologists.find(p => p.id === editId)?.online)
+          : true
+      };
+
+      // Atualiza imediatamente em memória e na interface
+      if (editId) {
+        const idx = appState.psychologists.findIndex(p => p.id === editId);
+        if (idx !== -1) {
+          appState.psychologists[idx] = { ...appState.psychologists[idx], ...psychPayload };
+        }
+      } else {
+        appState.psychologists.push(psychPayload);
+        if (!appState.selectedPsychologistId) {
+          appState.selectedPsychologistId = targetId;
         }
       }
+      appState.psychologists.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      renderAll();
       resetPsychologistForm();
+
+      // Persiste na base de dados na nuvem quando conectada
+      if (appState.dbReady && appState.user && appState.db) {
+        try {
+          const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
+          if (editId) {
+            await updateDoc(doc(psychCol, editId), { name, crp, specialty });
+            showToast('Dados do psicólogo atualizados na base de dados!');
+          } else {
+            await setDoc(doc(psychCol, targetId), psychPayload);
+            showToast('Psicólogo cadastrado e salvo na base de dados!');
+          }
+        } catch (err) {
+          console.error('Erro ao salvar psicólogo:', err);
+          showToast('Salvo na tela, mas houve falha ao sincronizar com a nuvem.');
+        }
+      } else {
+        showToast(editId ? 'Dados do psicólogo atualizados!' : 'Psicólogo cadastrado!');
+      }
     };
 
     window.editPsychologist = function(id) {
@@ -1146,15 +1173,36 @@
 
     window.togglePsychologistStatusAdmin = async function(id) {
       const psych = appState.psychologists.find(p => p.id === id);
-      if (!psych || !appState.dbReady || !appState.user) return;
-      const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', id);
-      await updateDoc(ref, { online: !psych.online });
+      if (!psych) return;
+      const nextStatus = !psych.online;
+      psych.online = nextStatus;
+      renderAll();
+
+      if (appState.dbReady && appState.user && appState.db) {
+        try {
+          const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', id);
+          await updateDoc(ref, { online: nextStatus });
+        } catch (err) {
+          console.error('Erro ao atualizar status:', err);
+        }
+      }
     };
 
     window.deletePsychologistAdmin = async function(id) {
-      if (!appState.dbReady || !appState.user) return;
-      const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', id);
-      await deleteDoc(ref);
+      appState.psychologists = appState.psychologists.filter(p => p.id !== id);
+      if (appState.selectedPsychologistId === id) {
+        appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
+      }
+      renderAll();
+
+      if (appState.dbReady && appState.user && appState.db) {
+        try {
+          const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', id);
+          await deleteDoc(ref);
+        } catch (err) {
+          console.error('Erro ao remover psicólogo:', err);
+        }
+      }
       showToast('Cadastro removido.');
     };
 
