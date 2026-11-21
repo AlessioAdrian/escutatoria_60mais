@@ -73,53 +73,53 @@
   <!-- Barra de Notificação Flutuante (Substitui alert/confirm) -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none"></div>
 
-  <!-- Cabeçalho Institucional & Alternador de Perfis (Demonstração Completa) -->
-  <header class="bg-white border-b-2 border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+  <!-- Cabeçalho Institucional & Alternador de Perfis (Sem sobrepor tela no celular) -->
+  <header id="main-app-header" class="bg-white border-b-2 border-slate-200 relative lg:sticky lg:top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 sm:gap-4">
         
         <!-- Identidade Visual -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-md shrink-0">
-              <i data-lucide="heart-handshake" class="w-7 h-7"></i>
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-md shrink-0">
+              <i data-lucide="heart-handshake" class="w-5 h-5 sm:w-7 sm:h-7"></i>
             </div>
             <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight text-slate-900">
                   Escutatória <span class="text-teal-700">60+</span>
                 </h1>
-                <span class="text-xs font-bold uppercase tracking-wider bg-teal-100 text-teal-900 px-2.5 py-0.5 rounded-full">
+                <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-teal-100 text-teal-900 px-2 py-0.5 rounded-full">
                   Acolhimento Online
                 </span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-600 font-medium">
+              <p class="hidden sm:block text-xs sm:text-sm text-slate-600 font-medium">
                 Escuta ativa, empática e gratuita para pessoas com 60 anos ou mais
               </p>
             </div>
           </div>
 
           <!-- Botão Resetar Demonstração (Mobile) -->
-          <button onclick="requestResetDemo()" title="Restaurar dados iniciais de demonstração" class="lg:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-rose-700 bg-slate-100 hover:bg-rose-50 px-3 py-2 rounded-xl border border-slate-200 transition">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <button onclick="requestResetDemo()" title="Restaurar dados iniciais de demonstração" class="lg:hidden inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-rose-700 bg-slate-100 hover:bg-rose-50 px-2.5 py-1.5 rounded-xl border border-slate-200 transition shrink-0">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
             <span>Resetar</span>
           </button>
         </div>
 
-        <!-- Navegação entre as 3 Visões do Sistema -->
-        <div class="flex flex-wrap items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-          <button id="tab-idoso" onclick="switchView('idoso')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all shadow-sm bg-teal-700 text-white">
-            <i data-lucide="smile" class="w-5 h-5"></i>
-            <span>1. Visão do Idoso</span>
+        <!-- Navegação entre as 3 Visões do Sistema (Compacta no mobile) -->
+        <div class="grid grid-cols-3 lg:flex items-center gap-1.5 sm:gap-2 bg-slate-100 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-slate-200">
+          <button id="tab-idoso" onclick="switchView('idoso')" class="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-base font-bold transition-all shadow-sm bg-teal-700 text-white">
+            <i data-lucide="smile" class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></i>
+            <span class="truncate">Idoso</span>
           </button>
-          <button id="tab-psicologo" onclick="switchView('psicologo')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all text-slate-700 hover:bg-white">
-            <i data-lucide="video" class="w-5 h-5"></i>
-            <span>2. Psicólogo (Salas)</span>
-            <span id="badge-fila-count" class="ml-1 bg-amber-500 text-slate-950 text-xs font-extrabold px-2 py-0.5 rounded-full">2</span>
+          <button id="tab-psicologo" onclick="switchView('psicologo')" class="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-base font-bold transition-all text-slate-700 hover:bg-white">
+            <i data-lucide="video" class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></i>
+            <span class="truncate">Psicólogo</span>
+            <span id="badge-fila-count" class="bg-amber-500 text-slate-950 text-[11px] sm:text-xs font-extrabold px-1.5 py-0.5 rounded-full">2</span>
           </button>
-          <button id="tab-admin" onclick="switchView('admin')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all text-slate-700 hover:bg-white">
-            <i data-lucide="shield-check" class="w-5 h-5"></i>
-            <span>3. Admin</span>
+          <button id="tab-admin" onclick="switchView('admin')" class="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-base font-bold transition-all text-slate-700 hover:bg-white">
+            <i data-lucide="shield-check" class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></i>
+            <span class="truncate">Admin</span>
           </button>
           <button onclick="requestResetDemo()" title="Restaurar dados iniciais de demonstração" class="hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2.5 rounded-xl transition ml-1">
             <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
@@ -132,49 +132,91 @@
   </header>
 
   <!-- CONTEÚDO PRINCIPAL -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
 
     <!-- =====================================================================
          VISÃO 1: VISÃO DO IDOSO (ACESSÍVEL, ALTO CONTRASTE E ULTRA-SIMPLES)
          ===================================================================== -->
-    <section id="view-idoso" class="space-y-8">
+    <section id="view-idoso" class="space-y-6 sm:space-y-8">
       
-      <!-- Banner de Boas-Vindas Acolhedor -->
-      <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-teal-200 shadow-sm">
+      <!-- Banner de Boas-Vindas Acolhedor (Oculto durante videochamada no celular para dar tela cheia ao vídeo) -->
+      <div id="idoso-welcome-banner" class="bg-white rounded-3xl p-5 sm:p-8 border-2 border-teal-200 shadow-sm">
         <div class="max-w-3xl">
-          <span class="inline-flex items-center gap-2 bg-teal-50 text-teal-900 border border-teal-200 px-4 py-1.5 rounded-full text-base font-bold mb-4">
-            <i data-lucide="sparkles" class="w-5 h-5 text-teal-700"></i>
+          <span class="inline-flex items-center gap-2 bg-teal-50 text-teal-900 border border-teal-200 px-3.5 py-1 rounded-full text-sm sm:text-base font-bold mb-3 sm:mb-4">
+            <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5 text-teal-700"></i>
             Um espaço seguro para conversar e ser ouvido(a)
           </span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-3">
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-2.5 sm:mb-3">
             Olá! Como você está se sentindo hoje?
           </h2>
-          <p class="text-lg sm:text-xl text-slate-700 leading-relaxed mb-6">
+          <p class="text-base sm:text-xl text-slate-700 leading-relaxed mb-5 sm:mb-6">
             Nossos psicólogos voluntários estão prontos para ouvir suas histórias, aliviar a solidão ou simplesmente bater um bom papo com carinho e sem julgamentos.
           </p>
 
           <!-- Botões Principais Gigantes e Claros -->
-          <div class="flex flex-col sm:flex-row gap-4">
-            <button onclick="openInstantFirstAvailable()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white rounded-2xl p-5 sm:p-6 shadow-lg border-2 border-emerald-900 flex items-center justify-center gap-4 transition cursor-pointer">
-              <div class="bg-white/20 p-3 rounded-xl">
-                <i data-lucide="phone-call" class="w-8 h-8"></i>
+          <div class="flex flex-col sm:flex-row gap-3.5 sm:gap-4">
+            <button onclick="openInstantFirstAvailable()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white rounded-2xl p-4 sm:p-6 shadow-lg border-2 border-emerald-900 flex items-center justify-center gap-3.5 sm:gap-4 transition cursor-pointer">
+              <div class="bg-white/20 p-2.5 sm:p-3 rounded-xl shrink-0">
+                <i data-lucide="phone-call" class="w-7 h-7 sm:w-8 sm:h-8"></i>
               </div>
               <div class="text-left">
-                <span class="block text-xl sm:text-2xl font-extrabold tracking-tight">CONVERSAR AGORA</span>
-                <span id="idoso-online-counter" class="block text-base sm:text-lg text-emerald-100 font-medium">Entrar em 1 clique com psicólogo online</span>
+                <span class="block text-lg sm:text-2xl font-extrabold tracking-tight">CONVERSAR AGORA</span>
+                <span id="idoso-online-counter" class="block text-sm sm:text-lg text-emerald-100 font-medium">Entrar em 1 clique com psicólogo online</span>
               </div>
             </button>
 
-            <button onclick="scrollToIdosoSection('secao-agendar')" class="flex-1 bg-amber-100 hover:bg-amber-200 active:scale-[0.99] text-slate-950 rounded-2xl p-5 sm:p-6 shadow-sm border-2 border-amber-400 flex items-center justify-center gap-4 transition cursor-pointer">
-              <div class="bg-amber-500/20 p-3 rounded-xl text-amber-900">
-                <i data-lucide="calendar-heart" class="w-8 h-8"></i>
+            <button onclick="scrollToIdosoSection('secao-agendar')" class="flex-1 bg-amber-100 hover:bg-amber-200 active:scale-[0.99] text-slate-950 rounded-2xl p-4 sm:p-6 shadow-sm border-2 border-amber-400 flex items-center justify-center gap-3.5 sm:gap-4 transition cursor-pointer">
+              <div class="bg-amber-500/20 p-2.5 sm:p-3 rounded-xl text-amber-900 shrink-0">
+                <i data-lucide="calendar-heart" class="w-7 h-7 sm:w-8 sm:h-8"></i>
               </div>
               <div class="text-left">
-                <span class="block text-xl sm:text-2xl font-extrabold tracking-tight">AGENDAR CONVERSA</span>
-                <span class="block text-base sm:text-lg text-slate-800 font-medium">Escolher dia e horário</span>
+                <span class="block text-lg sm:text-2xl font-extrabold tracking-tight">AGENDAR CONVERSA</span>
+                <span class="block text-sm sm:text-lg text-slate-800 font-medium">Escolher dia e horário</span>
               </div>
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- SALA DE VIDEOCHAMADA REAL DO IDOSO (Modo focado e sem sobreposição no celular) -->
+      <div id="idoso-video-room" class="hidden bg-slate-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border-4 border-emerald-500 shadow-2xl space-y-3.5 sm:space-y-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3 sm:pb-4">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 bg-emerald-500 text-slate-950 px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-base font-extrabold">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-950 animate-ping"></span>
+              SALA DE VIDEOCHAMADA CONECTADA
+            </div>
+            <h3 id="idoso-room-title" class="text-xl sm:text-3xl font-extrabold text-white leading-snug">
+              Conversando com o(a) Psicólogo(a)
+            </h3>
+            <p id="idoso-room-subtitle" class="text-sm sm:text-lg text-teal-200">
+              Clique em "Permitir" se o navegador pedir acesso à câmera e ao microfone.
+            </p>
+          </div>
+
+          <button onclick="leaveSeniorVideoRoom()"
+            class="w-full md:w-auto bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-extrabold text-base sm:text-xl px-5 py-3.5 sm:py-4 rounded-2xl shadow-lg border-2 border-rose-400 flex items-center justify-center gap-2.5 shrink-0 transition">
+            <i data-lucide="phone-off" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+            <span>Encerrar Chamada / Sair</span>
+          </button>
+        </div>
+
+        <!-- Container Real do Iframe Jitsi Meet (Altura otimizada para tela do celular) -->
+        <div id="idoso-jitsi-container" class="w-full h-[62vh] min-h-[360px] sm:h-[540px] rounded-2xl overflow-hidden bg-slate-900 border-2 border-slate-700 relative">
+          <!-- Iframe inserido dinamicamente via JS -->
+        </div>
+
+        <!-- Aviso Amigável de Permissão de Câmera/Microfone (Abaixo do vídeo no celular para não empurrar a chamada para baixo) -->
+        <div class="bg-teal-900/70 border border-teal-500/50 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-teal-100">
+          <div class="flex items-start sm:items-center gap-2.5">
+            <i data-lucide="camera" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5 sm:mt-0"></i>
+            <p class="text-sm sm:text-base">
+              <strong>Dica:</strong> Se aparecer um aviso pedindo permissão para <strong>Câmera e Microfone</strong>, toque em <strong>Permitir</strong>.
+            </p>
+          </div>
+          <span id="idoso-room-code-badge" class="text-xs font-mono bg-slate-900 text-emerald-300 px-3 py-1 rounded-xl border border-slate-700 shrink-0 self-start sm:self-auto">
+            Sala: ---
+          </span>
         </div>
       </div>
 
@@ -1103,11 +1145,17 @@
 
       // Sala de Videochamada Real do Idoso
       const videoRoomEl = document.getElementById('idoso-video-room');
+      const welcomeBannerEl = document.getElementById('idoso-welcome-banner');
+      const mainHeaderEl = document.getElementById('main-app-header');
       const activeReq = appState.queue.find(q => q.id === appState.activeSeniorSessionId && q.status !== 'concluido');
 
       if (activeReq) {
         const psy = appState.psychologists.find(p => p.id === activeReq.psychologistId);
         videoRoomEl.classList.remove('hidden');
+        // No celular, oculta o cabeçalho e o banner de boas-vindas durante a chamada para o vídeo ocupar a tela limpa
+        if (welcomeBannerEl) welcomeBannerEl.classList.add('hidden', 'lg:block');
+        if (mainHeaderEl) mainHeaderEl.classList.add('hidden', 'lg:block');
+
         document.getElementById('idoso-room-title').textContent =
           `Olá, ${activeReq.seniorName}! Você está na sala com ${psy ? psy.name : 'o(a) psicólogo(a)'}`;
         document.getElementById('idoso-room-subtitle').textContent =
@@ -1118,6 +1166,8 @@
         mountJitsiIframe('idoso-jitsi-container', psy, activeReq.seniorName);
       } else {
         videoRoomEl.classList.add('hidden');
+        if (welcomeBannerEl) welcomeBannerEl.classList.remove('hidden', 'lg:block');
+        if (mainHeaderEl) mainHeaderEl.classList.remove('hidden', 'lg:block');
         clearJitsiIframe('idoso-jitsi-container');
       }
 
