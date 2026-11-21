@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escutatória 60+ — Acolhimento Online</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            },
+            warm: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    /* Animação suave de pulso para status Online Agora */
+    @keyframes pulseRing {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      70% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .pulse-dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background-color: #16a34a;
+      animation: pulseRing 1.8s infinite ease-out;
+    }
+    /* Foco visível de alto contraste para acessibilidade */
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid #0f766e;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-teal-200 selection:text-teal-950">
+
+  <!-- Barra de Notificação Flutuante (Substitui alert/confirm) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none"></div>
+
+  <!-- Cabeçalho Institucional & Alternador de Perfis (Demonstração Completa) -->
+  <header class="bg-white border-b-2 border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        
+        <!-- Identidade Visual -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-md shrink-0">
+              <i data-lucide="heart-handshake" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+                  Escutatória <span class="text-teal-700">60+</span>
+                </h1>
+                <span class="text-xs font-bold uppercase tracking-wider bg-teal-100 text-teal-900 px-2.5 py-0.5 rounded-full">
+                  Acolhimento Online
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 font-medium">
+                Escuta ativa, empática e gratuita para pessoas com 60 anos ou mais
+              </p>
+            </div>
+          </div>
+
+          <!-- Botão Resetar Demonstração (Mobile) -->
+          <button onclick="requestResetDemo()" title="Restaurar dados iniciais de demonstração" class="lg:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-rose-700 bg-slate-100 hover:bg-rose-50 px-3 py-2 rounded-xl border border-slate-200 transition">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>Resetar</span>
+          </button>
+        </div>
+
+        <!-- Navegação entre as 3 Visões do Sistema -->
+        <div class="flex flex-wrap items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+          <button id="tab-idoso" onclick="switchView('idoso')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all shadow-sm bg-teal-700 text-white">
+            <i data-lucide="smile" class="w-5 h-5"></i>
+            <span>1. Visão do Idoso</span>
+          </button>
+          <button id="tab-psicologo" onclick="switchView('psicologo')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all text-slate-700 hover:bg-white">
+            <i data-lucide="video" class="w-5 h-5"></i>
+            <span>2. Psicólogo (Salas)</span>
+            <span id="badge-fila-count" class="ml-1 bg-amber-500 text-slate-950 text-xs font-extrabold px-2 py-0.5 rounded-full">2</span>
+          </button>
+          <button id="tab-admin" onclick="switchView('admin')" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all text-slate-700 hover:bg-white">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+            <span>3. Admin</span>
+          </button>
+          <button onclick="requestResetDemo()" title="Restaurar dados iniciais de demonstração" class="hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2.5 rounded-xl transition ml-1">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>Resetar Demo</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- =====================================================================
+         VISÃO 1: VISÃO DO IDOSO (ACESSÍVEL, ALTO CONTRASTE E ULTRA-SIMPLES)
+         ===================================================================== -->
+    <section id="view-idoso" class="space-y-8">
+      
+      <!-- Banner de Boas-Vindas Acolhedor -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-teal-200 shadow-sm">
+        <div class="max-w-3xl">
+          <span class="inline-flex items-center gap-2 bg-teal-50 text-teal-900 border border-teal-200 px-4 py-1.5 rounded-full text-base font-bold mb-4">
+            <i data-lucide="sparkles" class="w-5 h-5 text-teal-700"></i>
+            Um espaço seguro para conversar e ser ouvido(a)
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-3">
+            Olá! Como você está se sentindo hoje?
+          </h2>
+          <p class="text-lg sm:text-xl text-slate-700 leading-relaxed mb-6">
+            Nossos psicólogos voluntários estão prontos para ouvir suas histórias, aliviar a solidão ou simplesmente bater um bom papo com carinho e sem julgamentos.
+          </p>
+
+          <!-- Botões Principais Gigantes e Claros -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button onclick="openInstantFirstAvailable()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white rounded-2xl p-5 sm:p-6 shadow-lg border-2 border-emerald-900 flex items-center justify-center gap-4 transition cursor-pointer">
+              <div class="bg-white/20 p-3 rounded-xl">
+                <i data-lucide="phone-call" class="w-8 h-8"></i>
+              </div>
+              <div class="text-left">
+                <span class="block text-xl sm:text-2xl font-extrabold tracking-tight">CONVERSAR AGORA</span>
+                <span id="idoso-online-counter" class="block text-base sm:text-lg text-emerald-100 font-medium">Entrar em 1 clique com psicólogo online</span>
+              </div>
+            </button>
+
+            <button onclick="scrollToIdosoSection('secao-agendar')" class="flex-1 bg-amber-100 hover:bg-amber-200 active:scale-[0.99] text-slate-950 rounded-2xl p-5 sm:p-6 shadow-sm border-2 border-amber-400 flex items-center justify-center gap-4 transition cursor-pointer">
+              <div class="bg-amber-500/20 p-3 rounded-xl text-amber-900">
+                <i data-lucide="calendar-heart" class="w-8 h-8"></i>
+              </div>
+              <div class="text-left">
+                <span class="block text-xl sm:text-2xl font-extrabold tracking-tight">AGENDAR CONVERSA</span>
+                <span class="block text-base sm:text-lg text-slate-800 font-medium">Escolher dia e horário</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SALA DE VIDEOCHAMADA REAL DO IDOSO (Aparece automaticamente ao conectar) -->
+      <div id="idoso-video-room" class="hidden bg-slate-950 text-white rounded-3xl p-4 sm:p-6 border-4 border-emerald-500 shadow-2xl space-y-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 bg-emerald-500 text-slate-950 px-3.5 py-1 rounded-full text-sm sm:text-base font-extrabold">
+              <span class="w-3 h-3 rounded-full bg-slate-950 animate-ping"></span>
+              SALA DE VIDEOCHAMADA CONECTADA
+            </div>
+            <h3 id="idoso-room-title" class="text-2xl sm:text-3xl font-extrabold text-white">
+              Conversando com o(a) Psicólogo(a)
+            </h3>
+            <p id="idoso-room-subtitle" class="text-base sm:text-lg text-teal-200">
+              Clique em "Permitir" se o navegador pedir acesso à câmera e ao microfone.
+            </p>
+          </div>
+
+          <button onclick="leaveSeniorVideoRoom()"
+            class="bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-extrabold text-xl px-6 py-4 rounded-2xl shadow-lg border-2 border-rose-400 flex items-center justify-center gap-3 shrink-0 transition">
+            <i data-lucide="phone-off" class="w-7 h-7"></i>
+            <span>Encerrar Chamada / Sair da Sala</span>
+          </button>
+        </div>
+
+        <!-- Aviso Amigável de Permissão de Câmera/Microfone e HTTPS -->
+        <div class="bg-teal-900/70 border border-teal-500/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-teal-100">
+          <div class="flex items-start sm:items-center gap-3">
+            <i data-lucide="camera" class="w-6 h-6 text-emerald-400 shrink-0 mt-0.5 sm:mt-0"></i>
+            <p class="text-base sm:text-lg">
+              <strong>Dica:</strong> Se aparecer um aviso no topo da tela pedindo permissão para <strong>Câmera e Microfone</strong>, clique em <strong>Permitir</strong>. (Funciona via HTTPS ou localhost).
+            </p>
+          </div>
+          <span id="idoso-room-code-badge" class="text-xs font-mono bg-slate-900 text-emerald-300 px-3 py-1.5 rounded-xl border border-slate-700 shrink-0">
+            Sala: ---
+          </span>
+        </div>
+
+        <!-- Container Real do Iframe Jitsi Meet (Visão do Idoso) -->
+        <div id="idoso-jitsi-container" class="w-full h-[460px] sm:h-[540px] rounded-2xl overflow-hidden bg-slate-900 border-2 border-slate-700 relative">
+          <!-- Iframe inserido dinamicamente via JS -->
+        </div>
+      </div>
+
+      <!-- Seção 1: Psicólogos Disponíveis Agora -->
+      <div id="secao-online" class="space-y-5 pt-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-slate-200 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="relative flex h-4 w-4 pulse-dot">
+              <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-600"></span>
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Psicólogos Disponíveis Agora
+            </h3>
+          </div>
+          <p class="text-lg text-slate-700 font-semibold">
+            Clique no botão verde para conversar na hora
+          </p>
+        </div>
+
+        <div id="idoso-online-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+
+      <!-- Seção 2: Todos os Psicólogos & Agendar Conversa -->
+      <div id="secao-agendar" class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-slate-300 shadow-sm space-y-6">
+        <div class="border-b-2 border-slate-100 pb-4">
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-3">
+            <i data-lucide="calendar-check" class="w-8 h-8 text-teal-700"></i>
+            Agendar uma Conversa com Calma
+          </h3>
+          <p class="text-lg sm:text-xl text-slate-700 mt-1">
+            Prefere escolher outro dia ou horário? Preencha os 4 passos simples abaixo:
+          </p>
+        </div>
+
+        <form id="form-agendar-idoso" onsubmit="handleSeniorSchedule(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="sched-nome" class="block text-xl font-bold text-slate-900 mb-2">
+              1. Qual é o seu primeiro nome?
+            </label>
+            <input type="text" id="sched-nome" required placeholder="Ex: Dona Maria ou Seu José"
+              class="w-full text-xl px-5 py-4 rounded-2xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-teal-700 text-slate-900 font-medium" />
+          </div>
+
+          <div>
+            <label for="sched-psicologo" class="block text-xl font-bold text-slate-900 mb-2">
+              2. Com quem você gostaria de conversar?
+            </label>
+            <select id="sched-psicologo" required
+              class="w-full text-xl px-5 py-4 rounded-2xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-teal-700 text-slate-900 font-medium">
+              <!-- Opções preenchidas via JS -->
+            </select>
+          </div>
+
+          <div>
+            <label for="sched-data" class="block text-xl font-bold text-slate-900 mb-2">
+              3. Escolha o dia da conversa:
+            </label>
+            <input type="date" id="sched-data" required
+              class="w-full text-xl px-5 py-4 rounded-2xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-teal-700 text-slate-900 font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-xl font-bold text-slate-900 mb-2">
+              4. Qual período você prefere?
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <label class="cursor-pointer">
+                <input type="radio" name="sched-turno" value="Manhã (09h às 12h)" class="peer sr-only" checked />
+                <div class="text-center py-4 px-2 rounded-2xl border-2 border-slate-300 bg-slate-50 peer-checked:bg-teal-700 peer-checked:text-white peer-checked:border-teal-900 font-bold text-lg sm:text-xl transition">
+                  ☀️ Manhã
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="sched-turno" value="Tarde (14h às 17h)" class="peer sr-only" />
+                <div class="text-center py-4 px-2 rounded-2xl border-2 border-slate-300 bg-slate-50 peer-checked:bg-teal-700 peer-checked:text-white peer-checked:border-teal-900 font-bold text-lg sm:text-xl transition">
+                  🌤️ Tarde
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="sched-turno" value="Noite (18h às 20h)" class="peer sr-only" />
+                <div class="text-center py-4 px-2 rounded-2xl border-2 border-slate-300 bg-slate-50 peer-checked:bg-teal-700 peer-checked:text-white peer-checked:border-teal-900 font-bold text-lg sm:text-xl transition">
+                  🌙 Noite
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 pt-2">
+            <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white text-xl sm:text-2xl font-extrabold py-5 px-8 rounded-2xl shadow-md border-2 border-teal-900 flex items-center justify-center gap-3 transition">
+              <i data-lucide="check-circle-2" class="w-7 h-7"></i>
+              <span>CONFIRMAR AGENDAMENTO DA CONVERSA</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Confirmação Visual Clara de Agendamentos do Idoso -->
+        <div id="idoso-agendamentos-box" class="hidden pt-4 border-t-2 border-slate-200 space-y-4">
+          <h4 class="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="bookmark-check" class="w-6 h-6 text-emerald-700"></i>
+            Suas Conversas Agendadas:
+          </h4>
+          <div id="idoso-agendamentos-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+
+      <!-- Lista Completa de Todos os Psicólogos da Rede -->
+      <div class="space-y-4">
+        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          Conheça Toda a Nossa Equipe de Acolhimento
+        </h3>
+        <div id="idoso-all-psychologists" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================================
+         VISÃO 2: VISÃO DO PSICÓLOGO (SALAS VIRTUAIS E FILA DE ATENDIMENTO)
+         ===================================================================== -->
+    <section id="view-psicologo" class="hidden space-y-6">
+      
+      <!-- Barra Superior do Psicólogo Logado -->
+      <div class="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <img id="psy-logged-avatar" src="" alt="Foto do Psicólogo" class="w-16 h-16 rounded-2xl object-cover border-2 border-teal-600 bg-slate-100" />
+          <div>
+            <label for="psy-profile-selector" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Simular Psicólogo(a) Conectado(a):
+            </label>
+            <select id="psy-profile-selector" onchange="changeLoggedPsychologist(this.value)"
+              class="text-lg sm:text-xl font-extrabold text-slate-900 bg-slate-100 border-2 border-slate-300 rounded-xl px-4 py-2 focus:border-teal-700">
+              <!-- Preenchido via JS -->
+            </select>
+            <p id="psy-logged-meta" class="text-sm text-slate-600 font-medium mt-1">CRP • Turno</p>
+          </div>
+        </div>
+
+        <!-- Botão Grande de Status Online / Offline + Entrar na Própria Sala -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <button id="psy-open-own-room-btn" onclick="openPsychologistOwnRoom()"
+            class="px-5 py-4 rounded-2xl font-extrabold text-base sm:text-lg flex items-center justify-center gap-2.5 shadow-md transition border-2 bg-teal-700 hover:bg-teal-800 text-white border-teal-900">
+            <i data-lucide="video" class="w-5 h-5"></i>
+            <span>Entrar na Minha Sala de Vídeo</span>
+          </button>
+
+          <button id="psy-toggle-status-btn" onclick="toggleLoggedPsychologistStatus()"
+            class="px-6 py-4 rounded-2xl font-extrabold text-base sm:text-lg flex items-center justify-center gap-3 shadow-md transition border-2">
+            <!-- Preenchido via JS -->
+          </button>
+        </div>
+      </div>
+
+      <!-- Painel Principal: Fila de Espera em Tempo Real + Agenda -->
+      <div id="psy-dashboard-area" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Coluna Esquerda (7 cols): Sala de Espera / Solicitações -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div>
+              <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                <i data-lucide="users" class="w-6 h-6 text-teal-700"></i>
+                Sala de Espera e Agendamentos
+              </h3>
+              <p class="text-sm text-slate-600">
+                Idosos aguardando acolhimento imediato ou com horário marcado
+              </p>
+            </div>
+            <span id="psy-queue-badge" class="bg-teal-100 text-teal-900 font-extrabold px-3 py-1 rounded-full text-sm">
+              0 aguardando
+            </span>
+          </div>
+
+          <div id="psy-queue-list" class="space-y-4">
+            <!-- Cards de solicitações renderizados via JS -->
+          </div>
+        </div>
+
+        <!-- Coluna Direita (5 cols): Guia Rápido de Escuta Ativa 60+ -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-teal-900 text-white rounded-3xl p-6 shadow-sm space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-teal-700 p-2.5 rounded-xl">
+                <i data-lucide="book-open-check" class="w-6 h-6 text-teal-200"></i>
+              </div>
+              <h3 class="text-lg font-extrabold">Boas Práticas na Escutatória 60+</h3>
+            </div>
+            <ul class="space-y-3 text-sm text-teal-100 leading-relaxed">
+              <li class="flex items-start gap-2.5">
+                <span class="text-emerald-400 font-bold">•</span>
+                <span><strong>Ritmo acolhedor:</strong> Fale de forma pausada, clara e com tom caloroso, respeitando o tempo de fala e memória do idoso.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-emerald-400 font-bold">•</span>
+                <span><strong>Validação emocional:</strong> Valorize sua trajetória de vida, histórias familiares e sentimentos sem pressa ou julgamentos.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-emerald-400 font-bold">•</span>
+                <span><strong>Atenção a sinais:</strong> Observe relatos de isolamento extremo, luto recente, dor física ou alterações de humor para orientar apoio complementar.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm">
+            <h4 class="font-extrabold text-slate-900 text-base mb-3 flex items-center gap-2">
+              <i data-lucide="history" class="w-5 h-5 text-teal-700"></i>
+              Resumo do Seu Turno Hoje
+            </h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <span class="block text-2xl font-extrabold text-teal-700" id="psy-stat-completed">0</span>
+                <span class="text-xs font-semibold text-slate-600">Acolhimentos concluídos</span>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <span class="block text-2xl font-extrabold text-amber-600" id="psy-stat-waiting">0</span>
+                <span class="text-xs font-semibold text-slate-600">Na fila / agendados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           SALA VIRTUAL INTEGRADA (VIDEOCHAMADA REAL JITSI MEET)
+           =================================================================== -->
+      <div id="virtual-room-container" class="hidden bg-slate-900 text-white rounded-3xl p-4 sm:p-6 shadow-2xl border-2 border-slate-700 space-y-5">
+        
+        <!-- Cabeçalho da Sala Virtual -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="inline-flex items-center gap-2 bg-rose-600 text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+              Sala Virtual Real Ativa
+            </span>
+            <h3 id="room-title" class="text-lg sm:text-xl font-extrabold text-white">
+              Atendimento em andamento
+            </h3>
+            <span id="room-jitsi-slug-badge" class="text-xs font-mono bg-slate-800 text-teal-300 px-3 py-1 rounded-lg border border-slate-700">
+              Sala: ---
+            </span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 text-sm font-mono bg-slate-800 px-4 py-2.5 rounded-xl border border-slate-700">
+              <span class="text-slate-400">Duração:</span>
+              <span id="room-timer" class="text-emerald-400 font-bold text-base">00:00</span>
+            </div>
+            <button onclick="endVirtualRoom()" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm sm:text-base flex items-center gap-2 shadow-lg transition">
+              <i data-lucide="phone-off" class="w-5 h-5"></i>
+              <span>Encerrar Chamada / Sair da Sala</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Aviso sobre HTTPS e permissões de navegador -->
+        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs sm:text-sm text-slate-300">
+          <div class="flex items-center gap-2">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-amber-400 shrink-0"></i>
+            <span>Permita o acesso à <strong>câmera e microfone</strong> no navegador. Requer execução em <strong>HTTPS</strong> ou <strong>localhost</strong>.</span>
+          </div>
+          <span id="room-senior-name" class="font-bold text-teal-300">Aguardando participante na sala...</span>
+        </div>
+
+        <!-- Grid da Sala: Videochamada Real Jitsi (8 cols) + Anotações Privadas (4 cols) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Container Real do Iframe Jitsi Meet (Psicólogo) -->
+          <div class="lg:col-span-8 flex flex-col bg-slate-950 rounded-2xl border-2 border-slate-800 overflow-hidden">
+            <div id="psy-jitsi-container" class="w-full h-[460px] sm:h-[520px] bg-slate-950">
+              <!-- Iframe inserido dinamicamente via JS -->
+            </div>
+          </div>
+
+          <!-- Painel Lateral: Informações do Idoso + Anotações Privadas (4 cols) -->
+          <div class="lg:col-span-4 flex flex-col gap-4">
+            
+            <!-- Card de Identificação Rápida -->
+            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-teal-700 text-white flex items-center justify-center font-extrabold text-lg shrink-0">
+                <span id="room-senior-initials">60+</span>
+              </div>
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-300">Participante / Sala</span>
+                <p id="room-senior-topic" class="text-sm font-bold text-white mt-0.5">Escuta Ativa 60+</p>
+              </div>
+            </div>
+
+            <!-- Anotações Privadas do Psicólogo -->
+            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 flex-1 flex flex-col">
+              <div class="flex items-center justify-between mb-2">
+                <label for="room-private-notes" class="text-sm font-extrabold uppercase tracking-wider text-amber-300 flex items-center gap-2">
+                  <i data-lucide="lock" class="w-4 h-4"></i>
+                  Anotações Privadas
+                </label>
+                <span class="text-xs text-slate-400">Salvo automaticamente</span>
+              </div>
+              <textarea id="room-private-notes" rows="12" placeholder="Registre observações sobre o acolhimento, estado emocional do idoso, temas conversados ou necessidade de acompanhamento..."
+                class="w-full flex-1 bg-slate-900 border border-slate-600 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-400 focus:border-amber-400 leading-relaxed"></textarea>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================================
+         VISÃO 3: PAINEL ADMIN (PROTEGIDO POR SENHA + CADASTRO E GESTÃO)
+         ===================================================================== -->
+    <section id="view-admin" class="hidden space-y-6">
+
+      <!-- Tela de Bloqueio por Senha do Admin -->
+      <div id="admin-lock-screen" class="max-w-md mx-auto my-8 bg-white rounded-3xl p-8 border-2 border-slate-300 shadow-lg space-y-6">
+        <div class="text-center space-y-2">
+          <div class="w-16 h-16 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="lock-keyhole" class="w-8 h-8"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-slate-900">Acesso Restrito — Admin</h2>
+          <p class="text-sm text-slate-600">
+            Digite a senha administrativa para gerenciar o cadastro de psicólogos e salas virtuais.
+          </p>
+        </div>
+
+        <form onsubmit="handleAdminUnlock(event)" class="space-y-4">
+          <div>
+            <label for="admin-login-password" class="block text-sm font-bold text-slate-800 mb-1.5">
+              Senha do Administrador
+            </label>
+            <input type="password" id="admin-login-password" required placeholder="Digite a senha..."
+              class="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-bold text-lg" />
+            <p id="admin-login-error" class="hidden text-sm font-bold text-rose-600 mt-2 flex items-center gap-1.5">
+              <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+              <span>Senha incorreta. Tente novamente.</span>
+            </p>
+          </div>
+
+          <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-base">
+            <i data-lucide="unlock" class="w-5 h-5"></i>
+            <span>Entrar no Painel Admin</span>
+          </button>
+        </form>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500">
+            Senha padrão inicial para testes: <code class="font-mono font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">admin123</code>
+          </p>
+        </div>
+      </div>
+
+      <!-- Conteúdo Desbloqueado do Admin -->
+      <div id="admin-unlocked-content" class="hidden space-y-6">
+        
+        <!-- Barra Superior do Admin Desbloqueado -->
+        <div class="bg-white rounded-2xl px-6 py-4 border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 text-teal-900 font-extrabold">
+            <i data-lucide="shield-check" class="w-6 h-6 text-teal-700"></i>
+            <span>Sessão Administrativa Ativa</span>
+          </div>
+          <button onclick="lockAdminPanel()" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-bold text-sm border border-slate-300 transition">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span>Bloquear / Sair do Admin</span>
+          </button>
+        </div>
+
+        <!-- Indicadores Rápidos no Topo -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div class="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0">
+              <i data-lucide="users-round" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Total de Psicólogos</span>
+              <p id="admin-kpi-total" class="text-3xl font-extrabold text-slate-900">4</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl p-6 border-2 border-emerald-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+              <i data-lucide="wifi" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Online Agora</span>
+              <p id="admin-kpi-online" class="text-3xl font-extrabold text-emerald-700">2</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl p-6 border-2 border-amber-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+              <i data-lucide="heart-handshake" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Atendimentos Hoje</span>
+              <p id="admin-kpi-completed" class="text-3xl font-extrabold text-amber-700">7</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid: Formulário de Cadastro/Edição + Alterar Senha + Tabela de Gestão -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Coluna Esquerda (4 cols): Cadastro de Psicólogo + Alterar Senha -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                <h3 id="admin-form-title" class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="user-plus" class="w-6 h-6 text-teal-700"></i>
+                  Cadastrar Psicólogo(a)
+                </h3>
+                <button id="admin-cancel-edit-btn" onclick="resetAdminForm()" class="hidden text-xs font-bold text-slate-500 hover:text-slate-800 underline">
+                  Cancelar edição
+                </button>
+              </div>
+
+              <form id="form-admin-psy" onsubmit="handleAdminSavePsychologist(event)" class="space-y-4">
+                <input type="hidden" id="admin-psy-id" value="" />
+
+                <div>
+                  <label for="admin-psy-name" class="block text-sm font-bold text-slate-800 mb-1">
+                    Nome Completo *
+                  </label>
+                  <input type="text" id="admin-psy-name" required placeholder="Ex: Dra. Helena Vasconcelos"
+                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-medium" />
+                </div>
+
+                <div>
+                  <label for="admin-psy-crp" class="block text-sm font-bold text-slate-800 mb-1">
+                    Registro CRP *
+                  </label>
+                  <input type="text" id="admin-psy-crp" required placeholder="Ex: CRP 06/148920"
+                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-medium" />
+                </div>
+
+                <div>
+                  <label for="admin-psy-specialty" class="block text-sm font-bold text-slate-800 mb-1">
+                    Foco de Acolhimento (Linguagem Simples) *
+                  </label>
+                  <textarea id="admin-psy-specialty" rows="2" required placeholder="Ex: Especialista em ouvir histórias de vida, aliviar a solidão e ansiedade"
+                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-medium"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label for="admin-psy-shift" class="block text-sm font-bold text-slate-800 mb-1">
+                      Turno Preferencial
+                    </label>
+                    <select id="admin-psy-shift"
+                      class="w-full px-3 py-3 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-medium bg-white">
+                      <option value="Manhã">Manhã</option>
+                      <option value="Tarde">Tarde</option>
+                      <option value="Noite">Noite</option>
+                      <option value="Integral">Integral</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="admin-psy-online" class="block text-sm font-bold text-slate-800 mb-1">
+                      Status Inicial
+                    </label>
+                    <select id="admin-psy-online"
+                      class="w-full px-3 py-3 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-medium bg-white">
+                      <option value="true">Online Agora</option>
+                      <option value="false">Offline</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" id="admin-submit-btn" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-extrabold py-3.5 px-5 rounded-xl shadow-md transition flex items-center justify-center gap-2 mt-2">
+                  <i data-lucide="save" class="w-5 h-5"></i>
+                  <span>Salvar Cadastro</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Card de Alteração da Senha do Admin -->
+            <div class="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm">
+              <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-3">
+                <i data-lucide="key-round" class="w-5 h-5 text-amber-600"></i>
+                Alterar Senha do Admin
+              </h3>
+              <form onsubmit="handleAdminChangePassword(event)" class="space-y-3">
+                <div>
+                  <label for="admin-new-password" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                    Nova Senha (mínimo 4 caracteres)
+                  </label>
+                  <input type="password" id="admin-new-password" minlength="4" required placeholder="Digite a nova senha..."
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-teal-700 text-slate-900 font-medium" />
+                </div>
+                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm">
+                  Atualizar Senha do Painel
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Tabela/Lista de Gestão dos Psicólogos (8 cols) -->
+          <div class="lg:col-span-8 bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="text-xl font-extrabold text-slate-900">
+                  Psicólogos Cadastrados na Plataforma
+                </h3>
+                <p class="text-sm text-slate-600">
+                  Cada profissional recebe automaticamente uma sala virtual Jitsi exclusiva
+                </p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b-2 border-slate-200 text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                    <th class="py-3 px-3">Profissional / Sala</th>
+                    <th class="py-3 px-3">Foco de Acolhimento</th>
+                    <th class="py-3 px-3">Turno</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-psy-table-body" class="divide-y divide-slate-200 text-sm">
+                  <!-- Linhas geradas via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL ULTRA-SIMPLES PARA O IDOSO ENTRAR NA SALA COM 1 CLIQUE (SÓ PEDE O PRIMEIRO NOME) -->
+  <div id="modal-quick-connect" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border-4 border-teal-600 shadow-2xl space-y-6">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <img id="modal-psy-avatar" src="" alt="Psicólogo" class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-600" />
+          <div>
+            <span class="inline-flex items-center gap-1.5 text-sm font-extrabold text-emerald-700 bg-emerald-50 px-3 py-0.5 rounded-full">
+              ● DISPONÍVEL AGORA
+            </span>
+            <h3 id="modal-psy-name" class="text-2xl font-extrabold text-slate-900 mt-1">
+              Dra. Clara Mendes
+            </h3>
+          </div>
+        </div>
+        <button onclick="closeQuickConnectModal()" aria-label="Fechar janela" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700">
+          <i data-lucide="x" class="w-7 h-7"></i>
+        </button>
+      </div>
+
+      <form onsubmit="confirmQuickConnect(event)" class="space-y-5">
+        <input type="hidden" id="modal-psy-id" />
+        <div>
+          <label for="modal-senior-name" class="block text-xl sm:text-2xl font-extrabold text-slate-900 mb-2">
+            Como podemos chamar você?
+          </label>
+          <p class="text-base sm:text-lg text-slate-600 mb-3">
+            Digite apenas o seu primeiro nome para entrar na sala de conversa:
+          </p>
+          <input type="text" id="modal-senior-name" required placeholder="Ex: Dona Ana, Seu Antônio..."
+            class="w-full text-2xl px-5 py-4 rounded-2xl border-2 border-teal-600 bg-teal-50/40 focus:bg-white text-slate-900 font-bold" />
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button type="submit" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xl font-extrabold py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition">
+            <i data-lucide="video" class="w-6 h-6"></i>
+            <span>ENTRAR NA SALA AGORA</span>
+          </button>
+          <button type="button" onclick="closeQuickConnectModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-lg font-bold py-4 px-5 rounded-2xl transition">
+            Voltar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMAÇÃO DE RESET (SUBSTITUI confirm()) -->
+  <div id="modal-reset-confirm" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border-2 border-slate-300 shadow-2xl space-y-5">
+      <div class="flex items-center gap-3 text-rose-700">
+        <div class="p-3 bg-rose-100 rounded-2xl">
+          <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl font-extrabold text-slate-900">Restaurar Demonstração?</h3>
+      </div>
+      <p class="text-base text-slate-700">
+        Isso irá restaurar os 4 psicólogos iniciais e os 2 atendimentos de exemplo na fila. Deseja continuar?
+      </p>
+      <div class="flex gap-3 justify-end">
+        <button onclick="closeResetModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold">
+          Cancelar
+        </button>
+        <button onclick="executeResetDemo()" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold">
+          Sim, Restaurar Dados
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
+      <div class="flex items-center gap-2 font-semibold text-slate-800">
+        <i data-lucide="heart-handshake" class="w-5 h-5 text-teal-700"></i>
+        <span>Escutatória 60+ — Acolhimento Online e Escuta Ativa</span>
+      </div>
+      <p class="text-center sm:text-right">
+        Combate à solidão, valorização da memória e bem-estar emocional na terceira idade.
+      </p>
+    </div>
+  </footer>
+
+  <!-- LÓGICA COMPLETA DA APLICAÇÃO -->
+  <script>
+    const STORAGE_KEY = 'escutatoria_60_mais_state_v2';
+    const ADMIN_SESSION_KEY = 'escutatoria_60_mais_admin_unlocked';
+
+    // Dados iniciais pré-populados para demonstração imediata
+    function getInitialSeedState() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      return {
+        currentView: 'idoso',
+        adminPassword: 'admin123',
+        loggedPsychologistId: 'psy-1',
+        completedTodayCount: 7,
+        activeSeniorSessionId: null,
+        activeRoomId: null,
+        psychologists: [
+          {
+            id: 'psy-1',
+            name: 'Dra. Clara Mendes',
+            crp: 'CRP 06/112845',
+            specialty: 'Especialista em ouvir histórias de vida, aliviar a solidão e ansiedade',
+            shift: 'Manhã',
+            online: true,
+            avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80'
+          },
+          {
+            id: 'psy-2',
+            name: 'Dr. Roberto Almeida',
+            crp: 'CRP 06/98412',
+            specialty: 'Acolhimento afetuoso para luto, mudanças na aposentadoria e autoestima',
+            shift: 'Tarde',
+            online: true,
+            avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=256&q=80'
+          },
+          {
+            id: 'psy-3',
+            name: 'Dra. Beatriz Nogueira',
+            crp: 'CRP 05/44910',
+            specialty: 'Conversas calmas sobre família, memória afetiva e bem-estar diário',
+            shift: 'Manhã',
+            online: false,
+            avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=256&q=80'
+          },
+          {
+            id: 'psy-4',
+            name: 'Dr. Paulo Henrique Costa',
+            crp: 'CRP 04/31908',
+            specialty: 'Escuta ativa sem pressa para momentos de tristeza ou saudade',
+            shift: 'Noite',
+            online: false,
+            avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=256&q=80'
+          }
+        ],
+        queue: [
+          {
+            id: 'req-101',
+            seniorName: 'Dona Lourdes (74 anos)',
+            psychologistId: 'psy-1',
+            type: 'imediato',
+            date: todayStr,
+            shift: 'Agora',
+            status: 'aguardando',
+            createdAt: 'Há 2 min',
+            notes: ''
+          },
+          {
+            id: 'req-102',
+            seniorName: 'Seu Geraldo (68 anos)',
+            psychologistId: 'psy-2',
+            type: 'agendado',
+            date: todayStr,
+            shift: 'Tarde (14h às 17h)',
+            status: 'agendado',
+            createdAt: 'Agendado hoje',
+            notes: ''
+          }
+        ]
+      };
+    }
+
+    let appState = loadState();
+    let isAdminUnlocked = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+    let roomTimerInterval = null;
+    let roomSeconds = 0;
+
+    // Rastreia qual sala Jitsi já está montada em cada container para não recarregar o iframe desnecessariamente
+    let mountedSeniorRoomKey = '';
+    let mountedPsyRoomKey = '';
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (!parsed.adminPassword) parsed.adminPassword = 'admin123';
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Erro ao ler localStorage:', e);
+      }
+      const initial = getInitialSeedState();
+      saveState(initial);
+      return initial;
+    }
+
+    function saveState(stateToSave = appState) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      } catch (e) {
+        console.error('Erro ao salvar no localStorage:', e);
+      }
+    }
+
+    // Sincronização automática entre abas abertas no mesmo navegador
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        try {
+          appState = JSON.parse(event.newValue);
+          renderAll();
+        } catch (e) {
+          console.error('Erro ao sincronizar abas:', e);
+        }
+      }
+    });
+
+    // Gera o nome único da sala Jitsi para cada psicólogo baseado no ID e CRP
+    function getPsychologistRoomSlug(psy) {
+      if (!psy) return 'Escutatoria60Mais_Sala_Geral';
+      const cleanId = String(psy.id || '').replace(/[^a-zA-Z0-9]/g, '');
+      const cleanCrp = String(psy.crp || '').replace(/[^a-zA-Z0-9]/g, '');
+      return `Escutatoria60Mais_Sala_${cleanId}_${cleanCrp || 'Atendimento'}`;
+    }
+
+    // Monta o iframe real do Jitsi Meet no container desejado
+    function mountJitsiIframe(containerId, psy, displayName) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const roomSlug = getPsychologistRoomSlug(psy);
+      const roomKey = `${roomSlug}::${displayName}`;
+
+      // Evita recarregar o iframe se a mesma sala já estiver ativa
+      if (containerId === 'idoso-jitsi-container' && mountedSeniorRoomKey === roomKey && container.querySelector('iframe')) {
+        return;
+      }
+      if (containerId === 'psy-jitsi-container' && mountedPsyRoomKey === roomKey && container.querySelector('iframe')) {
+        return;
+      }
+
+      const configParams = [
+        'config.prejoinPageEnabled=false',
+        'config.startWithAudioMuted=false',
+        'config.startWithVideoMuted=false',
+        'config.disableDeepLinking=true',
+        'interfaceConfig.SHOW_JITSI_WATERMARK=false',
+        'interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false',
+        `userInfo.displayName="${encodeURIComponent(displayName)}"`
+      ].join('&');
+
+      const jitsiUrl = `https://meet.jit.si/${roomSlug}#${configParams}`;
+
+      container.innerHTML = `
+        <iframe
+          src="${jitsiUrl}"
+          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
+          class="w-full h-full border-0"
+          title="Sala de Videochamada Escutatória 60+">
+        </iframe>
+      `;
+
+      if (containerId === 'idoso-jitsi-container') mountedSeniorRoomKey = roomKey;
+      if (containerId === 'psy-jitsi-container') mountedPsyRoomKey = roomKey;
+    }
+
+    function clearJitsiIframe(containerId) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = '';
+      }
+      if (containerId === 'idoso-jitsi-container') mountedSeniorRoomKey = '';
+      if (containerId === 'psy-jitsi-container') mountedPsyRoomKey = '';
+    }
+
+    // Sistema de Notificações Toast (Sem alert())
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-emerald-900 text-white border-emerald-400',
+        info: 'bg-teal-900 text-white border-teal-400',
+        warning: 'bg-amber-600 text-slate-950 border-amber-300',
+        error: 'bg-rose-800 text-white border-rose-400'
+      };
+      const iconName = type === 'success' ? 'check-circle-2' : type === 'warning' ? 'alert-circle' : 'info';
+
+      toast.className = `pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl border-2 shadow-xl font-bold text-base transition-all transform translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+      toast.innerHTML = `
+        <i data-lucide="${iconName}" class="w-6 h-6 shrink-0"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4200);
+    }
+
+    // Alternar entre as 3 abas principais
+    function switchView(viewName) {
+      appState.currentView = viewName;
+      saveState();
+
+      ['idoso', 'psicologo', 'admin'].forEach(v => {
+        const section = document.getElementById(`view-${v}`);
+        const tab = document.getElementById(`tab-${v}`);
+        if (v === viewName) {
+          section.classList.remove('hidden');
+          tab.classList.add('bg-teal-700', 'text-white', 'shadow-sm');
+          tab.classList.remove('text-slate-700', 'hover:bg-white');
+        } else {
+          section.classList.add('hidden');
+          tab.classList.remove('bg-teal-700', 'text-white', 'shadow-sm');
+          tab.classList.add('text-slate-700', 'hover:bg-white');
+        }
+      });
+
+      renderAll();
+    }
+
+    function scrollToIdosoSection(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // =========================================================================
+    // RENDERIZAÇÃO GERAL
+    // =========================================================================
+    function renderAll() {
+      updateHeaderBadges();
+      renderSeniorView();
+      renderPsychologistView();
+      renderAdminView();
+      lucide.createIcons();
+    }
+
+    function updateHeaderBadges() {
+      const waitingCount = appState.queue.filter(q => q.status !== 'concluido').length;
+      const badge = document.getElementById('badge-fila-count');
+      badge.textContent = waitingCount;
+    }
+
+    // =========================================================================
+    // 1. LÓGICA E RENDERIZAÇÃO DA VISÃO DO IDOSO
+    // =========================================================================
+    function renderSeniorView() {
+      const onlinePsys = appState.psychologists.filter(p => p.online);
+      const counterEl = document.getElementById('idoso-online-counter');
+      counterEl.textContent = onlinePsys.length === 1
+        ? '1 psicólogo(a) online agora — Clique aqui'
+        : `${onlinePsys.length} psicólogos online agora — Clique aqui`;
+
+      // Sala de Videochamada Real do Idoso
+      const videoRoomEl = document.getElementById('idoso-video-room');
+      const activeReq = appState.queue.find(q => q.id === appState.activeSeniorSessionId && q.status !== 'concluido');
+
+      if (activeReq) {
+        const psy = appState.psychologists.find(p => p.id === activeReq.psychologistId);
+        videoRoomEl.classList.remove('hidden');
+        document.getElementById('idoso-room-title').textContent =
+          `Olá, ${activeReq.seniorName}! Você está na sala com ${psy ? psy.name : 'o(a) psicólogo(a)'}`;
+        document.getElementById('idoso-room-subtitle').textContent =
+          `Aguarde alguns segundos se o(a) profissional estiver entrando na sala.`;
+        document.getElementById('idoso-room-code-badge').textContent =
+          `Sala: ${getPsychologistRoomSlug(psy)}`;
+
+        mountJitsiIframe('idoso-jitsi-container', psy, activeReq.seniorName);
+      } else {
+        videoRoomEl.classList.add('hidden');
+        clearJitsiIframe('idoso-jitsi-container');
+      }
+
+      // Lista de Psicólogos Online Agora
+      const onlineListEl = document.getElementById('idoso-online-list');
+      if (onlinePsys.length === 0) {
+        onlineListEl.innerHTML = `
+          <div class="md:col-span-2 bg-amber-50 border-2 border-amber-300 rounded-3xl p-8 text-center space-y-3">
+            <p class="text-2xl font-extrabold text-slate-900">
+              No momento nossos psicólogos estão em atendimento.
+            </p>
+            <p class="text-lg text-slate-700">
+              Você pode agendar uma conversa logo abaixo para hoje mesmo ou ativar um psicólogo na aba "Admin" para testar.
+            </p>
+          </div>
+        `;
+      } else {
+        onlineListEl.innerHTML = onlinePsys.map(psy => `
+          <div class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-emerald-500 shadow-md flex flex-col justify-between gap-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+              <img src="${psy.avatar}" onerror="this.src='https://placehold.co/160x160/0f766e/ffffff?text=Psi'" alt="${psy.name}"
+                class="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-600 shrink-0 bg-slate-100" />
+              <div class="space-y-2">
+                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-950 border border-emerald-400 px-3.5 py-1 rounded-full text-sm sm:text-base font-extrabold">
+                  <span class="w-3 h-3 rounded-full bg-emerald-600 animate-pulse"></span>
+                  DISPONÍVEL AGORA
+                </span>
+                <h4 class="text-2xl font-extrabold text-slate-900">${psy.name}</h4>
+                <p class="text-lg text-slate-700 leading-snug font-medium">${psy.specialty}</p>
+              </div>
+            </div>
+
+            <button onclick="openQuickConnectModal('${psy.id}')"
+              class="w-full bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white text-xl font-extrabold py-4 px-6 rounded-2xl shadow-md border-2 border-emerald-900 flex items-center justify-center gap-3 transition">
+              <i data-lucide="video" class="w-7 h-7"></i>
+              <span>CONVERSAR AGORA COM ${psy.name.split(' ')[0].toUpperCase()} ${psy.name.split(' ')[1] ? psy.name.split(' ')[1].toUpperCase() : ''}</span>
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // Preencher Select de Agendamento
+      const selectPsy = document.getElementById('sched-psicologo');
+      const currentVal = selectPsy.value;
+      selectPsy.innerHTML = appState.psychologists.map(p =>
+        `<option value="${p.id}">${p.name} (${p.online ? 'Online Agora' : 'Turno: ' + p.shift})</option>`
+      ).join('');
+      if (currentVal && appState.psychologists.some(p => p.id === currentVal)) {
+        selectPsy.value = currentVal;
+      }
+
+      // Data padrão hoje no input de data
+      const dateInput = document.getElementById('sched-data');
+      if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+
+      // Lista de Agendamentos do Idoso
+      const scheduledList = appState.queue.filter(q => q.type === 'agendado' && q.status !== 'concluido');
+      const agendamentosBox = document.getElementById('idoso-agendamentos-box');
+      const agendamentosListEl = document.getElementById('idoso-agendamentos-list');
+      if (scheduledList.length > 0) {
+        agendamentosBox.classList.remove('hidden');
+        agendamentosListEl.innerHTML = scheduledList.map(item => {
+          const psy = appState.psychologists.find(p => p.id === item.psychologistId);
+          return `
+            <div class="bg-amber-50 border-2 border-amber-400 rounded-2xl p-5 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <span class="inline-block bg-amber-200 text-amber-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase">
+                  HORÁRIO AGENDADO
+                </span>
+                <p class="text-xl font-extrabold text-slate-900">${item.seniorName}</p>
+                <p class="text-base font-semibold text-slate-800">Com: ${psy ? psy.name : 'Psicólogo(a)'}</p>
+                <p class="text-base text-slate-700">📅 ${formatDateBR(item.date)} • ⏰ ${item.shift}</p>
+              </div>
+              <i data-lucide="calendar-check-2" class="w-10 h-10 text-amber-700 shrink-0"></i>
+            </div>
+          `;
+        }).join('');
+      } else {
+        agendamentosBox.classList.add('hidden');
+      }
+
+      // Lista Completa de Todos os Psicólogos
+      const allPsysEl = document.getElementById('idoso-all-psychologists');
+      allPsysEl.innerHTML = appState.psychologists.map(psy => `
+        <div class="bg-white rounded-3xl p-6 border-2 ${psy.online ? 'border-emerald-300' : 'border-slate-200'} shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <img src="${psy.avatar}" onerror="this.src='https://placehold.co/160x160/0f766e/ffffff?text=Psi'" alt="${psy.name}"
+            class="w-20 h-20 rounded-2xl object-cover border border-slate-300 shrink-0" />
+          <div class="space-y-1.5 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              ${psy.online
+                ? `<span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-900 px-3 py-0.5 rounded-full text-sm font-extrabold">● DISPONÍVEL AGORA</span>`
+                : `<span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-0.5 rounded-full text-sm font-bold">Atende no turno: ${psy.shift}</span>`
+              }
+            </div>
+            <h4 class="text-xl font-extrabold text-slate-900">${psy.name}</h4>
+            <p class="text-base sm:text-lg text-slate-700">${psy.specialty}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Clique direto no botão principal "CONVERSAR AGORA"
+    function openInstantFirstAvailable() {
+      const onlinePsys = appState.psychologists.filter(p => p.online);
+      if (onlinePsys.length === 0) {
+        showToast('Nenhum psicólogo online no momento. Você pode agendar abaixo ou ativar um psicólogo no Admin.', 'warning');
+        scrollToIdosoSection('secao-agendar');
+        return;
+      }
+      openQuickConnectModal(onlinePsys[0].id);
+    }
+
+    function openQuickConnectModal(psyId) {
+      const psy = appState.psychologists.find(p => p.id === psyId);
+      if (!psy) return;
+      document.getElementById('modal-psy-id').value = psy.id;
+      document.getElementById('modal-psy-name').textContent = psy.name;
+      document.getElementById('modal-psy-avatar').src = psy.avatar;
+      document.getElementById('modal-senior-name').value = '';
+      document.getElementById('modal-quick-connect').classList.remove('hidden');
+      lucide.createIcons();
+      setTimeout(() => document.getElementById('modal-senior-name').focus(), 100);
+    }
+
+    function closeQuickConnectModal() {
+      document.getElementById('modal-quick-connect').classList.add('hidden');
+    }
+
+    function confirmQuickConnect(event) {
+      event.preventDefault();
+      const psyId = document.getElementById('modal-psy-id').value;
+      const seniorName = document.getElementById('modal-senior-name').value.trim();
+      if (!seniorName) return;
+
+      const psy = appState.psychologists.find(p => p.id === psyId);
+      const newReq = {
+        id: 'req-' + Date.now(),
+        seniorName: seniorName,
+        psychologistId: psyId,
+        type: 'imediato',
+        date: new Date().toISOString().split('T')[0],
+        shift: 'Agora',
+        status: 'em_atendimento',
+        createdAt: 'Agora mesmo',
+        notes: ''
+      };
+
+      appState.queue.unshift(newReq);
+      appState.activeSeniorSessionId = newReq.id;
+      saveState();
+
+      closeQuickConnectModal();
+      showToast(`Abrindo sala de videochamada com ${psy ? psy.name : 'acolhimento'}...`, 'success');
+      renderAll();
+      scrollToIdosoSection('idoso-video-room');
+    }
+
+    function handleSeniorSchedule(event) {
+      event.preventDefault();
+      const name = document.getElementById('sched-nome').value.trim();
+      const psyId = document.getElementById('sched-psicologo').value;
+      const date = document.getElementById('sched-data').value;
+      const shift = document.querySelector('input[name="sched-turno"]:checked').value;
+
+      if (!name || !psyId || !date) return;
+
+      const psy = appState.psychologists.find(p => p.id === psyId);
+      const newSched = {
+        id: 'req-' + Date.now(),
+        seniorName: name,
+        psychologistId: psyId,
+        type: 'agendado',
+        date: date,
+        shift: shift,
+        status: 'agendado',
+        createdAt: 'Agendado agora',
+        notes: ''
+      };
+
+      appState.queue.push(newSched);
+      saveState();
+
+      document.getElementById('sched-nome').value = '';
+      showToast(`Agendamento confirmado para ${name} com ${psy ? psy.name : 'psicólogo(a)'}!`, 'success');
+      renderAll();
+    }
+
+    function leaveSeniorVideoRoom() {
+      if (appState.activeSeniorSessionId) {
+        const req = appState.queue.find(q => q.id === appState.activeSeniorSessionId);
+        if (req) {
+          req.status = 'concluido';
+        }
+        appState.activeSeniorSessionId = null;
+        saveState();
+      }
+      clearJitsiIframe('idoso-jitsi-container');
+      showToast('Você saiu da sala de videochamada. Obrigado pela conversa!', 'info');
+      renderAll();
+    }
+
+    // =========================================================================
+    // 2. LÓGICA E RENDERIZAÇÃO DA VISÃO DO PSICÓLOGO & SALA VIRTUAL
+    // =========================================================================
+    function renderPsychologistView() {
+      if (!appState.psychologists.some(p => p.id === appState.loggedPsychologistId) && appState.psychologists.length > 0) {
+        appState.loggedPsychologistId = appState.psychologists[0].id;
+      }
+
+      const loggedPsy = appState.psychologists.find(p => p.id === appState.loggedPsychologistId);
+      const selector = document.getElementById('psy-profile-selector');
+      selector.innerHTML = appState.psychologists.map(p =>
+        `<option value="${p.id}">${p.name} (${p.online ? '🟢 Online' : '⚪ Offline'})</option>`
+      ).join('');
+      selector.value = loggedPsy ? loggedPsy.id : '';
+
+      if (loggedPsy) {
+        document.getElementById('psy-logged-avatar').src = loggedPsy.avatar;
+        document.getElementById('psy-logged-meta').textContent = `${loggedPsy.crp} • Turno: ${loggedPsy.shift} • ${loggedPsy.specialty}`;
+
+        const toggleBtn = document.getElementById('psy-toggle-status-btn');
+        if (loggedPsy.online) {
+          toggleBtn.className = 'px-6 py-4 rounded-2xl font-extrabold text-base sm:text-lg flex items-center justify-center gap-3 shadow-md transition border-2 bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-900';
+          toggleBtn.innerHTML = `
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>Online Agora (Clique para Ficar Offline)</span>
+          `;
+        } else {
+          toggleBtn.className = 'px-6 py-4 rounded-2xl font-extrabold text-base sm:text-lg flex items-center justify-center gap-3 shadow-md transition border-2 bg-slate-800 hover:bg-emerald-700 text-white border-slate-900';
+          toggleBtn.innerHTML = `
+            <i data-lucide="power" class="w-5 h-5 text-emerald-400"></i>
+            <span>Ficar Online para Atendimento Imediato</span>
+          `;
+        }
+      }
+
+      // Renderizar Fila de Espera (Mostra solicitações do psicólogo logado + fila geral para fácil demonstração)
+      const activeItems = appState.queue.filter(q => q.status !== 'concluido');
+      document.getElementById('psy-queue-badge').textContent = `${activeItems.length} na fila`;
+      document.getElementById('psy-stat-completed').textContent = appState.completedTodayCount;
+      document.getElementById('psy-stat-waiting').textContent = activeItems.length;
+
+      const queueListEl = document.getElementById('psy-queue-list');
+      if (activeItems.length === 0) {
+        queueListEl.innerHTML = `
+          <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center space-y-2">
+            <i data-lucide="coffee" class="w-10 h-10 text-slate-400 mx-auto"></i>
+            <p class="text-lg font-bold text-slate-800">Nenhum idoso aguardando no momento</p>
+            <p class="text-sm text-slate-600">Quando um idoso clicar em "Conversar Agora" ou agendar na Visão do Idoso, ele aparecerá aqui imediatamente.</p>
+          </div>
+        `;
+      } else {
+        queueListEl.innerHTML = activeItems.map(item => {
+          const targetPsy = appState.psychologists.find(p => p.id === item.psychologistId);
+          const isImmediate = item.type === 'imediato';
+          return `
+            <div class="rounded-2xl p-5 border-2 ${isImmediate ? 'border-emerald-400 bg-emerald-50/40' : 'border-amber-300 bg-amber-50/40'} flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2">
+                  ${isImmediate
+                    ? `<span class="bg-emerald-600 text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase">⚡ Atendimento Imediato</span>`
+                    : `<span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase">📅 Agendado</span>`
+                  }
+                  <span class="text-xs font-bold text-slate-500">${item.createdAt}</span>
+                </div>
+                <h4 class="text-xl font-extrabold text-slate-900">${item.seniorName}</h4>
+                <p class="text-sm text-slate-700 font-medium">
+                  Profissional: <strong>${targetPsy ? targetPsy.name : 'Disponível'}</strong> • ${formatDateBR(item.date)} (${item.shift})
+                </p>
+              </div>
+
+              <button onclick="startVirtualRoom('${item.id}')"
+                class="bg-teal-700 hover:bg-teal-800 text-white font-extrabold px-5 py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 shrink-0 transition">
+                <i data-lucide="video" class="w-5 h-5"></i>
+                <span>Iniciar Sala Virtual</span>
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Alternar entre Dashboard do Psicólogo e Sala Virtual Ativa
+      const dashboardArea = document.getElementById('psy-dashboard-area');
+      const roomContainer = document.getElementById('virtual-room-container');
+      if (appState.activeRoomId) {
+        const roomReq = appState.queue.find(q => q.id === appState.activeRoomId);
+        if (roomReq) {
+          dashboardArea.classList.add('hidden');
+          roomContainer.classList.remove('hidden');
+          renderVirtualRoomUI(roomReq);
+          return;
+        }
+      }
+      dashboardArea.classList.remove('hidden');
+      roomContainer.classList.add('hidden');
+      clearJitsiIframe('psy-jitsi-container');
+    }
+
+    function changeLoggedPsychologist(psyId) {
+      appState.loggedPsychologistId = psyId;
+      saveState();
+      renderAll();
+    }
+
+    function toggleLoggedPsychologistStatus() {
+      const psy = appState.psychologists.find(p => p.id === appState.loggedPsychologistId);
+      if (!psy) return;
+      psy.online = !psy.online;
+      saveState();
+      showToast(
+        psy.online
+          ? `${psy.name} agora está ONLINE e visível para os idosos!`
+          : `${psy.name} agora está OFFLINE.`,
+        psy.online ? 'success' : 'info'
+      );
+      renderAll();
+    }
+
+    // Permite ao psicólogo abrir sua própria sala virtual Jitsi a qualquer momento
+    function openPsychologistOwnRoom() {
+      const psy = appState.psychologists.find(p => p.id === appState.loggedPsychologistId);
+      if (!psy) return;
+
+      // Verifica se já existe algum idoso aguardando para este psicólogo
+      let existingReq = appState.queue.find(
+        q => q.psychologistId === psy.id && q.status !== 'concluido'
+      );
+
+      if (!existingReq) {
+        existingReq = {
+          id: 'req-sala-' + Date.now(),
+          seniorName: 'Sala Aberta (Aguardando Idoso)',
+          psychologistId: psy.id,
+          type: 'imediato',
+          date: new Date().toISOString().split('T')[0],
+          shift: 'Agora',
+          status: 'em_atendimento',
+          createdAt: 'Sala aberta agora',
+          notes: ''
+        };
+        appState.queue.unshift(existingReq);
+      }
+
+      startVirtualRoom(existingReq.id);
+    }
+
+    // Controle da Sala Virtual Integrada (Jitsi Meet Real)
+    function startVirtualRoom(requestId) {
+      const req = appState.queue.find(q => q.id === requestId);
+      if (!req) return;
+
+      req.status = 'em_atendimento';
+      appState.activeRoomId = requestId;
+      roomSeconds = 0;
+      saveState();
+
+      if (roomTimerInterval) clearInterval(roomTimerInterval);
+      roomTimerInterval = setInterval(() => {
+        roomSeconds++;
+        const mins = String(Math.floor(roomSeconds / 60)).padStart(2, '0');
+        const secs = String(roomSeconds % 60).padStart(2, '0');
+        const timerEl = document.getElementById('room-timer');
+        if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+      }, 1000);
+
+      renderAll();
+      showToast(`Conectando à sala de videochamada real...`, 'success');
+    }
+
+    function renderVirtualRoomUI(req) {
+      const psy = appState.psychologists.find(p => p.id === req.psychologistId)
+        || appState.psychologists.find(p => p.id === appState.loggedPsychologistId)
+        || appState.psychologists[0];
+
+      const roomSlug = getPsychologistRoomSlug(psy);
+
+      document.getElementById('room-title').textContent = `Atendimento: ${req.seniorName}`;
+      document.getElementById('room-jitsi-slug-badge').textContent = `Sala: ${roomSlug}`;
+      document.getElementById('room-senior-name').textContent = `Idoso(a): ${req.seniorName}`;
+      document.getElementById('room-senior-initials').textContent = getInitials(req.seniorName);
+      document.getElementById('room-senior-topic').textContent =
+        req.type === 'imediato' ? `${req.seniorName} • Atendimento Imediato` : `${req.seniorName} • Agendado (${req.shift})`;
+
+      // Monta o iframe real do Jitsi usando a sala exclusiva do psicólogo
+      mountJitsiIframe('psy-jitsi-container', psy, psy ? psy.name : 'Psicólogo(a)');
+
+      // Carregar anotações privadas
+      const notesEl = document.getElementById('room-private-notes');
+      notesEl.value = req.notes || '';
+      notesEl.oninput = (e) => {
+        req.notes = e.target.value;
+        saveState();
+      };
+    }
+
+    function endVirtualRoom() {
+      if (roomTimerInterval) {
+        clearInterval(roomTimerInterval);
+        roomTimerInterval = null;
+      }
+      const req = appState.queue.find(q => q.id === appState.activeRoomId);
+      if (req) {
+        req.status = 'concluido';
+        if (appState.activeSeniorSessionId === req.id) {
+          appState.activeSeniorSessionId = null;
+        }
+      }
+      appState.activeRoomId = null;
+      appState.completedTodayCount += 1;
+      clearJitsiIframe('psy-jitsi-container');
+      saveState();
+
+      showToast('Chamada encerrada e atendimento registrado com sucesso!', 'success');
+      renderAll();
+    }
+
+    // =========================================================================
+    // 3. LÓGICA E RENDERIZAÇÃO DO PAINEL ADMIN (COM SENHA)
+    // =========================================================================
+    function handleAdminUnlock(event) {
+      event.preventDefault();
+      const input = document.getElementById('admin-login-password');
+      const errorEl = document.getElementById('admin-login-error');
+      const entered = input.value;
+
+      if (entered === appState.adminPassword) {
+        isAdminUnlocked = true;
+        sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+        input.value = '';
+        errorEl.classList.add('hidden');
+        showToast('Painel Administrativo desbloqueado!', 'success');
+        renderAdminView();
+        lucide.createIcons();
+      } else {
+        errorEl.classList.remove('hidden');
+        input.focus();
+        input.select();
+      }
+    }
+
+    function lockAdminPanel() {
+      isAdminUnlocked = false;
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      showToast('Painel Admin bloqueado.', 'info');
+      renderAdminView();
+      lucide.createIcons();
+    }
+
+    function handleAdminChangePassword(event) {
+      event.preventDefault();
+      const newPassInput = document.getElementById('admin-new-password');
+      const newPass = newPassInput.value.trim();
+      if (newPass.length < 4) {
+        showToast('A nova senha deve ter pelo menos 4 caracteres.', 'warning');
+        return;
+      }
+      appState.adminPassword = newPass;
+      saveState();
+      newPassInput.value = '';
+      showToast('Senha do Admin atualizada com sucesso!', 'success');
+    }
+
+    function renderAdminView() {
+      const lockScreen = document.getElementById('admin-lock-screen');
+      const unlockedContent = document.getElementById('admin-unlocked-content');
+
+      if (!isAdminUnlocked) {
+        lockScreen.classList.remove('hidden');
+        unlockedContent.classList.add('hidden');
+        return;
+      }
+
+      lockScreen.classList.add('hidden');
+      unlockedContent.classList.remove('hidden');
+
+      const total = appState.psychologists.length;
+      const online = appState.psychologists.filter(p => p.online).length;
+
+      document.getElementById('admin-kpi-total').textContent = total;
+      document.getElementById('admin-kpi-online').textContent = online;
+      document.getElementById('admin-kpi-completed').textContent = appState.completedTodayCount;
+
+      const tbody = document.getElementById('admin-psy-table-body');
+      if (total === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-500 font-medium">
+              Nenhum psicólogo cadastrado. Utilize o formulário ao lado para cadastrar.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = appState.psychologists.map(psy => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-4 px-3">
+            <div class="flex items-center gap-3">
+              <img src="${psy.avatar}" onerror="this.src='https://placehold.co/100x100/0f766e/ffffff?text=Psi'" alt="${psy.name}"
+                class="w-11 h-11 rounded-xl object-cover border border-slate-300 shrink-0" />
+              <div>
+                <p class="font-extrabold text-slate-900">${psy.name}</p>
+                <p class="text-xs font-semibold text-slate-500">${psy.crp}</p>
+                <p class="text-[11px] font-mono text-teal-700 mt-0.5">${getPsychologistRoomSlug(psy)}</p>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-3 max-w-xs">
+            <p class="text-slate-700 line-clamp-2">${psy.specialty}</p>
+          </td>
+          <td class="py-4 px-3 font-semibold text-slate-700">
+            ${psy.shift}
+          </td>
+          <td class="py-4 px-3">
+            <button onclick="adminToggleOnline('${psy.id}')"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-extrabold transition border ${
+                psy.online
+                  ? 'bg-emerald-100 text-emerald-900 border-emerald-400 hover:bg-emerald-200'
+                  : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+              }">
+              <span class="w-2.5 h-2.5 rounded-full ${psy.online ? 'bg-emerald-600' : 'bg-slate-400'}"></span>
+              <span>${psy.online ? 'Online Agora' : 'Offline'}</span>
+            </button>
+          </td>
+          <td class="py-4 px-3 text-right">
+            <div class="inline-flex items-center gap-1.5">
+              <button onclick="adminEditPsychologist('${psy.id}')" title="Editar psicólogo"
+                class="p-2 rounded-xl bg-slate-100 hover:bg-teal-100 text-slate-700 hover:text-teal-900 transition">
+                <i data-lucide="pencil" class="w-4 h-4"></i>
+              </button>
+              <button onclick="adminDeletePsychologist('${psy.id}')" title="Remover psicólogo"
+                class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 transition">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function handleAdminSavePsychologist(event) {
+      event.preventDefault();
+      const id = document.getElementById('admin-psy-id').value;
+      const name = document.getElementById('admin-psy-name').value.trim();
+      const crp = document.getElementById('admin-psy-crp').value.trim();
+      const specialty = document.getElementById('admin-psy-specialty').value.trim();
+      const shift = document.getElementById('admin-psy-shift').value;
+      const online = document.getElementById('admin-psy-online').value === 'true';
+
+      if (!name || !crp || !specialty) return;
+
+      const fallbackAvatars = [
+        'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=256&q=80',
+        'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=256&q=80',
+        'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=256&q=80'
+      ];
+
+      if (id) {
+        const existing = appState.psychologists.find(p => p.id === id);
+        if (existing) {
+          existing.name = name;
+          existing.crp = crp;
+          existing.specialty = specialty;
+          existing.shift = shift;
+          existing.online = online;
+          showToast(`Cadastro de ${name} atualizado!`, 'success');
+        }
+      } else {
+        const randomAvatar = fallbackAvatars[appState.psychologists.length % fallbackAvatars.length];
+        appState.psychologists.push({
+          id: 'psy-' + Date.now(),
+          name,
+          crp,
+          specialty,
+          shift,
+          online,
+          avatar: randomAvatar
+        });
+        showToast(`${name} cadastrado(a) com sucesso na Escutatória 60+!`, 'success');
+      }
+
+      saveState();
+      resetAdminForm();
+      renderAll();
+    }
+
+    function adminEditPsychologist(id) {
+      const psy = appState.psychologists.find(p => p.id === id);
+      if (!psy) return;
+
+      document.getElementById('admin-psy-id').value = psy.id;
+      document.getElementById('admin-psy-name').value = psy.name;
+      document.getElementById('admin-psy-crp').value = psy.crp;
+      document.getElementById('admin-psy-specialty').value = psy.specialty;
+      document.getElementById('admin-psy-shift').value = psy.shift;
+      document.getElementById('admin-psy-online').value = String(psy.online);
+
+      document.getElementById('admin-form-title').innerHTML = `
+        <i data-lucide="user-cog" class="w-6 h-6 text-amber-600"></i>
+        Editar Psicólogo(a)
+      `;
+      document.getElementById('admin-cancel-edit-btn').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function resetAdminForm() {
+      document.getElementById('form-admin-psy').reset();
+      document.getElementById('admin-psy-id').value = '';
+      document.getElementById('admin-form-title').innerHTML = `
+        <i data-lucide="user-plus" class="w-6 h-6 text-teal-700"></i>
+        Cadastrar Psicólogo(a)
+      `;
+      document.getElementById('admin-cancel-edit-btn').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    function adminToggleOnline(id) {
+      const psy = appState.psychologists.find(p => p.id === id);
+      if (!psy) return;
+      psy.online = !psy.online;
+      saveState();
+      showToast(`Status de ${psy.name} alterado para ${psy.online ? 'Online Agora' : 'Offline'}.`, 'info');
+      renderAll();
+    }
+
+    function adminDeletePsychologist(id) {
+      if (appState.psychologists.length <= 1) {
+        showToast('É necessário manter pelo menos 1 psicólogo cadastrado na demonstração.', 'warning');
+        return;
+      }
+      const psy = appState.psychologists.find(p => p.id === id);
+      appState.psychologists = appState.psychologists.filter(p => p.id !== id);
+      saveState();
+      showToast(`${psy ? psy.name : 'Profissional'} removido(a) do cadastro.`, 'info');
+      renderAll();
+    }
+
+    // =========================================================================
+    // UTILITÁRIOS E RESET DE DEMONSTRAÇÃO
+    // =========================================================================
+    function formatDateBR(isoDate) {
+      if (!isoDate || !isoDate.includes('-')) return isoDate;
+      const [y, m, d] = isoDate.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function getInitials(name) {
+      return name
+        .replace(/\(.*?\)/g, '')
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part[0]?.toUpperCase() || '')
+        .join('') || '60+';
+    }
+
+    function requestResetDemo() {
+      document.getElementById('modal-reset-confirm').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeResetModal() {
+      document.getElementById('modal-reset-confirm').classList.add('hidden');
+    }
+
+    function executeResetDemo() {
+      if (roomTimerInterval) {
+        clearInterval(roomTimerInterval);
+        roomTimerInterval = null;
+      }
+      clearJitsiIframe('idoso-jitsi-container');
+      clearJitsiIframe('psy-jitsi-container');
+      appState = getInitialSeedState();
+      saveState();
+      closeResetModal();
+      switchView('idoso');
+      showToast('Dados de demonstração restaurados com sucesso!', 'success');
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      switchView(appState.currentView || 'idoso');
+    });
+  </script>
+</body>
+</html>
