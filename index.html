@@ -464,6 +464,9 @@
                 <button type="button" onclick="pullFromGoogleSheets()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2.5 rounded-xl cursor-pointer" title="Buscar dados da planilha agora">
                   Atualizar
                 </button>
+                <button type="button" onclick="copyShareableSyncLink()" class="bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold text-xs px-3 py-2.5 rounded-xl cursor-pointer" title="Copiar link com os psicólogos salvos para abrir no celular do idoso">
+                  Copiar Link
+                </button>
               </div>
             </div>
 
@@ -765,8 +768,98 @@ function doPost(e) {
       }
     }
 
-    function isValidAppsScriptUrl(url) {
-      return /^https:\/\/script\.google\.com\/macros\/s\/[a-zA-Z0-9_-]+\/exec/i.test(url);
+    function encodeSyncPayload(obj) {
+      const jsonStr = JSON.stringify(obj);
+      const bytes = new TextEncoder().encode(jsonStr);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i++) {
+        bin += String.fromCharCode(bytes[i]);
+      }
+      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function decodeSyncPayload(hashStr) {
+      if (!hashStr || !hashStr.includes('sync=')) return null;
+      const match = hashStr.match(/sync=([a-zA-Z0-9\-_]+)/);
+      if (!match) return null;
+      let b64 = match[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      const jsonStr = new TextDecoder().decode(bytes);
+      return JSON.parse(jsonStr);
+    }
+
+    window.copyShareableSyncLink = function() {
+      const payload = {
+        psychologists: appState.psychologists,
+        queue: appState.queue,
+        history: appState.history,
+        sheetsUrl: getSheetsWebhookUrl()
+      };
+      const encoded = encodeSyncPayload(payload);
+      const baseUrl = window.location.href.split('#')[0];
+      const shareUrl = `${baseUrl}#sync=${encoded}`;
+
+      const tempInput = document.createElement('input');
+      tempInput.value = shareUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast('Link de sincronização copiado! Abra no celular do idoso para carregar a base.', 'success');
+      } catch (e) {
+        showToast('Copie o link na barra de endereço após colar ou enviar.', 'info');
+      }
+      tempInput.remove();
+    };
+
+    window.pullFromGoogleSheets = async function() {
+      const webhookUrl = getSheetsWebhookUrl();
+      if (!webhookUrl) return;
+      if (!isValidAppsScriptUrl(webhookUrl)) {
+        showToast('URL do Apps Script inválida (deve terminar com /exec).', 'error');
+        return;
+      }
+      try {
+        const sep = webhookUrl.includes('?') ? '&' : '?';
+        const res = await fetch(`${webhookUrl}${sep}_t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && Array.isArray(data.psychologists) && data.psychologists.length > 0) {
+          // Mescla preservando psicólogos locais caso a planilha ainda não tenha recebido o último envio
+          const sheetMap = new Map();
+          data.psychologists.forEach(p => {
+            if (p && p.id) sheetMap.set(p.id, p);
+          });
+          appState.psychologists.forEach(localP => {
+            if (localP && localP.id && !sheetMap.has(localP.id)) {
+              sheetMap.set(localP.id, localP);
+            }
+          });
+          appState.psychologists = Array.from(sheetMap.values());
+          if (Array.isArray(data.queue)) appState.queue = data.queue;
+          if (Array.isArray(data.history)) appState.history = data.history;
+          if (data.adminPassword) appState.adminPassword = data.adminPassword;
+          if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
+            appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
+          }
+          saveLocalBackup(true, false);
+          renderAll();
+          updateDbBadge(true, 'Planilha Sincronizada');
+        }
+      } catch (e) {}
+    };
+
+    function startCrossDeviceSyncLoop() {
+      setInterval(() => {
+        if (getSheetsWebhookUrl()) {
+          pullFromGoogleSheets();
+        }
+      }, 6000);
     }
 
     window.toggleSheetsHelpModal = function(show) {
@@ -998,6 +1091,22 @@ function doPost(e) {
     }
 
     async function loadLocalBackup() {
+      try {
+        const hashData = decodeSyncPayload(window.location.hash || '');
+        if (hashData) {
+          if (hashData.sheetsUrl) {
+            try { localStorage.setItem(STORAGE_KEYS.SHEETS_URL, hashData.sheetsUrl); } catch (e) {}
+            const sheetsInput = document.getElementById('admin-sheets-webhook-url');
+            if (sheetsInput) sheetsInput.value = hashData.sheetsUrl;
+          }
+          if (Array.isArray(hashData.psychologists) && hashData.psychologists.length > 0) {
+            appState.psychologists = hashData.psychologists;
+          }
+          if (Array.isArray(hashData.queue)) appState.queue = hashData.queue;
+          if (Array.isArray(hashData.history)) appState.history = hashData.history;
+        }
+      } catch (e) {}
+
       try {
         const savedPsychs = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
         const savedQueue = localStorage.getItem(STORAGE_KEYS.QUEUE);
@@ -1474,24 +1583,53 @@ function doPost(e) {
 
       stopMediaStream(role);
 
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      const getUserMediaFn =
+        (navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+          ? navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices)
+          : null) ||
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        null;
+
+      if (!getUserMediaFn) {
         if (fallbackEl) fallbackEl.classList.remove('hidden');
-        if (reasonEl) reasonEl.textContent = 'Navegador ou janela restrita bloqueou a câmera. Abra em uma aba normal HTTPS.';
+        if (reasonEl) reasonEl.textContent = 'Câmera indisponível neste navegador ou contexto sem HTTPS. Abra em conexão segura (HTTPS) ou localhost.';
         return null;
       }
 
+      const requestStream = (constraints) => new Promise((resolve, reject) => {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia(constraints).then(resolve).catch(reject);
+        } else {
+          getUserMediaFn.call(navigator, constraints, resolve, reject);
+        }
+      });
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+        let stream = null;
+        try {
+          stream = await requestStream({ video: { facingMode: 'user' }, audio: true });
+        } catch (firstErr) {
+          try {
+            stream = await requestStream({ video: true, audio: true });
+          } catch (secondErr) {
+            stream = await requestStream({ video: true, audio: false });
+          }
+        }
+
         if (role === 'senior') {
           mediaState.seniorStream = stream;
-          mediaState.seniorMicOn = true;
-          mediaState.seniorCamOn = true;
+          mediaState.seniorMicOn = stream.getAudioTracks().length > 0;
+          mediaState.seniorCamOn = stream.getVideoTracks().length > 0;
         } else {
           mediaState.psychStream = stream;
-          mediaState.psychMicOn = true;
-          mediaState.psychCamOn = true;
+          mediaState.psychMicOn = stream.getAudioTracks().length > 0;
+          mediaState.psychCamOn = stream.getVideoTracks().length > 0;
         }
         if (videoEl) {
+          videoEl.muted = true;
+          videoEl.playsInline = true;
           videoEl.srcObject = stream;
           await videoEl.play().catch(() => {});
         }
@@ -1500,9 +1638,9 @@ function doPost(e) {
       } catch (err) {
         if (fallbackEl) fallbackEl.classList.remove('hidden');
         if (reasonEl) {
-          reasonEl.textContent = err.name === 'NotAllowedError'
-            ? 'Permissão de câmera negada. Libere câmera e microfone no navegador e clique em Ativar Câmera.'
-            : 'Não foi possível iniciar a câmera nesta janela de prévia.';
+          reasonEl.textContent = err && err.name === 'NotAllowedError'
+            ? 'Permissão de câmera negada. Toque no cadeado/configurações do navegador, permita Câmera e toque em Ativar Câmera.'
+            : 'Não foi possível acessar a câmera agora. Verifique se outro app está usando a câmera ou toque em Ativar Câmera.';
         }
         return null;
       }
@@ -2139,6 +2277,7 @@ function doPost(e) {
       setupPwaAssets();
       renderAll();
       initCloudDatabase();
+      startCrossDeviceSyncLoop();
     }
 
     if (document.readyState === 'loading') {
