@@ -575,21 +575,59 @@
       <ol class="text-xs sm:text-sm text-slate-700 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200 list-decimal list-inside">
         <li>Abra uma nova planilha no <strong>Google Planilhas</strong> e vá em <strong>Extensões &gt; Apps Script</strong>.</li>
         <li>Apague o conteúdo atual e cole o script abaixo. Depois clique em <strong>Implantar &gt; Nova implantação</strong> escolhendo <strong>App da Web</strong>, com acesso definido para <strong>Qualquer pessoa</strong>.</li>
-        <li>Copie a <strong>URL do App da Web</strong> gerada, cole no campo <strong>Base via Google Planilha</strong> no Admin e clique em <strong>Salvar e Sincronizar</strong>.</li>
+        <li>Copie a <strong>URL do App da Web</strong> gerada (termina com <code>/exec</code>), cole no campo <strong>Base via Google Planilha</strong> no Admin e clique em <strong>Salvar e Sincronizar</strong>.</li>
       </ol>
       <pre class="bg-slate-900 text-emerald-300 text-[11px] p-3.5 rounded-2xl overflow-x-auto leading-relaxed">function doGet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Escutatoria60') || ss.insertSheet('Escutatoria60');
-  const raw = sheet.getRange('A1').getValue();
+  const stateSheet = ss.getSheetByName('EstadoJSON') || ss.insertSheet('EstadoJSON');
+  const raw = stateSheet.getRange('A1').getValue();
   return ContentService.createTextOutput(raw || '{}')
     .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Escutatoria60') || ss.insertSheet('Escutatoria60');
-  sheet.getRange('A1').setValue(e.postData.contents);
-  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+  const bodyText = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
+  const data = JSON.parse(bodyText);
+
+  // 1. Salva snapshot completo para sincronizar o app
+  const stateSheet = ss.getSheetByName('EstadoJSON') || ss.insertSheet('EstadoJSON');
+  stateSheet.getRange('A1').setValue(bodyText);
+
+  // 2. Atualiza aba legível de Psicólogos
+  const psychSheet = ss.getSheetByName('Psicologos') || ss.insertSheet('Psicologos');
+  psychSheet.clearContents();
+  psychSheet.appendRow(['ID', 'Nome', 'CRP', 'Foco', 'Turno', 'Status', 'Atualizado Em']);
+  const psychs = Array.isArray(data.psychologists) ? data.psychologists : [];
+  psychs.forEach(p => {
+    psychSheet.appendRow([
+      p.id || '',
+      p.name || '',
+      p.crp || '',
+      p.specialty || '',
+      p.shift || '',
+      p.online ? 'ONLINE' : 'OFFLINE',
+      new Date().toLocaleString('pt-BR')
+    ]);
+  });
+
+  // 3. Atualiza aba legível de Histórico de Atendimentos
+  const histSheet = ss.getSheetByName('Historico') || ss.insertSheet('Historico');
+  histSheet.clearContents();
+  histSheet.appendRow(['ID', 'Idoso(a)', 'Psicologo(a)', 'Data/Hora', 'Duracao', 'Observacoes']);
+  const hist = Array.isArray(data.history) ? data.history : [];
+  hist.forEach(h => {
+    histSheet.appendRow([
+      h.id || '',
+      h.seniorName || '',
+      h.psychName || '',
+      h.dateStr || '',
+      h.duration || '',
+      h.notes || ''
+    ]);
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, count: psychs.length }))
     .setMimeType(ContentService.MimeType.JSON);
 }</pre>
       <button onclick="toggleSheetsHelpModal(false)" class="w-full py-3 rounded-xl bg-teal-800 text-white font-bold cursor-pointer">Fechar</button>
@@ -727,6 +765,10 @@ function doPost(e) {
       }
     }
 
+    function isValidAppsScriptUrl(url) {
+      return /^https:\/\/script\.google\.com\/macros\/s\/[a-zA-Z0-9_-]+\/exec/i.test(url);
+    }
+
     window.toggleSheetsHelpModal = function(show) {
       const modal = document.getElementById('sheets-help-modal');
       if (!modal) return;
@@ -736,21 +778,31 @@ function doPost(e) {
 
     window.saveSheetsWebhookUrl = async function() {
       const url = document.getElementById('admin-sheets-webhook-url')?.value?.trim() || '';
+      if (url && !isValidAppsScriptUrl(url)) {
+        showToast('A URL deve ser do Apps Script terminando em /exec (ex: https://script.google.com/macros/s/.../exec).', 'error');
+        return;
+      }
       try {
         localStorage.setItem(STORAGE_KEYS.SHEETS_URL, url);
       } catch (e) {}
       saveLocalBackup(true, false);
       if (url) {
-        await pushToGoogleSheets(url);
-        showToast('Conexão com Google Planilha salva e sincronizada!', 'success');
+        await pushToGoogleSheets(url, true);
       } else {
         showToast('URL da planilha limpa.', 'info');
       }
     };
 
-    async function pushToGoogleSheets(customUrl = null) {
+    async function pushToGoogleSheets(customUrl = null, notifyUser = false) {
       const webhookUrl = customUrl || getSheetsWebhookUrl();
       if (!webhookUrl) return;
+      if (!isValidAppsScriptUrl(webhookUrl)) {
+        if (notifyUser) {
+          showToast('URL inválida: use o link de implantação do Apps Script que termina com /exec.', 'error');
+        }
+        return;
+      }
+
       const payload = {
         psychologists: appState.psychologists,
         queue: appState.queue,
@@ -758,20 +810,65 @@ function doPost(e) {
         adminPassword: appState.adminPassword,
         updatedAt: Date.now()
       };
+      const serialized = JSON.stringify(payload);
+
       try {
         await fetch(webhookUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          body: serialized
         });
         updateDbBadge(true, 'Planilha Sincronizada');
-      } catch (e) {}
+        if (notifyUser) {
+          showToast(`Enviado para a planilha (${appState.psychologists.length} psicólogos). Confira as abas Psicologos e EstadoJSON!`, 'success');
+        }
+      } catch (err) {
+        // Fallback via formulário oculto caso o fetch seja bloqueado no ambiente
+        try {
+          const iframeName = 'sheets_post_target_' + Date.now();
+          const iframe = document.createElement('iframe');
+          iframe.name = iframeName;
+          iframe.className = 'hidden';
+          document.body.appendChild(iframe);
+
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = webhookUrl;
+          form.target = iframeName;
+          form.className = 'hidden';
+
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'payload';
+          input.value = serialized;
+          form.appendChild(input);
+
+          document.body.appendChild(form);
+          form.submit();
+          setTimeout(() => {
+            form.remove();
+            iframe.remove();
+          }, 4000);
+          updateDbBadge(true, 'Planilha Sincronizada');
+          if (notifyUser) {
+            showToast('Dados enviados para o Google Planilhas!', 'success');
+          }
+        } catch (fallbackErr) {
+          if (notifyUser) {
+            showToast('Falha ao enviar para a planilha. Verifique se o acesso do App da Web está como "Qualquer pessoa".', 'error');
+          }
+        }
+      }
     }
 
     window.pullFromGoogleSheets = async function() {
       const webhookUrl = getSheetsWebhookUrl();
       if (!webhookUrl) return;
+      if (!isValidAppsScriptUrl(webhookUrl)) {
+        showToast('URL do Apps Script inválida (deve terminar com /exec).', 'error');
+        return;
+      }
       try {
         const res = await fetch(webhookUrl, { cache: 'no-store' });
         if (!res.ok) return;
