@@ -897,14 +897,40 @@ function doPost(e) {
     // =========================================================
     const activeMediaStreams = { senior: null, psych: null };
     const remoteFrameTargets = { senior: null, psych: null };
-    let localFrameTimer = null;
+    const frameTimers = { senior: null, psych: null };
+    const peerInstances = { senior: null, psych: null };
+    const activePeerCalls = { senior: null, psych: null };
     let presencePingTimer = null;
 
     function getRoomNameForPsych(psych) {
       return `escutatoria60-sala-${String(psych?.id || 'geral').replace(/[^a-zA-Z0-9_-]/g, '')}`;
     }
 
+    function stopFrameTimer(role) {
+      if (frameTimers[role]) {
+        clearInterval(frameTimers[role]);
+        frameTimers[role] = null;
+      }
+    }
+
+    function cleanupPeerConnection(role) {
+      try {
+        if (activePeerCalls[role]) {
+          activePeerCalls[role].close();
+          activePeerCalls[role] = null;
+        }
+      } catch (e) {}
+      try {
+        if (peerInstances[role]) {
+          peerInstances[role].destroy();
+          peerInstances[role] = null;
+        }
+      } catch (e) {}
+    }
+
     function stopMediaStream(role) {
+      stopFrameTimer(role);
+      cleanupPeerConnection(role);
       const stream = activeMediaStreams[role];
       if (stream) {
         stream.getTracks().forEach(t => {
@@ -939,6 +965,71 @@ function doPost(e) {
       tracks.forEach(t => { t.enabled = !t.enabled; });
     };
 
+    function broadcastRoomMessage(payload) {
+      try {
+        if (liveChannel) {
+          liveChannel.postMessage(payload);
+        }
+      } catch (e) {}
+      try {
+        localStorage.setItem('escutatoria60_room_signal', JSON.stringify({
+          ...payload,
+          _ts: Date.now() + Math.random()
+        }));
+      } catch (e) {}
+    }
+
+    function setupWebRtcForRoom(role, roomName, selfName, localStream) {
+      cleanupPeerConnection(role);
+      if (!window.Peer) return;
+
+      try {
+        // O psicólogo assume o ID fixo da sala para receber chamadas; o idoso cria um ID único e liga para a sala
+        const peerId = role === 'psych'
+          ? roomName
+          : `${roomName}-senior-${Math.random().toString(36).slice(2, 8)}`;
+
+        const peer = new window.Peer(peerId, { debug: 0 });
+        peerInstances[role] = peer;
+
+        const attachRemoteStream = (remoteStream) => {
+          const remoteVideo = document.getElementById(`${role}-remote-video`);
+          const remoteFrame = document.getElementById(`${role}-remote-frame`);
+          if (remoteVideo && remoteStream) {
+            remoteVideo.srcObject = remoteStream;
+            remoteVideo.classList.remove('hidden');
+            remoteVideo.play().catch(() => {});
+          }
+          if (remoteFrame) {
+            remoteFrame.classList.add('hidden');
+          }
+          applyRemotePresence(role === 'senior' ? 'psych' : 'senior', roomName, role === 'senior' ? 'Psicólogo(a)' : 'Idoso(a)');
+        };
+
+        peer.on('open', () => {
+          if (role === 'senior' && localStream) {
+            const call = peer.call(roomName, localStream, { metadata: { name: selfName, role: 'senior' } });
+            if (call) {
+              activePeerCalls[role] = call;
+              call.on('stream', attachRemoteStream);
+            }
+          }
+        });
+
+        peer.on('call', (incomingCall) => {
+          activePeerCalls[role] = incomingCall;
+          const partnerLabel = incomingCall?.metadata?.name || (role === 'psych' ? 'Idoso(a)' : 'Psicólogo(a)');
+          applyRemotePresence(role === 'psych' ? 'senior' : 'psych', roomName, partnerLabel);
+          if (localStream) {
+            incomingCall.answer(localStream);
+          } else {
+            incomingCall.answer();
+          }
+          incomingCall.on('stream', attachRemoteStream);
+        });
+      } catch (e) {}
+    }
+
     function handleIncomingVideoFrame(msg) {
       if (!msg || !msg.dataUrl || !msg.roomName) return;
       if (msg.senderRole === 'psych' && appState.activeSeniorCall) {
@@ -966,19 +1057,18 @@ function doPost(e) {
     }
 
     function startFrameBroadcast(role, roomName, senderName, localVideoEl) {
-      if (localFrameTimer) clearInterval(localFrameTimer);
+      stopFrameTimer(role);
       const canvas = document.createElement('canvas');
       canvas.width = 240;
       canvas.height = 180;
       const ctx = canvas.getContext('2d');
 
-      localFrameTimer = setInterval(() => {
+      frameTimers[role] = setInterval(() => {
         try {
-          if (!liveChannel) return;
           if (localVideoEl && localVideoEl.readyState >= 2 && ctx) {
             ctx.drawImage(localVideoEl, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL('image/jpeg', 0.45);
-            liveChannel.postMessage({
+            broadcastRoomMessage({
               type: 'VIDEO_FRAME',
               senderRole: role,
               roomName,
@@ -986,7 +1076,7 @@ function doPost(e) {
               dataUrl
             });
           }
-          liveChannel.postMessage({
+          broadcastRoomMessage({
             type: 'ROOM_PRESENCE_PING',
             senderRole: role,
             roomName,
@@ -1009,6 +1099,7 @@ function doPost(e) {
       container.innerHTML = `
         <div class="w-full h-full grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-950 text-white">
           <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 flex flex-col items-center justify-center min-h-[175px]">
+            <video id="${role}-remote-video" autoplay playsinline class="hidden w-full h-full object-cover"></video>
             <img id="${role}-remote-frame" alt="Vídeo remoto" class="hidden w-full h-full object-cover" />
             <div id="${role}-remote-placeholder" class="p-4 text-center space-y-2">
               <div id="${role}-remote-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/30 mb-1.5">
@@ -1034,29 +1125,32 @@ function doPost(e) {
       `;
 
       const localVideo = document.getElementById(`${role}-local-video`);
+      let stream = null;
       try {
-        const stream = await acquireCameraStream();
+        stream = await acquireCameraStream();
         activeMediaStreams[role] = stream;
         if (localVideo) {
           localVideo.srcObject = stream;
           localVideo.play().catch(() => {});
         }
-        startFrameBroadcast(role, roomName, selfName, localVideo);
       } catch (err) {
         showToast('Permita o acesso à câmera/microfone se desejar vídeo ao vivo. O chat continua ativo!', 'info');
-        startFrameBroadcast(role, roomName, selfName, null);
       }
 
-      if (liveChannel) {
-        try {
-          liveChannel.postMessage({
-            type: 'ROOM_PRESENCE_PING',
-            senderRole: role,
-            roomName,
-            senderName: selfName
-          });
-        } catch (e) {}
-      }
+      startFrameBroadcast(role, roomName, selfName, localVideo);
+      setupWebRtcForRoom(role, roomName, selfName, stream);
+      setTimeout(() => {
+        if (window.Peer && !peerInstances[role]) {
+          setupWebRtcForRoom(role, roomName, selfName, stream);
+        }
+      }, 1500);
+
+      broadcastRoomMessage({
+        type: 'ROOM_PRESENCE_PING',
+        senderRole: role,
+        roomName,
+        senderName: selfName
+      });
     }
 
     window.retryCamera = async function(role) {
@@ -1198,11 +1292,7 @@ function doPost(e) {
       appendChatMessage('senior', senderLabel, text);
       appendChatMessage('psych', senderLabel, text);
 
-      if (liveChannel) {
-        try {
-          liveChannel.postMessage({ type: 'ROOM_CHAT', targetRole, sender: senderLabel, text });
-        } catch (e) {}
-      }
+      broadcastRoomMessage({ type: 'ROOM_CHAT', targetRole, sender: senderLabel, text });
       input.value = '';
     };
 
@@ -1783,6 +1873,19 @@ function doPost(e) {
     }
 
     window.addEventListener('storage', (e) => {
+      if (e.key === 'escutatoria60_room_signal' && e.newValue) {
+        try {
+          const msg = JSON.parse(e.newValue);
+          if (msg?.type === 'VIDEO_FRAME') {
+            handleIncomingVideoFrame(msg);
+          } else if (msg?.type === 'ROOM_PRESENCE_PING') {
+            applyRemotePresence(msg.senderRole, msg.roomName, msg.senderName);
+          } else if (msg?.type === 'ROOM_CHAT' && msg.targetRole) {
+            appendChatMessage(msg.targetRole, msg.sender, msg.text);
+          }
+        } catch (err) {}
+        return;
+      }
       if (!e.key || !Object.values(STORAGE_KEYS).includes(e.key)) return;
       try {
         const p = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
