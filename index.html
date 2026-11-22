@@ -96,240 +96,253 @@
   <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
 
     <!-- ========================================================= -->
-    <!-- VISÃO 1: PESSOA IDOSA (ACESSÍVEL, ALTO CONTRASTE, 1 CLIQUE) -->
+    <!-- VISÃO 1: IDOSO (ACESSO RÁPIDO, CONVERSAR AGORA E SALA)   -->
     <!-- ========================================================= -->
-    <section id="view-senior" class="space-y-5 sm:space-y-6">
-      <!-- Banner de Boas-vindas -->
-      <div id="senior-welcome-banner" class="bg-gradient-to-br from-teal-800 to-teal-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-lg border border-teal-700">
-        <div class="max-w-3xl">
-          <span class="inline-flex items-center gap-2 bg-teal-700/70 text-amber-300 px-3 py-1 rounded-full text-xs sm:text-sm font-bold mb-2 sm:mb-3">
-            <i data-lucide="sparkles" class="w-4 h-4"></i> Gratuito, sigiloso e sem complicação
-          </span>
-          <h2 class="text-xl sm:text-3xl font-extrabold leading-snug mb-2">
-            Você não precisa enfrentar a solidão sozinho(a).
+    <section id="view-senior" class="space-y-6">
+      <div class="bg-gradient-to-br from-teal-800 via-teal-900 to-slate-900 text-white rounded-3xl p-5 sm:p-8 shadow-lg space-y-5">
+        <div class="space-y-2">
+          <div id="senior-online-summary" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold bg-white/10 px-3.5 py-1.5 rounded-full"></div>
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            Precisa conversar com alguém que escuta de verdade?
           </h2>
-          <p class="text-teal-100 text-sm sm:text-lg leading-relaxed mb-4">
-            Nossos psicólogos voluntários estão prontos para ouvir suas histórias, dúvidas ou sentimentos com carinho e respeito.
+          <p class="text-teal-100 text-sm sm:text-lg max-w-2xl leading-relaxed">
+            Digite seu nome e clique em <strong>Conversar Agora</strong> para falar com um psicólogo disponível, ou escolha um profissional abaixo.
           </p>
-
-          <!-- Identificação simples -->
-          <div class="bg-white/10 backdrop-blur-sm p-3 sm:p-5 rounded-2xl border border-white/20 space-y-3">
-            <label for="senior-name-input" class="block text-base sm:text-lg font-bold text-amber-200">
-              Como você gostaria de ser chamado(a)?
-            </label>
-            <div class="flex flex-col sm:flex-row gap-2.5">
-              <input
-                id="senior-name-input"
-                type="text"
-                placeholder="Digite seu primeiro nome (ex: Dona Maria)"
-                class="senior-focus flex-1 bg-white text-slate-900 placeholder-slate-400 text-base sm:text-lg font-medium px-4 py-3.5 rounded-xl border-2 border-transparent focus:border-amber-400 shadow-inner"
-              />
-              <button
-                id="btn-talk-now"
-                onclick="connectImmediateSenior()"
-                class="senior-focus bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-extrabold text-base sm:text-lg px-6 py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2.5 transition-all cursor-pointer"
-              >
-                <i data-lucide="video" class="w-6 h-6"></i>
-                <span>CONVERSAR AGORA</span>
-              </button>
-            </div>
-            <p id="senior-online-summary" class="text-xs sm:text-sm text-teal-100 font-medium flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
-              Verificando psicólogos disponíveis agora...
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sala de Acolhimento ao Vivo do Idoso -->
-      <div id="senior-live-room" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-xl border-4 border-emerald-500 overflow-hidden">
-        <div class="bg-emerald-700 text-white px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-2.5">
-            <span class="w-3 h-3 rounded-full bg-emerald-300 animate-ping"></span>
-            <div>
-              <p class="text-xs uppercase tracking-wider text-emerald-100 font-bold">Conversa ao Vivo</p>
-              <h3 id="senior-room-psych-name" class="text-lg sm:text-xl font-extrabold">Psicólogo(a)</h3>
-            </div>
-          </div>
-          <button
-            onclick="leaveSeniorRoom()"
-            class="senior-focus bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm sm:text-base px-4 py-2.5 rounded-xl shadow flex items-center gap-2 cursor-pointer"
-          >
-            <i data-lucide="phone-off" class="w-5 h-5"></i>
-            <span>Encerrar / Sair</span>
-          </button>
         </div>
 
-        <div id="senior-video-container" class="w-full h-[380px] sm:h-[470px] bg-slate-950 relative"></div>
-
-        <!-- Chat simples abaixo do vídeo -->
-        <div class="p-3 sm:p-4 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-stretch max-w-3xl">
           <input
-            id="senior-chat-input"
+            id="senior-quick-name"
             type="text"
-            placeholder="Escreva uma mensagem aqui se preferir digitar..."
-            class="flex-1 bg-white text-slate-900 text-base px-4 py-3 rounded-xl border border-slate-300"
-            onkeydown="if(event.key==='Enter') sendRoomChat('senior')"
+            placeholder="Digite seu nome (ex: Dona Maria)"
+            class="senior-focus sm:col-span-2 bg-white text-slate-900 placeholder-slate-400 font-bold text-base sm:text-lg px-4 py-3.5 rounded-2xl shadow-inner"
           />
           <button
-            onclick="sendRoomChat('senior')"
-            class="bg-teal-700 hover:bg-teal-600 text-white font-bold px-5 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+            onclick="quickStartSeniorCall()"
+            class="senior-focus bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-base sm:text-lg px-5 py-3.5 rounded-2xl shadow-lg flex items-center justify-center gap-2 cursor-pointer"
           >
-            <i data-lucide="send" class="w-4 h-4"></i>
-            <span>Enviar</span>
+            <i data-lucide="video" class="w-5 h-5"></i>
+            <span>CONVERSAR AGORA</span>
           </button>
         </div>
-        <div id="senior-chat-messages" class="px-4 py-2 bg-white max-h-36 overflow-y-auto space-y-1.5 text-sm"></div>
       </div>
 
-      <!-- Lista de Psicólogos Disponíveis e Agendamento -->
-      <div id="senior-psych-list-section" class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">Escolha com quem conversar</h3>
-            <p class="text-sm sm:text-base text-slate-600">Profissionais com selo verde estão online e prontos para atender agora.</p>
+      <!-- Sala Virtual do Idoso -->
+      <div id="senior-live-room" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-emerald-500 overflow-hidden">
+        <div class="bg-teal-900 text-white px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+            <h3 id="senior-room-title" class="font-extrabold text-base sm:text-lg">Sala de Acolhimento</h3>
           </div>
+          <button
+            onclick="endSeniorCall()"
+            class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl shadow flex items-center gap-1.5 cursor-pointer"
+          >
+            <i data-lucide="phone-off" class="w-4 h-4"></i>
+            <span>Encerrar Conversa</span>
+          </button>
         </div>
 
-        <div id="senior-psychologists-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="senior-video-container" class="w-full h-[380px] sm:h-[460px] bg-slate-950 relative"></div>
+
+        <div class="p-3 sm:p-4 bg-slate-100 border-t border-slate-200 space-y-2">
+          <div class="flex gap-2">
+            <input
+              id="senior-chat-input"
+              type="text"
+              placeholder="Escreva uma mensagem para o psicólogo..."
+              class="flex-1 bg-white text-slate-900 text-sm sm:text-base px-4 py-2.5 rounded-xl border border-slate-300"
+              onkeydown="if(event.key==='Enter') sendRoomChat('senior')"
+            />
+            <button
+              onclick="sendRoomChat('senior')"
+              class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl cursor-pointer"
+            >
+              Enviar
+            </button>
+          </div>
+          <div id="senior-chat-messages" class="max-h-32 overflow-y-auto space-y-1 text-sm"></div>
+        </div>
+      </div>
+
+      <!-- Grade de Psicólogos para o Idoso -->
+      <div class="space-y-3">
+        <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">Psicólogos para Conversar</h3>
+        <div id="senior-psychologists-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"></div>
       </div>
     </section>
 
     <!-- ========================================================= -->
-    <!-- VISÃO 2: PSICÓLOGO (SALA VIRTUAL, FILA E PRONTUÁRIO)       -->
+    <!-- VISÃO 2: PSICÓLOGO (SENHA + SALA VIRTUAL, FILA E PRONTUÁRIO) -->
     <!-- ========================================================= -->
     <section id="view-psychologist" class="hidden space-y-6">
-      <!-- Barra de Controle do Profissional Conectado -->
-      <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div class="bg-teal-100 text-teal-800 p-3 rounded-2xl w-fit">
-            <i data-lucide="user-check" class="w-7 h-7"></i>
-          </div>
+      <!-- Bloqueio por Senha para Psicólogos -->
+      <div id="psych-lock-screen" class="max-w-md mx-auto bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mx-auto">
+          <i data-lucide="stethoscope" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Acesso do Psicólogo</h2>
+        <p class="text-sm text-slate-600">Digite sua senha de psicólogo para gerenciar sua disponibilidade, atender idosos e registrar o histórico.</p>
+        <form onsubmit="unlockPsychologist(event)" class="space-y-3 text-left">
           <div>
-            <label for="psych-selector" class="block text-xs font-bold uppercase tracking-wider text-slate-500">Profissional Conectado</label>
-            <select
-              id="psych-selector"
-              onchange="changeLoggedPsychologist(this.value)"
-              class="mt-1 bg-slate-50 border border-slate-300 text-slate-900 font-bold text-base sm:text-lg rounded-xl px-3 py-2 focus:ring-2 focus:ring-teal-500"
-            ></select>
+            <label for="psych-password-input" class="block text-xs font-bold text-slate-700 mb-1">Senha da Equipe de Psicólogos</label>
+            <input
+              id="psych-password-input"
+              type="password"
+              placeholder="Senha padrão: psi123"
+              class="w-full border border-slate-300 rounded-xl px-4 py-3 text-base focus:ring-2 focus:ring-teal-600"
+              required
+            />
           </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <button
-            id="btn-toggle-psych-status"
-            onclick="toggleLoggedPsychologistStatus()"
-            class="px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm cursor-pointer"
-          ></button>
-
-          <button
-            onclick="openPsychOwnRoom()"
-            class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow flex items-center gap-2 cursor-pointer"
-          >
-            <i data-lucide="video" class="w-4 h-4"></i>
-            <span>Abrir Minha Sala Virtual</span>
+          <button type="submit" class="w-full bg-teal-800 hover:bg-teal-700 text-white font-bold py-3 rounded-xl shadow cursor-pointer">
+            Acessar Área do Psicólogo
           </button>
-        </div>
+        </form>
       </div>
 
-      <!-- Sala Virtual do Psicólogo -->
-      <div id="psych-live-room" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-teal-600 overflow-hidden">
-        <div class="bg-teal-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
-            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
-            <h3 id="psych-room-title" class="font-extrabold text-base sm:text-lg">Sala Virtual de Escuta Ativa</h3>
-          </div>
-          <button
-            onclick="finishPsychSession()"
-            class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-xl shadow flex items-center gap-2 cursor-pointer"
-          >
-            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-            <span>Concluir Atendimento e Salvar Histórico</span>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3">
-          <!-- Área de Vídeo -->
-          <div class="lg:col-span-2 flex flex-col">
-            <div id="psych-video-container" class="w-full h-[380px] sm:h-[460px] bg-slate-950 relative"></div>
-            <div class="p-3 bg-slate-100 border-t border-slate-200 flex gap-2">
-              <input
-                id="psych-chat-input"
-                type="text"
-                placeholder="Enviar mensagem escrita para o idoso..."
-                class="flex-1 bg-white text-slate-900 text-sm px-3.5 py-2.5 rounded-xl border border-slate-300"
-                onkeydown="if(event.key==='Enter') sendRoomChat('psych')"
-              />
-              <button
-                onclick="sendRoomChat('psych')"
-                class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl cursor-pointer"
-              >
-                Enviar
-              </button>
+      <!-- Conteúdo Desbloqueado do Psicólogo -->
+      <div id="psych-dashboard-content" class="hidden space-y-6">
+        <!-- Barra de Controle do Profissional Conectado -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="bg-teal-100 text-teal-800 p-3 rounded-2xl w-fit">
+              <i data-lucide="user-check" class="w-7 h-7"></i>
             </div>
-            <div id="psych-chat-messages" class="px-4 py-2 bg-white max-h-32 overflow-y-auto space-y-1 text-sm"></div>
+            <div>
+              <label for="psych-selector" class="block text-xs font-bold uppercase tracking-wider text-slate-500">Profissional Conectado</label>
+              <select
+                id="psych-selector"
+                onchange="changeLoggedPsychologist(this.value)"
+                class="mt-1 bg-slate-50 border border-slate-300 text-slate-900 font-bold text-base sm:text-lg rounded-xl px-3 py-2 focus:ring-2 focus:ring-teal-500"
+              ></select>
+            </div>
           </div>
 
-          <!-- Prontuário / Registro Rápido -->
-          <div class="p-4 sm:p-5 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between space-y-4">
-            <div class="space-y-3">
-              <h4 class="font-extrabold text-slate-900 flex items-center gap-2">
-                <i data-lucide="file-text" class="w-4 h-4 text-teal-700"></i>
-                Registro do Acolhimento
-              </h4>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Nome do(a) Idoso(a) Atendido(a)</label>
-                <input
-                  id="psych-session-senior-name"
-                  type="text"
-                  placeholder="Ex: Dona Maria"
-                  class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Observações Clínicas / Escuta</label>
-                <textarea
-                  id="psych-session-notes"
-                  rows="6"
-                  placeholder="Anote percepções emocionais, temas conversados ou necessidade de retorno..."
-                  class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm"
-                ></textarea>
-              </div>
-            </div>
+          <div class="flex flex-wrap items-center gap-2.5">
             <button
-              onclick="finishPsychSession()"
-              class="w-full bg-teal-800 hover:bg-teal-700 text-white font-bold py-3 rounded-xl text-sm shadow cursor-pointer"
+              id="btn-toggle-psych-status"
+              onclick="toggleLoggedPsychologistStatus()"
+              class="px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm cursor-pointer"
+            ></button>
+
+            <button
+              onclick="openPsychOwnRoom()"
+              class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow flex items-center gap-2 cursor-pointer"
             >
-              Registrar no Histórico do Paciente
+              <i data-lucide="video" class="w-4 h-4"></i>
+              <span>Abrir Minha Sala Virtual</span>
+            </button>
+
+            <button
+              onclick="lockPsychologist()"
+              class="border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer"
+              title="Sair / Bloquear acesso do psicólogo"
+            >
+              <i data-lucide="lock" class="w-4 h-4"></i>
+              <span>Sair</span>
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Fila de Solicitações + Histórico do Psicólogo -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Fila / Agendamentos -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <i data-lucide="clock" class="w-5 h-5 text-amber-500"></i>
-              Solicitações e Agendamentos
-            </h3>
-            <span id="psych-queue-count" class="bg-amber-100 text-amber-900 text-xs font-extrabold px-2.5 py-1 rounded-full">0</span>
+        <!-- Sala Virtual do Psicólogo -->
+        <div id="psych-live-room" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-teal-600 overflow-hidden">
+          <div class="bg-teal-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h3 id="psych-room-title" class="font-extrabold text-base sm:text-lg">Sala Virtual de Escuta Ativa</h3>
+            </div>
+            <button
+              onclick="finishPsychSession()"
+              class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-xl shadow flex items-center gap-2 cursor-pointer"
+            >
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              <span>Concluir Atendimento e Salvar Histórico</span>
+            </button>
           </div>
-          <div id="psych-queue-list" class="space-y-3"></div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3">
+            <!-- Área de Vídeo -->
+            <div class="lg:col-span-2 flex flex-col">
+              <div id="psych-video-container" class="w-full h-[380px] sm:h-[460px] bg-slate-950 relative"></div>
+              <div class="p-3 bg-slate-100 border-t border-slate-200 flex gap-2">
+                <input
+                  id="psych-chat-input"
+                  type="text"
+                  placeholder="Enviar mensagem escrita para o idoso..."
+                  class="flex-1 bg-white text-slate-900 text-sm px-3.5 py-2.5 rounded-xl border border-slate-300"
+                  onkeydown="if(event.key==='Enter') sendRoomChat('psych')"
+                />
+                <button
+                  onclick="sendRoomChat('psych')"
+                  class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl cursor-pointer"
+                >
+                  Enviar
+                </button>
+              </div>
+              <div id="psych-chat-messages" class="px-4 py-2 bg-white max-h-32 overflow-y-auto space-y-1 text-sm"></div>
+            </div>
+
+            <!-- Prontuário / Registro Rápido -->
+            <div class="p-4 sm:p-5 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between space-y-4">
+              <div class="space-y-3">
+                <h4 class="font-extrabold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-teal-700"></i>
+                  Registro do Acolhimento
+                </h4>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Nome do(a) Idoso(a) Atendido(a)</label>
+                  <input
+                    id="psych-session-senior-name"
+                    type="text"
+                    placeholder="Ex: Dona Maria"
+                    class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Observações Clínicas / Escuta</label>
+                  <textarea
+                    id="psych-session-notes"
+                    rows="6"
+                    placeholder="Anote percepções emocionais, temas conversados ou necessidade de retorno..."
+                    class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm"
+                  ></textarea>
+                </div>
+              </div>
+              <button
+                onclick="finishPsychSession()"
+                class="w-full bg-teal-800 hover:bg-teal-700 text-white font-bold py-3 rounded-xl text-sm shadow cursor-pointer"
+              >
+                Registrar no Histórico do Paciente
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Histórico de Idosos Atendidos pelo Psicólogo -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <i data-lucide="history" class="w-5 h-5 text-teal-700"></i>
-              Histórico de Idosos Atendidos
-            </h3>
-            <span id="psych-history-count" class="bg-teal-100 text-teal-900 text-xs font-extrabold px-2.5 py-1 rounded-full">0</span>
+        <!-- Fila de Solicitações + Histórico do Psicólogo -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Fila / Agendamentos -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <i data-lucide="clock" class="w-5 h-5 text-amber-500"></i>
+                Solicitações e Agendamentos
+              </h3>
+              <span id="psych-queue-count" class="bg-amber-100 text-amber-900 text-xs font-extrabold px-2.5 py-1 rounded-full">0</span>
+            </div>
+            <div id="psych-queue-list" class="space-y-3"></div>
           </div>
-          <div id="psych-history-list" class="space-y-3 max-h-96 overflow-y-auto"></div>
+
+          <!-- Histórico de Idosos Atendidos pelo Psicólogo -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <i data-lucide="history" class="w-5 h-5 text-teal-700"></i>
+                Histórico de Idosos Atendidos
+              </h3>
+              <span id="psych-history-count" class="bg-teal-100 text-teal-900 text-xs font-extrabold px-2.5 py-1 rounded-full">0</span>
+            </div>
+            <div id="psych-history-list" class="space-y-3 max-h-96 overflow-y-auto"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -432,42 +445,57 @@
           <!-- Alterar Senha / Bloquear Admin -->
           <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
             <div class="space-y-3">
-              <h3 class="text-lg font-extrabold text-slate-900">Segurança do Admin</h3>
-              <p class="text-xs text-slate-600">Altere a senha de acesso administrativo (fica salva na base de dados).</p>
-              <input id="admin-new-password" type="password" placeholder="Nova senha (mín. 4 dígitos)" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
-              <button onclick="updateAdminPassword()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl cursor-pointer">
-                Atualizar Senha
-              </button>
+              <h3 class="text-lg font-extrabold text-slate-900">Senhas de Acesso</h3>
+              <p class="text-xs text-slate-600">Defina a senha da equipe de psicólogos e do administrador.</p>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Senha dos Psicólogos (atual: <span id="current-psych-pass-hint" class="text-teal-800"></span>)</label>
+                <div class="flex gap-2">
+                  <input id="psych-new-password" type="password" placeholder="Nova senha psicólogo" class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+                  <button type="button" onclick="updatePsychologistPassword()" class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer">
+                    Salvar
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Senha do Admin</label>
+                <div class="flex gap-2">
+                  <input id="admin-new-password" type="password" placeholder="Nova senha admin (mín. 4)" class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+                  <button type="button" onclick="updateAdminPassword()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer">
+                    Salvar
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <!-- Conexão com Google Planilhas -->
+            <!-- Base Compartilhada Simples (Sem Planilha) -->
             <div class="pt-3 border-t border-slate-200 space-y-2.5">
               <div class="flex items-center justify-between">
                 <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                  <i data-lucide="sheet" class="w-4 h-4 text-emerald-700"></i>
-                  <span>Base via Google Planilha</span>
+                  <i data-lucide="globe" class="w-4 h-4 text-emerald-700"></i>
+                  <span>Base Compartilhada (Celular do Idoso)</span>
                 </h4>
-                <button type="button" onclick="toggleSheetsHelpModal(true)" class="text-xs font-bold text-teal-700 hover:underline cursor-pointer">
-                  Como configurar
+                <button type="button" onclick="pullFromSharedHub(true)" class="text-xs font-bold text-teal-700 hover:underline cursor-pointer">
+                  Atualizar agora
                 </button>
               </div>
-              <input
-                id="admin-sheets-webhook-url"
-                type="url"
-                placeholder="Cole a URL do Apps Script (https://script.google.com/macros/s/.../exec)"
-                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs"
-              />
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                Código da rede para sincronizar psicólogos e status entre dispositivos (ex.: seu computador e o celular do idoso):
+              </p>
               <div class="flex gap-2">
-                <button type="button" onclick="saveSheetsWebhookUrl()" class="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 rounded-xl cursor-pointer">
-                  Salvar e Sincronizar
-                </button>
-                <button type="button" onclick="pullFromGoogleSheets()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2.5 rounded-xl cursor-pointer" title="Buscar dados da planilha agora">
-                  Atualizar
-                </button>
-                <button type="button" onclick="copyShareableSyncLink()" class="bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold text-xs px-3 py-2.5 rounded-xl cursor-pointer" title="Copiar link com os psicólogos salvos para abrir no celular do idoso">
-                  Copiar Link
+                <input
+                  id="admin-shared-room-code"
+                  type="text"
+                  placeholder="Ex: escutatoria60-equipe"
+                  class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold"
+                />
+                <button type="button" onclick="saveSharedHubCode()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer">
+                  Ativar Rede
                 </button>
               </div>
+              <button type="button" onclick="copyShareableSyncLink()" class="w-full bg-teal-50 hover:bg-teal-100 text-teal-900 border border-teal-200 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                <span>Copiar Link Direto para o Celular do Idoso</span>
+              </button>
             </div>
 
             <button onclick="lockAdmin()" class="w-full border border-rose-300 text-rose-700 hover:bg-rose-50 font-bold text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer">
@@ -738,8 +766,11 @@ function doPost(e) {
       queue: [],
       history: [],
       selectedPsychologistId: 'psych_1',
+      psychologistUnlocked: false,
+      psychologistPassword: 'psi123',
       adminUnlocked: false,
       adminPassword: 'admin123',
+      sharedHubCode: 'escutatoria60-rede-principal',
       activeSeniorCall: null,
       activePsychCall: null,
       scheduleTargetPsychId: null,
@@ -755,275 +786,58 @@ function doPost(e) {
       QUEUE: 'escutatoria60_queue_v4',
       HISTORY: 'escutatoria60_history_v4',
       ADMIN_PASS: 'escutatoria60_admin_pass_v4',
+      PSYCH_PASS: 'escutatoria60_psych_pass_v4',
+      SHARED_HUB: 'escutatoria60_shared_hub_v4',
       SHEETS_URL: 'escutatoria60_sheets_url_v4'
     };
 
-    function getSheetsWebhookUrl() {
-      const inputVal = document.getElementById('admin-sheets-webhook-url')?.value?.trim();
-      if (inputVal) return inputVal;
+    const liveChannel = (() => {
       try {
-        return localStorage.getItem(STORAGE_KEYS.SHEETS_URL) || '';
-      } catch (e) {
-        return '';
-      }
-    }
-
-    function encodeSyncPayload(obj) {
-      const jsonStr = JSON.stringify(obj);
-      const bytes = new TextEncoder().encode(jsonStr);
-      let bin = '';
-      for (let i = 0; i < bytes.length; i++) {
-        bin += String.fromCharCode(bytes[i]);
-      }
-      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-
-    function decodeSyncPayload(hashStr) {
-      if (!hashStr || !hashStr.includes('sync=')) return null;
-      const match = hashStr.match(/sync=([a-zA-Z0-9\-_]+)/);
-      if (!match) return null;
-      let b64 = match[1].replace(/-/g, '+').replace(/_/g, '/');
-      while (b64.length % 4) b64 += '=';
-      const bin = atob(b64);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) {
-        bytes[i] = bin.charCodeAt(i);
-      }
-      const jsonStr = new TextDecoder().decode(bytes);
-      return JSON.parse(jsonStr);
-    }
-
-    window.copyShareableSyncLink = function() {
-      const payload = {
-        psychologists: appState.psychologists,
-        queue: appState.queue,
-        history: appState.history,
-        sheetsUrl: getSheetsWebhookUrl()
-      };
-      const encoded = encodeSyncPayload(payload);
-      const baseUrl = window.location.href.split('#')[0];
-      const shareUrl = `${baseUrl}#sync=${encoded}`;
-
-      const tempInput = document.createElement('input');
-      tempInput.value = shareUrl;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-        showToast('Link de sincronização copiado! Abra no celular do idoso para carregar a base.', 'success');
-      } catch (e) {
-        showToast('Copie o link na barra de endereço após colar ou enviar.', 'info');
-      }
-      tempInput.remove();
-    };
-
-    window.pullFromGoogleSheets = async function() {
-      const webhookUrl = getSheetsWebhookUrl();
-      if (!webhookUrl) return;
-      if (!isValidAppsScriptUrl(webhookUrl)) {
-        showToast('URL do Apps Script inválida (deve terminar com /exec).', 'error');
-        return;
-      }
-      try {
-        const sep = webhookUrl.includes('?') ? '&' : '?';
-        const res = await fetch(`${webhookUrl}${sep}_t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && Array.isArray(data.psychologists) && data.psychologists.length > 0) {
-          // Mescla preservando psicólogos locais caso a planilha ainda não tenha recebido o último envio
-          const sheetMap = new Map();
-          data.psychologists.forEach(p => {
-            if (p && p.id) sheetMap.set(p.id, p);
-          });
-          appState.psychologists.forEach(localP => {
-            if (localP && localP.id && !sheetMap.has(localP.id)) {
-              sheetMap.set(localP.id, localP);
-            }
-          });
-          appState.psychologists = Array.from(sheetMap.values());
-          if (Array.isArray(data.queue)) appState.queue = data.queue;
-          if (Array.isArray(data.history)) appState.history = data.history;
-          if (data.adminPassword) appState.adminPassword = data.adminPassword;
-          if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
-            appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
-          }
-          saveLocalBackup(true, false);
-          renderAll();
-          updateDbBadge(true, 'Planilha Sincronizada');
+        if ('BroadcastChannel' in window) {
+          return new BroadcastChannel('escutatoria60_live_channel_v4');
         }
       } catch (e) {}
-    };
+      return null;
+    })();
 
-    function startCrossDeviceSyncLoop() {
-      setInterval(() => {
-        if (getSheetsWebhookUrl()) {
-          pullFromGoogleSheets();
-        }
-      }, 6000);
-    }
-
-    window.toggleSheetsHelpModal = function(show) {
-      const modal = document.getElementById('sheets-help-modal');
-      if (!modal) return;
-      modal.classList.toggle('hidden', !show);
-      if (show && window.lucide) lucide.createIcons();
-    };
-
-    window.saveSheetsWebhookUrl = async function() {
-      const url = document.getElementById('admin-sheets-webhook-url')?.value?.trim() || '';
-      if (url && !isValidAppsScriptUrl(url)) {
-        showToast('A URL deve ser do Apps Script terminando em /exec (ex: https://script.google.com/macros/s/.../exec).', 'error');
-        return;
-      }
-      try {
-        localStorage.setItem(STORAGE_KEYS.SHEETS_URL, url);
-      } catch (e) {}
-      saveLocalBackup(true, false);
-      if (url) {
-        await pushToGoogleSheets(url, true);
-      } else {
-        showToast('URL da planilha limpa.', 'info');
-      }
-    };
-
-    async function pushToGoogleSheets(customUrl = null, notifyUser = false) {
-      const webhookUrl = customUrl || getSheetsWebhookUrl();
-      if (!webhookUrl) return;
-      if (!isValidAppsScriptUrl(webhookUrl)) {
-        if (notifyUser) {
-          showToast('URL inválida: use o link de implantação do Apps Script que termina com /exec.', 'error');
-        }
-        return;
-      }
-
-      const payload = {
-        psychologists: appState.psychologists,
-        queue: appState.queue,
-        history: appState.history,
-        adminPassword: appState.adminPassword,
-        updatedAt: Date.now()
-      };
-      const serialized = JSON.stringify(payload);
-
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: serialized
-        });
-        updateDbBadge(true, 'Planilha Sincronizada');
-        if (notifyUser) {
-          showToast(`Enviado para a planilha (${appState.psychologists.length} psicólogos). Confira as abas Psicologos e EstadoJSON!`, 'success');
-        }
-      } catch (err) {
-        // Fallback via formulário oculto caso o fetch seja bloqueado no ambiente
+    // =========================================================
+    // 2B. PERSISTÊNCIA EM INDEXEDDB, TOAST E NAVEGAÇÃO
+    // =========================================================
+    function openEscutatoriaDb() {
+      return new Promise((resolve) => {
         try {
-          const iframeName = 'sheets_post_target_' + Date.now();
-          const iframe = document.createElement('iframe');
-          iframe.name = iframeName;
-          iframe.className = 'hidden';
-          document.body.appendChild(iframe);
-
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = webhookUrl;
-          form.target = iframeName;
-          form.className = 'hidden';
-
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'payload';
-          input.value = serialized;
-          form.appendChild(input);
-
-          document.body.appendChild(form);
-          form.submit();
-          setTimeout(() => {
-            form.remove();
-            iframe.remove();
-          }, 4000);
-          updateDbBadge(true, 'Planilha Sincronizada');
-          if (notifyUser) {
-            showToast('Dados enviados para o Google Planilhas!', 'success');
-          }
-        } catch (fallbackErr) {
-          if (notifyUser) {
-            showToast('Falha ao enviar para a planilha. Verifique se o acesso do App da Web está como "Qualquer pessoa".', 'error');
-          }
-        }
-      }
-    }
-
-    window.pullFromGoogleSheets = async function() {
-      const webhookUrl = getSheetsWebhookUrl();
-      if (!webhookUrl) return;
-      if (!isValidAppsScriptUrl(webhookUrl)) {
-        showToast('URL do Apps Script inválida (deve terminar com /exec).', 'error');
-        return;
-      }
-      try {
-        const res = await fetch(webhookUrl, { cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && Array.isArray(data.psychologists) && data.psychologists.length > 0) {
-          // Mescla preservando psicólogos locais caso a planilha ainda não tenha recebido o último envio
-          const sheetMap = new Map();
-          data.psychologists.forEach(p => {
-            if (p && p.id) sheetMap.set(p.id, p);
-          });
-          appState.psychologists.forEach(localP => {
-            if (localP && localP.id && !sheetMap.has(localP.id)) {
-              sheetMap.set(localP.id, localP);
+          if (!('indexedDB' in window)) return resolve(null);
+          const req = indexedDB.open('Escutatoria60DB', 1);
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('state_store')) {
+              db.createObjectStore('state_store', { keyPath: 'id' });
             }
-          });
-          appState.psychologists = Array.from(sheetMap.values());
-          if (Array.isArray(data.queue)) appState.queue = data.queue;
-          if (Array.isArray(data.history)) appState.history = data.history;
-          if (data.adminPassword) appState.adminPassword = data.adminPassword;
-          if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
-            appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
-          }
-          saveLocalBackup(true, false);
-          renderAll();
-          updateDbBadge(true, 'Planilha Sincronizada');
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        } catch (e) {
+          resolve(null);
         }
-      } catch (e) {}
-    };
-
-    const liveChannel = ('BroadcastChannel' in window)
-      ? new BroadcastChannel('escutatoria60_live_v4')
-      : null;
-
-    function openLocalIndexedDB() {
-      return new Promise((resolve, reject) => {
-        if (!('indexedDB' in window)) return reject('No IndexedDB');
-        const req = indexedDB.open('Escutatoria60DB_v4', 1);
-        req.onupgradeneeded = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains('state')) {
-            db.createObjectStore('state');
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
       });
     }
 
     async function saveToIndexedDB(snapshot) {
       try {
-        const db = await openLocalIndexedDB();
-        const tx = db.transaction('state', 'readwrite');
-        tx.objectStore('state').put(snapshot, 'snapshot');
+        const db = await openEscutatoriaDb();
+        if (!db) return;
+        const tx = db.transaction('state_store', 'readwrite');
+        tx.objectStore('state_store').put({ id: 'main_snapshot', ...snapshot });
       } catch (e) {}
     }
 
     async function loadFromIndexedDB() {
       try {
-        const db = await openLocalIndexedDB();
+        const db = await openEscutatoriaDb();
+        if (!db) return null;
         return await new Promise((resolve) => {
-          const tx = db.transaction('state', 'readonly');
-          const req = tx.objectStore('state').get('snapshot');
+          const tx = db.transaction('state_store', 'readonly');
+          const req = tx.objectStore('state_store').get('main_snapshot');
           req.onsuccess = () => resolve(req.result || null);
           req.onerror = () => resolve(null);
         });
@@ -1032,821 +846,417 @@ function doPost(e) {
       }
     }
 
-    function applyStateSnapshot(snapshot) {
-      if (!snapshot || typeof snapshot !== 'object') return;
-      if (Array.isArray(snapshot.psychologists) && snapshot.psychologists.length > 0) {
-        const map = new Map();
-        snapshot.psychologists.forEach(p => {
-          if (p && p.id) map.set(p.id, p);
-        });
-        appState.psychologists.forEach(localP => {
-          if (localP && localP.id && !map.has(localP.id)) {
-            map.set(localP.id, localP);
-          }
-        });
-        appState.psychologists = Array.from(map.values());
-      }
-      if (Array.isArray(snapshot.queue)) {
-        appState.queue = snapshot.queue;
-      }
-      if (Array.isArray(snapshot.history)) {
-        appState.history = snapshot.history;
-      }
-      if (snapshot.adminPassword) {
-        appState.adminPassword = snapshot.adminPassword;
-      }
-    }
-
-    function saveLocalBackup(broadcast = true, syncSheets = true) {
-      const snapshot = {
-        psychologists: appState.psychologists,
-        queue: appState.queue,
-        history: appState.history,
-        adminPassword: appState.adminPassword,
-        updatedAt: Date.now()
-      };
-      try {
-        window.name = 'ESCUTATORIA60_STATE:' + JSON.stringify(snapshot);
-      } catch (e) {}
-      saveToIndexedDB(snapshot);
-      try {
-        localStorage.setItem(STORAGE_KEYS.PSYCHOLOGISTS, JSON.stringify(snapshot.psychologists));
-        localStorage.setItem(STORAGE_KEYS.QUEUE, JSON.stringify(snapshot.queue));
-        localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(snapshot.history));
-        localStorage.setItem(STORAGE_KEYS.ADMIN_PASS, snapshot.adminPassword);
-      } catch (e) {}
-      try {
-        sessionStorage.setItem('ESCUTATORIA60_SESSION', JSON.stringify(snapshot));
-      } catch (e) {}
-
-      if (broadcast && liveChannel) {
-        try {
-          liveChannel.postMessage({ type: 'STATE_SYNC', payload: snapshot });
-        } catch (e) {}
-      }
-
-      if (syncSheets) {
-        pushToGoogleSheets();
-      }
-    }
-
-    async function loadLocalBackup() {
-      try {
-        const hashData = decodeSyncPayload(window.location.hash || '');
-        if (hashData) {
-          if (hashData.sheetsUrl) {
-            try { localStorage.setItem(STORAGE_KEYS.SHEETS_URL, hashData.sheetsUrl); } catch (e) {}
-            const sheetsInput = document.getElementById('admin-sheets-webhook-url');
-            if (sheetsInput) sheetsInput.value = hashData.sheetsUrl;
-          }
-          if (Array.isArray(hashData.psychologists) && hashData.psychologists.length > 0) {
-            appState.psychologists = hashData.psychologists;
-          }
-          if (Array.isArray(hashData.queue)) appState.queue = hashData.queue;
-          if (Array.isArray(hashData.history)) appState.history = hashData.history;
-        }
-      } catch (e) {}
-
-      try {
-        const savedPsychs = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
-        const savedQueue = localStorage.getItem(STORAGE_KEYS.QUEUE);
-        const savedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
-        const savedPass = localStorage.getItem(STORAGE_KEYS.ADMIN_PASS);
-        const savedSheetsUrl = localStorage.getItem(STORAGE_KEYS.SHEETS_URL);
-
-        if (savedPsychs) {
-          const parsed = JSON.parse(savedPsychs);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            appState.psychologists = parsed;
-          }
-        }
-        if (savedQueue) appState.queue = JSON.parse(savedQueue) || [];
-        if (savedHistory) appState.history = JSON.parse(savedHistory) || [];
-        if (savedPass) appState.adminPassword = savedPass;
-
-        const sheetsInput = document.getElementById('admin-sheets-webhook-url');
-        if (savedSheetsUrl && sheetsInput) sheetsInput.value = savedSheetsUrl;
-      } catch (e) {}
-
-      const idbSnap = await loadFromIndexedDB();
-      if (idbSnap) applyStateSnapshot(idbSnap);
-
-      try {
-        const sess = sessionStorage.getItem('ESCUTATORIA60_SESSION');
-        if (sess) applyStateSnapshot(JSON.parse(sess));
-      } catch (e) {}
-
-      try {
-        if (typeof window.name === 'string' && window.name.startsWith('ESCUTATORIA60_STATE:')) {
-          applyStateSnapshot(JSON.parse(window.name.slice('ESCUTATORIA60_STATE:'.length)));
-        }
-      } catch (e) {}
-
-      if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
-        appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
-      }
-    }
-
-    window.addEventListener('storage', async (event) => {
-      if (Object.values(STORAGE_KEYS).includes(event.key)) {
-        await loadLocalBackup();
-        renderAll();
-      }
-    });
-
-    if (liveChannel) {
-      liveChannel.onmessage = (event) => {
-        const msg = event.data;
-        if (!msg) return;
-        if (msg.type === 'STATE_SYNC') {
-          applyStateSnapshot(msg.payload);
-          renderAll();
-        } else if (msg.type === 'VIDEO_FRAME') {
-          handleIncomingVideoFrame(msg);
-        } else if (msg.type === 'ROOM_CHAT') {
-          appendChatMessage(msg.targetRole, msg.sender, msg.text);
-        } else if (msg.type === 'ROOM_PRESENCE_PING') {
-          if (appState.activeSeniorCall) {
-            const roomName = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
-            if (msg.roomName === roomName) {
-              sendPresencePong('senior', roomName, appState.activeSeniorCall.seniorName);
-            }
-          }
-          if (appState.activePsychCall) {
-            const roomName = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
-            if (msg.roomName === roomName) {
-              sendPresencePong('psych', roomName, appState.activePsychCall.psychName);
-            }
-          }
-        } else if (msg.type === 'ROOM_PRESENCE_PONG') {
-          applyRemotePresence(msg.fromRole, msg.roomName, msg.senderName);
-        }
-      };
-    }
-
-    function sendPresencePong(role, roomName, senderName) {
-      if (!liveChannel) return;
-      try {
-        liveChannel.postMessage({ type: 'ROOM_PRESENCE_PONG', fromRole: role, roomName, senderName });
-      } catch (e) {}
-    }
-
-    function applyRemotePresence(fromRole, roomName, senderName) {
-      if (fromRole === 'psych' && appState.activeSeniorCall) {
-        const myRoom = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
-        if (roomName === myRoom) {
-          const badge = document.getElementById('senior-remote-badge');
-          const title = document.getElementById('senior-remote-title');
-          if (badge) {
-            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1.5';
-            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Psicólogo(a) Conectado(a) na Sala`;
-          }
-          if (title && senderName) title.textContent = senderName;
-        }
-      }
-      if (fromRole === 'senior' && appState.activePsychCall) {
-        const myRoom = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
-        if (roomName === myRoom) {
-          const badge = document.getElementById('psych-remote-badge');
-          const title = document.getElementById('psych-remote-title');
-          const roomHeader = document.getElementById('psych-room-title');
-          const seniorInput = document.getElementById('psych-session-senior-name');
-          if (badge) {
-            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1.5';
-            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Idoso(a) Conectado(a) na Sala`;
-          }
-          if (title && senderName) title.textContent = senderName;
-          if (roomHeader && senderName) roomHeader.textContent = `Sala de ${appState.activePsychCall.psychName} — Conversando com ${senderName}`;
-          if (seniorInput && !seniorInput.value && senderName) seniorInput.value = senderName;
-        }
-      }
-    }
-
-    function updateDbBadge(active, label) {
-      const badge = document.getElementById('db-status-badge');
-      if (!badge) return;
-      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></span> ${label}`;
-    }
-
-    async function initCloudDatabase() {
-      await loadLocalBackup();
-      renderAll();
-      await pullFromGoogleSheets();
-
-      try {
-        if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-          updateDbBadge(true, 'Base Local Salva');
-          return;
-        }
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        appState.auth = getAuth(app);
-        appState.db = getFirestore(app);
-
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          const cred = await signInWithCustomToken(appState.auth, __initial_auth_token);
-          appState.user = cred.user;
-        } else {
-          const cred = await signInAnonymously(appState.auth);
-          appState.user = cred.user;
-        }
-
-        if (appState.user) {
-          appState.dbReady = true;
-          updateDbBadge(true, 'Nuvem Sincronizada');
-
-          const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
-          onSnapshot(psychCol, async (snapshot) => {
-            if (snapshot.empty) {
-              for (const p of appState.psychologists) {
-                await setDoc(doc(psychCol, p.id), p);
-              }
-              return;
-            }
-            const cloudMap = new Map();
-            snapshot.forEach(d => cloudMap.set(d.id, { id: d.id, ...d.data() }));
-            for (const localP of appState.psychologists) {
-              if (!cloudMap.has(localP.id)) {
-                cloudMap.set(localP.id, localP);
-                setDoc(doc(psychCol, localP.id), localP).catch(() => {});
-              }
-            }
-            const list = Array.from(cloudMap.values());
-            list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-            appState.psychologists = list;
-            saveLocalBackup(false, false);
-            if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
-              appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
-            }
-            renderAll();
-          }, () => {});
-
-          const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue');
-          onSnapshot(queueCol, (snapshot) => {
-            const list = [];
-            snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
-            list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            appState.queue = list;
-            saveLocalBackup(false, false);
-            renderAll();
-          }, () => {});
-
-          const histCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'history');
-          onSnapshot(histCol, (snapshot) => {
-            const list = [];
-            snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
-            list.sort((a, b) => (b.endedAt || 0) - (a.endedAt || 0));
-            appState.history = list;
-            saveLocalBackup(false, false);
-            renderAll();
-          }, () => {});
-        }
-      } catch (e) {
-        updateDbBadge(true, 'Base Local Salva');
-      }
-    }
-
-    // =========================================================
-    // 3. NOTIFICAÇÕES E NAVEGAÇÃO ENTRE ABAS
-    // =========================================================
-    window.showToast = function(message, type = 'info') {
+    function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       if (!container) return;
-      const colors = {
-        success: 'bg-emerald-800 text-white border-emerald-500',
-        error: 'bg-rose-800 text-white border-rose-500',
-        info: 'bg-slate-900 text-white border-teal-500'
+      const palette = {
+        success: 'bg-emerald-700 text-white border-emerald-500',
+        error: 'bg-rose-700 text-white border-rose-500',
+        info: 'bg-slate-900 text-white border-slate-700'
       };
       const toast = document.createElement('div');
-      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl border text-sm font-bold flex items-center gap-2 transition-all ${colors[type] || colors.info}`;
+      toast.className = `pointer-events-auto max-w-sm px-4 py-3 rounded-2xl shadow-xl border text-xs sm:text-sm font-bold transition-all ${palette[type] || palette.info}`;
       toast.textContent = message;
       container.appendChild(toast);
       setTimeout(() => {
-        toast.style.opacity = '0';
+        toast.classList.add('opacity-0');
         setTimeout(() => toast.remove(), 300);
-      }, 3400);
-    };
+      }, 3600);
+    }
 
-    window.switchView = function(view) {
-      appState.currentView = view;
-      const views = ['senior', 'psychologist', 'admin'];
-      views.forEach(v => {
-        const sec = document.getElementById(`view-${v}`);
-        const tab = document.getElementById(`tab-${v}`);
-        if (sec) sec.classList.toggle('hidden', v !== view);
-        if (tab) {
-          if (v === view) {
-            tab.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-teal-950 shadow cursor-pointer';
-          } else {
-            tab.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-teal-100 hover:bg-teal-800/70 transition-all cursor-pointer';
-          }
-        }
+    window.switchView = function(viewName) {
+      appState.currentView = viewName;
+      const views = {
+        senior: document.getElementById('view-senior'),
+        psychologist: document.getElementById('view-psychologist'),
+        admin: document.getElementById('view-admin')
+      };
+      const tabs = {
+        senior: document.getElementById('tab-senior'),
+        psychologist: document.getElementById('tab-psychologist'),
+        admin: document.getElementById('tab-admin')
+      };
+
+      Object.entries(views).forEach(([key, el]) => {
+        if (el) el.classList.toggle('hidden', key !== viewName);
       });
+
+      Object.entries(tabs).forEach(([key, btn]) => {
+        if (!btn) return;
+        const active = key === viewName;
+        btn.className = active
+          ? 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-teal-950 shadow cursor-pointer'
+          : 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-teal-100 hover:bg-teal-800/70 transition-all cursor-pointer';
+      });
+
       renderAll();
     };
 
     // =========================================================
-    // 4. SALA DE VÍDEO (CÂMERA LOCAL + WEBRTC + STREAM ENTRE ABAS)
+    // 2C. CÂMERA, SALA VIRTUAL, AGENDAMENTO E CHAT
     // =========================================================
-    const mediaState = {
-      seniorStream: null,
-      psychStream: null,
-      seniorPeer: null,
-      psychPeer: null,
-      seniorMicOn: true,
-      seniorCamOn: true,
-      psychMicOn: true,
-      psychCamOn: true,
-      seniorFrameTimer: null,
-      psychFrameTimer: null
-    };
+    const activeMediaStreams = { senior: null, psych: null };
+    const remoteFrameTargets = { senior: null, psych: null };
+    let localFrameTimer = null;
+    let presencePingTimer = null;
 
     function getRoomNameForPsych(psych) {
-      const cleanId = String(psych?.id || 'geral').replace(/[^a-zA-Z0-9]/g, '');
-      return `Escutatoria60_Sala_${cleanId}`;
+      return `escutatoria60-sala-${String(psych?.id || 'geral').replace(/[^a-zA-Z0-9_-]/g, '')}`;
     }
 
     function stopMediaStream(role) {
-      const key = role === 'senior' ? 'seniorStream' : 'psychStream';
-      const timerKey = role === 'senior' ? 'seniorFrameTimer' : 'psychFrameTimer';
-      const peerKey = role === 'senior' ? 'seniorPeer' : 'psychPeer';
-      if (mediaState[timerKey]) {
-        clearInterval(mediaState[timerKey]);
-        mediaState[timerKey] = null;
-      }
-      if (mediaState[peerKey]) {
-        try { mediaState[peerKey].destroy(); } catch (e) {}
-        mediaState[peerKey] = null;
-      }
-      if (mediaState[key]) {
-        mediaState[key].getTracks().forEach(t => t.stop());
-        mediaState[key] = null;
+      const stream = activeMediaStreams[role];
+      if (stream) {
+        stream.getTracks().forEach(t => {
+          try { t.stop(); } catch (e) {}
+        });
+        activeMediaStreams[role] = null;
       }
     }
 
-    function setupPeerWebRTC(role, roomName, localName, stream) {
-      if (typeof window.Peer === 'undefined' || !stream) return;
-      const peerKey = role === 'senior' ? 'seniorPeer' : 'psychPeer';
-      if (mediaState[peerKey]) {
-        try { mediaState[peerKey].destroy(); } catch (e) {}
+    async function acquireCameraStream() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Navegador sem suporte à câmera.');
       }
-
-      const psychPeerId = `${roomName}_PSYCH`;
-      const seniorPeerId = `${roomName}_SENIOR_${Date.now().toString().slice(-4)}`;
-      const myPeerId = role === 'psych' ? psychPeerId : seniorPeerId;
-
       try {
-        const peer = new window.Peer(myPeerId);
-        mediaState[peerKey] = peer;
-
-        peer.on('open', () => {
-          if (role === 'senior') {
-            const call = peer.call(psychPeerId, stream, { metadata: { senderName: localName } });
-            if (call) {
-              call.on('stream', (remoteStream) => {
-                attachRemoteWebRTCStream('senior', remoteStream, 'Psicólogo(a)');
-              });
-            }
-          }
+        return await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' },
+          audio: true
         });
-
-        peer.on('call', (incomingCall) => {
-          incomingCall.answer(stream);
-          const callerName = incomingCall.metadata?.senderName || 'Idoso(a)';
-          incomingCall.on('stream', (remoteStream) => {
-            attachRemoteWebRTCStream('psych', remoteStream, callerName);
-          });
-        });
-      } catch (e) {}
-    }
-
-    function attachRemoteWebRTCStream(role, remoteStream, senderName) {
-      const remoteVideo = document.getElementById(`${role}-remote-webrtc-video`);
-      const placeholder = document.getElementById(`${role}-remote-placeholder`);
-      const nameBadge = document.getElementById(`${role}-remote-name-overlay`);
-      if (remoteVideo) {
-        remoteVideo.srcObject = remoteStream;
-        remoteVideo.classList.remove('hidden');
-        remoteVideo.play().catch(() => {});
-      }
-      if (placeholder) placeholder.classList.add('hidden');
-      if (nameBadge) {
-        nameBadge.textContent = `${senderName} (Ao Vivo)`;
-        nameBadge.classList.remove('hidden');
-      }
-    }
-
-    function startBroadcastingFrames(role, roomName, senderName) {
-      const timerKey = role === 'senior' ? 'seniorFrameTimer' : 'psychFrameTimer';
-      if (mediaState[timerKey]) clearInterval(mediaState[timerKey]);
-      if (!liveChannel) return;
-
-      const canvas = document.createElement('canvas');
-      canvas.width = 320;
-      canvas.height = 240;
-      const ctx = canvas.getContext('2d');
-
-      mediaState[timerKey] = setInterval(() => {
-        const videoEl = document.getElementById(`${role}-local-video`);
-        if (!videoEl || videoEl.readyState < 2 || videoEl.paused) return;
+      } catch (e1) {
         try {
-          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-          const frameData = canvas.toDataURL('image/jpeg', 0.45);
-          liveChannel.postMessage({
-            type: 'VIDEO_FRAME',
-            fromRole: role,
-            roomName,
-            senderName,
-            frameData
-          });
-        } catch (e) {}
-      }, 180);
+          return await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        } catch (e2) {
+          return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
+      }
     }
+
+    window.toggleLocalTrack = function(role, kind) {
+      const stream = activeMediaStreams[role];
+      if (!stream) return;
+      const tracks = kind === 'audio' ? stream.getAudioTracks() : stream.getVideoTracks();
+      tracks.forEach(t => { t.enabled = !t.enabled; });
+    };
 
     function handleIncomingVideoFrame(msg) {
-      if (msg.fromRole === 'senior' && appState.activePsychCall) {
-        const myRoom = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
-        if (msg.roomName === myRoom) {
-          displayRemoteFrame('psych', msg.frameData, msg.senderName);
-        }
-      } else if (msg.fromRole === 'psych' && appState.activeSeniorCall) {
+      if (!msg || !msg.dataUrl || !msg.roomName) return;
+      if (msg.senderRole === 'psych' && appState.activeSeniorCall) {
         const myRoom = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
         if (msg.roomName === myRoom) {
-          displayRemoteFrame('senior', msg.frameData, msg.senderName);
+          const img = document.getElementById('senior-remote-frame');
+          if (img) {
+            img.src = msg.dataUrl;
+            img.classList.remove('hidden');
+          }
+          applyRemotePresence('psych', msg.roomName, msg.senderName);
+        }
+      }
+      if (msg.senderRole === 'senior' && appState.activePsychCall) {
+        const myRoom = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
+        if (msg.roomName === myRoom) {
+          const img = document.getElementById('psych-remote-frame');
+          if (img) {
+            img.src = msg.dataUrl;
+            img.classList.remove('hidden');
+          }
+          applyRemotePresence('senior', msg.roomName, msg.senderName);
         }
       }
     }
 
-    function displayRemoteFrame(targetRole, frameData, senderName) {
-      const imgEl = document.getElementById(`${targetRole}-remote-feed`);
-      const placeholder = document.getElementById(`${targetRole}-remote-placeholder`);
-      const nameBadge = document.getElementById(`${targetRole}-remote-name-overlay`);
-      if (imgEl) {
-        imgEl.src = frameData;
-        imgEl.classList.remove('hidden');
-      }
-      if (placeholder) placeholder.classList.add('hidden');
-      if (nameBadge && senderName) {
-        nameBadge.textContent = `${senderName} (Ao Vivo)`;
-        nameBadge.classList.remove('hidden');
-      }
+    function startFrameBroadcast(role, roomName, senderName, localVideoEl) {
+      if (localFrameTimer) clearInterval(localFrameTimer);
+      const canvas = document.createElement('canvas');
+      canvas.width = 240;
+      canvas.height = 180;
+      const ctx = canvas.getContext('2d');
+
+      localFrameTimer = setInterval(() => {
+        try {
+          if (!liveChannel) return;
+          if (localVideoEl && localVideoEl.readyState >= 2 && ctx) {
+            ctx.drawImage(localVideoEl, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.45);
+            liveChannel.postMessage({
+              type: 'VIDEO_FRAME',
+              senderRole: role,
+              roomName,
+              senderName,
+              dataUrl
+            });
+          }
+          liveChannel.postMessage({
+            type: 'ROOM_PRESENCE_PING',
+            senderRole: role,
+            roomName,
+            senderName
+          });
+        } catch (e) {}
+      }, 450);
     }
 
-    async function mountVideoRoom(containerId, roomName, localName, role, remoteParticipantName = '') {
+    async function mountVideoRoom(containerId, roomName, selfName, role, partnerName = '') {
       const container = document.getElementById(containerId);
       if (!container) return;
-      const isSenior = role === 'senior';
-      const activeReq = !isSenior
-        ? appState.queue.find(q => q.psychId === appState.selectedPsychologistId && (q.status === 'in_call' || q.status === 'waiting'))
-        : null;
-      const effectiveRemoteName = remoteParticipantName || (activeReq ? activeReq.seniorName : '');
+      stopMediaStream(role);
+      remoteFrameTargets[role] = roomName;
+
+      const remoteLabel = role === 'senior'
+        ? (partnerName || 'Psicólogo(a)')
+        : (partnerName || 'Idoso(a)');
 
       container.innerHTML = `
-        <div class="w-full h-full flex flex-col justify-between bg-slate-950 text-white relative overflow-hidden">
-          <div class="grid grid-cols-1 md:grid-cols-2 w-full h-full gap-1.5 p-1.5 bg-slate-950">
-            <!-- Quadro 1: Outro Participante -->
-            <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 via-slate-900 to-teal-950 border border-white/10 flex flex-col items-center justify-center text-center">
-              <video id="${role}-remote-webrtc-video" autoplay playsinline class="hidden w-full h-full object-cover"></video>
-              <img id="${role}-remote-feed" alt="Vídeo do participante" class="hidden w-full h-full object-cover scale-x-[-1]" />
-              <div id="${role}-remote-name-overlay" class="hidden absolute top-2.5 left-2.5 bg-emerald-700/90 text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/15 shadow">
-                ${effectiveRemoteName}
+        <div class="w-full h-full grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-950 text-white">
+          <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 flex flex-col items-center justify-center min-h-[175px]">
+            <img id="${role}-remote-frame" alt="Vídeo remoto" class="hidden w-full h-full object-cover" />
+            <div id="${role}-remote-placeholder" class="p-4 text-center space-y-2">
+              <div id="${role}-remote-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/30 mb-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span> Aguardando outra pessoa na sala
               </div>
-
-              <div id="${role}-remote-placeholder" class="p-4 flex flex-col items-center justify-center">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-teal-600/30 border-2 border-emerald-400/60 text-white flex items-center justify-center mb-2.5 shadow-lg">
-                  <i data-lucide="${isSenior ? 'heart-handshake' : 'smile'}" class="w-9 h-9 text-emerald-300"></i>
-                </div>
-                <span id="${role}-remote-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${effectiveRemoteName ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'} mb-1">
-                  <span class="w-2 h-2 rounded-full ${effectiveRemoteName ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></span>
-                  ${effectiveRemoteName ? (isSenior ? 'Psicólogo(a) na Sala' : 'Idoso(a) Conectado(a)') : 'Aguardando entrada...'}
-                </span>
-                <h4 id="${role}-remote-title" class="text-base sm:text-lg font-extrabold text-white">
-                  ${effectiveRemoteName || 'Sala Pronta para Acolhimento'}
-                </h4>
-                <p class="text-xs text-slate-300 mt-1 max-w-xs">
-                  Assim que a outra pessoa ativar a câmera na mesma sala, o vídeo aparecerá aqui automaticamente.
-                </p>
-              </div>
-            </div>
-
-            <!-- Quadro 2: Câmera Local -->
-            <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
-              <video id="${role}-local-video" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
-              <div class="absolute top-2.5 left-2.5 bg-slate-950/75 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/15">
-                Você (${localName})
-              </div>
-              <div id="${role}-camera-fallback" class="hidden absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center p-4 text-center">
-                <i data-lucide="camera-off" class="w-8 h-8 text-amber-400 mb-2"></i>
-                <p id="${role}-fallback-reason" class="text-xs text-slate-300 mb-3 max-w-xs">Clique abaixo para liberar câmera e microfone.</p>
-                <button onclick="retryCameraAccess('${role}')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl cursor-pointer">
-                  Ativar Câmera
-                </button>
-              </div>
+              <p id="${role}-remote-title" class="font-extrabold text-base sm:text-lg">${escapeHtml(remoteLabel)}</p>
+              <p class="text-xs text-slate-400">Quando ambos estiverem na mesma sala, o vídeo e o chat aparecem aqui.</p>
             </div>
           </div>
 
-          <!-- Controles Inferiores -->
-          <div class="bg-slate-900/95 border-t border-white/10 px-3 py-2 flex flex-wrap items-center justify-center gap-2">
-            <button id="${role}-btn-mic" onclick="toggleMic('${role}')" class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="mic" class="w-4 h-4"></i>
-              <span>Microfone Ligado</span>
-            </button>
-            <button id="${role}-btn-cam" onclick="toggleCam('${role}')" class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="video" class="w-4 h-4"></i>
-              <span>Câmera Ligada</span>
-            </button>
+          <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 flex flex-col justify-between min-h-[175px]">
+            <video id="${role}-local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            <div class="absolute bottom-2.5 left-2.5 right-2.5 flex flex-wrap items-center justify-between gap-2 bg-slate-950/75 backdrop-blur-sm px-3 py-2 rounded-xl">
+              <span class="text-xs font-bold text-white">Você (${escapeHtml(selfName)})</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="toggleLocalTrack('${role}', 'video')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold cursor-pointer">Câmera</button>
+                <button type="button" onclick="toggleLocalTrack('${role}', 'audio')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold cursor-pointer">Microfone</button>
+                <button type="button" onclick="retryCamera('${role}')" class="px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-600 text-xs font-bold cursor-pointer">Ativar Câmera</button>
+              </div>
+            </div>
           </div>
         </div>
       `;
 
-      if (window.lucide) lucide.createIcons();
-      const stream = await activateDeviceCamera(role);
-      setupPeerWebRTC(role, roomName, localName, stream);
-      startBroadcastingFrames(role, roomName, localName);
+      const localVideo = document.getElementById(`${role}-local-video`);
+      try {
+        const stream = await acquireCameraStream();
+        activeMediaStreams[role] = stream;
+        if (localVideo) {
+          localVideo.srcObject = stream;
+          localVideo.play().catch(() => {});
+        }
+        startFrameBroadcast(role, roomName, selfName, localVideo);
+      } catch (err) {
+        showToast('Permita o acesso à câmera/microfone se desejar vídeo ao vivo. O chat continua ativo!', 'info');
+        startFrameBroadcast(role, roomName, selfName, null);
+      }
 
       if (liveChannel) {
         try {
           liveChannel.postMessage({
             type: 'ROOM_PRESENCE_PING',
-            fromRole: role,
+            senderRole: role,
             roomName,
-            senderName: localName
+            senderName: selfName
           });
         } catch (e) {}
       }
     }
 
-    async function activateDeviceCamera(role) {
-      const videoEl = document.getElementById(`${role}-local-video`);
-      const fallbackEl = document.getElementById(`${role}-camera-fallback`);
-      const reasonEl = document.getElementById(`${role}-fallback-reason`);
-
+    window.retryCamera = async function(role) {
+      const localVideo = document.getElementById(`${role}-local-video`);
       stopMediaStream(role);
-
-      const getUserMediaFn =
-        (navigator.mediaDevices && navigator.mediaDevices.getUserMedia
-          ? navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices)
-          : null) ||
-        navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia ||
-        null;
-
-      if (!getUserMediaFn) {
-        if (fallbackEl) fallbackEl.classList.remove('hidden');
-        if (reasonEl) reasonEl.textContent = 'Câmera indisponível neste navegador ou contexto sem HTTPS. Abra em conexão segura (HTTPS) ou localhost.';
-        return null;
-      }
-
-      const requestStream = (constraints) => new Promise((resolve, reject) => {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia(constraints).then(resolve).catch(reject);
-        } else {
-          getUserMediaFn.call(navigator, constraints, resolve, reject);
-        }
-      });
-
       try {
-        let stream = null;
-        try {
-          stream = await requestStream({ video: { facingMode: 'user' }, audio: true });
-        } catch (firstErr) {
-          try {
-            stream = await requestStream({ video: true, audio: true });
-          } catch (secondErr) {
-            stream = await requestStream({ video: true, audio: false });
-          }
+        const stream = await acquireCameraStream();
+        activeMediaStreams[role] = stream;
+        if (localVideo) {
+          localVideo.srcObject = stream;
+          await localVideo.play().catch(() => {});
         }
-
-        if (role === 'senior') {
-          mediaState.seniorStream = stream;
-          mediaState.seniorMicOn = stream.getAudioTracks().length > 0;
-          mediaState.seniorCamOn = stream.getVideoTracks().length > 0;
-        } else {
-          mediaState.psychStream = stream;
-          mediaState.psychMicOn = stream.getAudioTracks().length > 0;
-          mediaState.psychCamOn = stream.getVideoTracks().length > 0;
-        }
-        if (videoEl) {
-          videoEl.muted = true;
-          videoEl.playsInline = true;
-          videoEl.srcObject = stream;
-          await videoEl.play().catch(() => {});
-        }
-        if (fallbackEl) fallbackEl.classList.add('hidden');
-        return stream;
-      } catch (err) {
-        if (fallbackEl) fallbackEl.classList.remove('hidden');
-        if (reasonEl) {
-          reasonEl.textContent = err && err.name === 'NotAllowedError'
-            ? 'Permissão de câmera negada. Toque no cadeado/configurações do navegador, permita Câmera e toque em Ativar Câmera.'
-            : 'Não foi possível acessar a câmera agora. Verifique se outro app está usando a câmera ou toque em Ativar Câmera.';
-        }
-        return null;
-      }
-    }
-
-    window.retryCameraAccess = async function(role) {
-      const stream = await activateDeviceCamera(role);
-      if (role === 'senior' && appState.activeSeniorCall) {
-        const roomName = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
-        setupPeerWebRTC('senior', roomName, appState.activeSeniorCall.seniorName, stream);
-      } else if (role === 'psych' && appState.activePsychCall) {
-        const roomName = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
-        setupPeerWebRTC('psych', roomName, appState.activePsychCall.psychName, stream);
+        showToast('Câmera ativada!', 'success');
+      } catch (e) {
+        showToast('Não foi possível acessar a câmera neste dispositivo/janela.', 'error');
       }
     };
 
-    window.toggleMic = function(role) {
-      const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
-      const btn = document.getElementById(`${role}-btn-mic`);
-      if (!stream) return;
-      const nextState = role === 'senior' ? !mediaState.seniorMicOn : !mediaState.psychMicOn;
-      if (role === 'senior') mediaState.seniorMicOn = nextState; else mediaState.psychMicOn = nextState;
-      stream.getAudioTracks().forEach(t => t.enabled = nextState);
-      if (btn) {
-        btn.className = `${nextState ? 'bg-teal-700 hover:bg-teal-600' : 'bg-rose-700 hover:bg-rose-600'} text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer`;
-        btn.innerHTML = `<i data-lucide="${nextState ? 'mic' : 'mic-off'}" class="w-4 h-4"></i><span>${nextState ? 'Microfone Ligado' : 'Microfone Mudo'}</span>`;
-        if (window.lucide) lucide.createIcons();
-      }
-    };
-
-    window.toggleCam = function(role) {
-      const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
-      const btn = document.getElementById(`${role}-btn-cam`);
-      if (!stream) return;
-      const nextState = role === 'senior' ? !mediaState.seniorCamOn : !mediaState.psychCamOn;
-      if (role === 'senior') mediaState.seniorCamOn = nextState; else mediaState.psychCamOn = nextState;
-      stream.getVideoTracks().forEach(t => t.enabled = nextState);
-      if (btn) {
-        btn.className = `${nextState ? 'bg-teal-700 hover:bg-teal-600' : 'bg-rose-700 hover:bg-rose-600'} text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer`;
-        btn.innerHTML = `<i data-lucide="${nextState ? 'video' : 'video-off'}" class="w-4 h-4"></i><span>${nextState ? 'Câmera Ligada' : 'Câmera Pausada'}</span>`;
-        if (window.lucide) lucide.createIcons();
-      }
-    };
-
-    window.sendRoomChat = function(senderRole) {
-      const input = document.getElementById(`${senderRole}-chat-input`);
-      if (!input || !input.value.trim()) return;
-      const text = input.value.trim();
-      input.value = '';
-      const senderName = senderRole === 'senior'
-        ? (appState.activeSeniorCall?.seniorName || 'Idoso(a)')
-        : (appState.activePsychCall?.psychName || 'Psicólogo(a)');
-      appendChatMessage(senderRole, senderName, text);
-      const otherRole = senderRole === 'senior' ? 'psych' : 'senior';
-      appendChatMessage(otherRole, senderName, text);
-      if (liveChannel) {
-        try {
-          liveChannel.postMessage({ type: 'ROOM_CHAT', targetRole: otherRole, sender: senderName, text });
-        } catch (e) {}
-      }
-    };
-
-    function appendChatMessage(targetRole, sender, text) {
-      const box = document.getElementById(`${targetRole}-chat-messages`);
-      if (!box) return;
-      const line = document.createElement('div');
-      line.className = 'bg-slate-100 rounded-lg px-3 py-1.5 text-slate-800';
-      line.innerHTML = `<strong class="text-teal-800">${escapeHtml(sender)}:</strong> ${escapeHtml(text)}`;
-      box.appendChild(line);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    // =========================================================
-    // 5. FLUXO DO IDOSO
-    // =========================================================
-    window.connectImmediateSenior = function() {
-      const onlinePsych = appState.psychologists.find(p => p.online);
+    window.quickStartSeniorCall = function() {
+      const nameInput = document.getElementById('senior-quick-name');
+      const seniorName = (nameInput?.value || '').trim() || 'Idoso(a)';
+      const onlinePsych = appState.psychologists.find(p => p.online) || appState.psychologists[0];
       if (!onlinePsych) {
-        showToast('Nenhum psicólogo online agora. Você pode agendar um horário abaixo!', 'info');
+        showToast('Nenhum psicólogo cadastrado no momento.', 'error');
         return;
       }
-      startSeniorRoomWithPsych(onlinePsych.id);
+      startSeniorRoomWithPsych(onlinePsych.id, seniorName);
     };
 
-    window.startSeniorRoomWithPsych = async function(psychId) {
+    window.startSeniorRoomWithPsych = async function(psychId, customName = null) {
       const psych = appState.psychologists.find(p => p.id === psychId);
       if (!psych) return;
-      const nameInput = document.getElementById('senior-name-input');
-      const seniorName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Visitante 60+';
+      const seniorName = (customName || document.getElementById('senior-quick-name')?.value || '').trim() || 'Idoso(a)';
 
       const reqId = 'req_' + Date.now();
-      const requestObj = {
+      const newReq = {
         id: reqId,
         seniorName,
         psychId: psych.id,
         psychName: psych.name,
-        type: 'Imediato',
+        type: 'Conversa Imediata',
         period: 'Agora',
-        status: 'in_call',
+        status: 'waiting',
         createdAt: Date.now()
       };
-
-      appState.queue = [requestObj, ...appState.queue];
+      appState.queue = [newReq, ...appState.queue.filter(q => !(q.seniorName === seniorName && q.psychId === psych.id))];
       saveLocalBackup();
-
-      if (appState.dbReady && appState.user) {
-        const qRef = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue', reqId);
-        setDoc(qRef, requestObj).catch(() => {});
-      }
 
       appState.activeSeniorCall = {
         requestId: reqId,
-        seniorName,
         psychId: psych.id,
         psychName: psych.name,
+        seniorName,
         startedAt: Date.now()
       };
 
-      // Modo foco no celular
-      if (window.innerWidth < 768) {
-        document.getElementById('main-app-header')?.classList.add('hidden');
-        document.getElementById('senior-welcome-banner')?.classList.add('hidden');
-      }
+      const roomBox = document.getElementById('senior-live-room');
+      const titleEl = document.getElementById('senior-room-title');
+      if (roomBox) roomBox.classList.remove('hidden');
+      if (titleEl) titleEl.textContent = `Conversando com ${psych.name}`;
 
-      document.getElementById('senior-psych-list-section')?.classList.add('hidden');
-      const liveRoom = document.getElementById('senior-live-room');
-      if (liveRoom) liveRoom.classList.remove('hidden');
-      const roomNameEl = document.getElementById('senior-room-psych-name');
-      if (roomNameEl) roomNameEl.textContent = `${psych.name} (${psych.crp})`;
-
-      const roomName = getRoomNameForPsych(psych);
-      await mountVideoRoom('senior-video-container', roomName, seniorName, 'senior', psych.name);
-      showToast(`Conectado(a) à sala de ${psych.name}!`, 'success');
+      await mountVideoRoom('senior-video-container', getRoomNameForPsych(psych), seniorName, 'senior', psych.name);
+      renderAll();
+      roomBox?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    window.leaveSeniorRoom = function() {
+    window.endSeniorCall = function() {
       stopMediaStream('senior');
-      if (appState.activeSeniorCall) {
-        const { requestId, seniorName, psychId, psychName, startedAt } = appState.activeSeniorCall;
-        const durationMin = Math.max(1, Math.round((Date.now() - startedAt) / 60000));
+      const call = appState.activeSeniorCall;
+      if (call) {
+        const durationMin = Math.max(1, Math.round((Date.now() - (call.startedAt || Date.now())) / 60000));
         recordCompletedSession({
-          seniorName,
-          psychId,
-          psychName,
+          seniorName: call.seniorName,
+          psychId: call.psychId,
+          psychName: call.psychName,
           duration: `${durationMin} min`,
-          notes: 'Atendimento encerrado pelo(a) paciente na sala virtual.'
+          notes: 'Acolhimento online concluído pelo idoso.'
         });
-        removeQueueItem(requestId);
-        appState.activeSeniorCall = null;
+        removeQueueItem(call.requestId);
       }
-
-      document.getElementById('main-app-header')?.classList.remove('hidden');
-      document.getElementById('senior-welcome-banner')?.classList.remove('hidden');
-      document.getElementById('senior-psych-list-section')?.classList.remove('hidden');
+      appState.activeSeniorCall = null;
       document.getElementById('senior-live-room')?.classList.add('hidden');
       const vc = document.getElementById('senior-video-container');
       if (vc) vc.innerHTML = '';
       renderAll();
-      showToast('Conversa encerrada com carinho. Até breve!', 'info');
+      showToast('Conversa encerrada e registrada no histórico!', 'info');
     };
 
     window.openScheduleModal = function(psychId) {
       const psych = appState.psychologists.find(p => p.id === psychId);
       if (!psych) return;
       appState.scheduleTargetPsychId = psychId;
-      const mainName = document.getElementById('senior-name-input')?.value.trim() || '';
-      const modalName = document.getElementById('schedule-senior-name');
-      if (modalName && mainName) modalName.value = mainName;
+      const modal = document.getElementById('schedule-modal');
       const label = document.getElementById('schedule-modal-psych');
+      const nameInput = document.getElementById('schedule-senior-name');
       if (label) label.textContent = `Profissional: ${psych.name} (${psych.crp})`;
-      document.getElementById('schedule-modal')?.classList.remove('hidden');
+      if (nameInput) nameInput.value = (document.getElementById('senior-quick-name')?.value || '').trim();
+      if (modal) modal.classList.remove('hidden');
     };
 
     window.closeScheduleModal = function() {
       document.getElementById('schedule-modal')?.classList.add('hidden');
+      appState.scheduleTargetPsychId = null;
     };
 
     window.confirmSchedule = function() {
       const psych = appState.psychologists.find(p => p.id === appState.scheduleTargetPsychId);
       if (!psych) return;
-      const seniorName = document.getElementById('schedule-senior-name')?.value.trim() || 'Idoso(a) Agendado(a)';
+      const seniorName = (document.getElementById('schedule-senior-name')?.value || '').trim() || 'Idoso(a)';
       const period = document.getElementById('schedule-period')?.value || 'Hoje — Tarde';
-      const reqId = 'sched_' + Date.now();
       const item = {
-        id: reqId,
+        id: 'sched_' + Date.now(),
         seniorName,
         psychId: psych.id,
         psychName: psych.name,
-        type: 'Agendado',
+        type: 'Agendamento',
         period,
-        status: 'waiting',
+        status: 'scheduled',
         createdAt: Date.now()
       };
       appState.queue = [item, ...appState.queue];
       saveLocalBackup();
-      if (appState.dbReady && appState.user) {
-        setDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue', reqId), item).catch(() => {});
-      }
       closeScheduleModal();
       renderAll();
-      showToast(`Agendamento confirmado com ${psych.name} (${period})!`, 'success');
+      showToast(`Horário agendado com ${psych.name} (${period})!`, 'success');
     };
 
+    window.sendRoomChat = function(senderRole) {
+      const inputId = senderRole === 'senior' ? 'senior-chat-input' : 'psych-chat-input';
+      const input = document.getElementById(inputId);
+      const text = (input?.value || '').trim();
+      if (!text) return;
+
+      const senderLabel = senderRole === 'senior'
+        ? (appState.activeSeniorCall?.seniorName || 'Idoso(a)')
+        : (appState.activePsychCall?.psychName || 'Psicólogo(a)');
+
+      const targetRole = senderRole === 'senior' ? 'psych' : 'senior';
+      appendChatMessage('senior', senderLabel, text);
+      appendChatMessage('psych', senderLabel, text);
+
+      if (liveChannel) {
+        try {
+          liveChannel.postMessage({ type: 'ROOM_CHAT', targetRole, sender: senderLabel, text });
+        } catch (e) {}
+      }
+      input.value = '';
+    };
+
+    function appendChatMessage(role, sender, text) {
+      const boxId = role === 'senior' ? 'senior-chat-messages' : 'psych-chat-messages';
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      const line = document.createElement('div');
+      line.className = 'bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800';
+      line.innerHTML = `<strong class="text-teal-900">${escapeHtml(sender)}:</strong> ${escapeHtml(text)}`;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
     // =========================================================
-    // 6. FLUXO DO PSICÓLOGO
+    // 6. FLUXO DO PSICÓLOGO (SENHA + SALA + FILA + HISTÓRICO)
     // =========================================================
+    window.unlockPsychologist = function(event) {
+      event.preventDefault();
+      const pass = document.getElementById('psych-password-input')?.value || '';
+      if (pass === appState.psychologistPassword) {
+        appState.psychologistUnlocked = true;
+        document.getElementById('psych-password-input').value = '';
+        renderPsychologistView();
+        if (window.lucide) lucide.createIcons();
+        showToast('Acesso do psicólogo liberado!', 'success');
+      } else {
+        showToast('Senha do psicólogo incorreta. Tente novamente.', 'error');
+      }
+    };
+
+    window.lockPsychologist = function() {
+      stopMediaStream('psych');
+      appState.activePsychCall = null;
+      document.getElementById('psych-live-room')?.classList.add('hidden');
+      appState.psychologistUnlocked = false;
+      renderPsychologistView();
+      if (window.lucide) lucide.createIcons();
+      showToast('Sessão do psicólogo encerrada.', 'info');
+    };
+
+    window.updatePsychologistPassword = function() {
+      const newPass = document.getElementById('psych-new-password')?.value.trim() || '';
+      if (newPass.length < 4) {
+        showToast('A senha dos psicólogos deve ter pelo menos 4 caracteres.', 'error');
+        return;
+      }
+      appState.psychologistPassword = newPass;
+      saveLocalBackup(true, true);
+      document.getElementById('psych-new-password').value = '';
+      renderAdminView();
+      showToast('Senha dos psicólogos atualizada!', 'success');
+    };
+
     window.changeLoggedPsychologist = function(psychId) {
       appState.selectedPsychologistId = psychId;
       renderPsychologistView();
@@ -2148,6 +1558,14 @@ function doPost(e) {
     }
 
     function renderPsychologistView() {
+      const lockScreen = document.getElementById('psych-lock-screen');
+      const dashboard = document.getElementById('psych-dashboard-content');
+      if (lockScreen && dashboard) {
+        lockScreen.classList.toggle('hidden', appState.psychologistUnlocked);
+        dashboard.classList.toggle('hidden', !appState.psychologistUnlocked);
+        if (!appState.psychologistUnlocked) return;
+      }
+
       const selector = document.getElementById('psych-selector');
       if (!selector) return;
 
@@ -2214,6 +1632,11 @@ function doPost(e) {
       dashboard.classList.toggle('hidden', !appState.adminUnlocked);
       if (!appState.adminUnlocked) return;
 
+      const psiHint = document.getElementById('current-psych-pass-hint');
+      if (psiHint) psiHint.textContent = appState.psychologistPassword;
+      const hubInput = document.getElementById('admin-shared-room-code');
+      if (hubInput && !hubInput.value) hubInput.value = appState.sharedHubCode;
+
       document.getElementById('stat-total-psychs').textContent = appState.psychologists.length;
       document.getElementById('stat-online-psychs').textContent = appState.psychologists.filter(p => p.online).length;
       document.getElementById('stat-queue-total').textContent = appState.queue.length;
@@ -2269,6 +1692,293 @@ function doPost(e) {
           </div>
         `).join('');
     };
+
+    // =========================================================
+    // 8B. PERSISTÊNCIA LOCAL, REDE COMPARTILHADA E SINCRONIZAÇÃO
+    // =========================================================
+    function buildSnapshot() {
+      return {
+        psychologists: appState.psychologists,
+        queue: appState.queue,
+        history: appState.history,
+        adminPassword: appState.adminPassword,
+        psychologistPassword: appState.psychologistPassword,
+        sharedHubCode: appState.sharedHubCode,
+        updatedAt: Date.now()
+      };
+    }
+
+    function applyStateSnapshot(snap, { fromRemote = false } = {}) {
+      if (!snap || typeof snap !== 'object') return;
+      if (Array.isArray(snap.psychologists) && snap.psychologists.length > 0) {
+        appState.psychologists = snap.psychologists;
+        if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
+          appState.selectedPsychologistId = appState.psychologists[0].id;
+        }
+      }
+      if (Array.isArray(snap.queue)) {
+        appState.queue = snap.queue;
+      }
+      if (Array.isArray(snap.history)) {
+        appState.history = snap.history;
+      }
+      if (typeof snap.adminPassword === 'string' && snap.adminPassword.length >= 4) {
+        appState.adminPassword = snap.adminPassword;
+      }
+      if (typeof snap.psychologistPassword === 'string' && snap.psychologistPassword.length >= 4) {
+        appState.psychologistPassword = snap.psychologistPassword;
+      }
+      if (typeof snap.sharedHubCode === 'string' && snap.sharedHubCode.trim()) {
+        appState.sharedHubCode = snap.sharedHubCode.trim();
+      }
+      if (fromRemote) {
+        try {
+          localStorage.setItem(STORAGE_KEYS.PSYCHOLOGISTS, JSON.stringify(appState.psychologists));
+          localStorage.setItem(STORAGE_KEYS.QUEUE, JSON.stringify(appState.queue));
+          localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(appState.history));
+        } catch (e) {}
+      }
+    }
+
+    function applyRemotePresence(senderRole, roomName, senderName) {
+      if (!roomName) return;
+      const viewerRole = senderRole === 'psych' ? 'senior' : 'psych';
+      const activeCall = viewerRole === 'senior' ? appState.activeSeniorCall : appState.activePsychCall;
+      if (!activeCall) return;
+      const myRoom = getRoomNameForPsych({ id: activeCall.psychId });
+      if (myRoom !== roomName) return;
+
+      const badge = document.getElementById(`${viewerRole}-remote-badge`);
+      const title = document.getElementById(`${viewerRole}-remote-title`);
+      if (badge) {
+        badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 mb-1.5';
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Conectado na sala`;
+      }
+      if (senderName && title) {
+        title.textContent = senderName;
+      }
+      if (viewerRole === 'psych' && senderName) {
+        const nameInput = document.getElementById('psych-session-senior-name');
+        if (nameInput && !nameInput.value.trim()) {
+          nameInput.value = senderName;
+        }
+      }
+    }
+
+    if (liveChannel) {
+      liveChannel.onmessage = (event) => {
+        const msg = event?.data;
+        if (!msg || typeof msg !== 'object') return;
+        if (msg.type === 'VIDEO_FRAME') {
+          handleIncomingVideoFrame(msg);
+        } else if (msg.type === 'ROOM_PRESENCE_PING') {
+          applyRemotePresence(msg.senderRole, msg.roomName, msg.senderName);
+        } else if (msg.type === 'ROOM_CHAT') {
+          if (msg.targetRole) appendChatMessage(msg.targetRole, msg.sender, msg.text);
+        } else if (msg.type === 'STATE_UPDATED' && msg.snapshot) {
+          applyStateSnapshot(msg.snapshot, { fromRemote: true });
+          renderAll();
+        }
+      };
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (!e.key || !Object.values(STORAGE_KEYS).includes(e.key)) return;
+      try {
+        const p = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
+        const q = localStorage.getItem(STORAGE_KEYS.QUEUE);
+        const h = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        if (p) appState.psychologists = JSON.parse(p);
+        if (q) appState.queue = JSON.parse(q);
+        if (h) appState.history = JSON.parse(h);
+        renderAll();
+      } catch (err) {}
+    });
+
+    function saveLocalBackup(pushRemote = true) {
+      const snap = buildSnapshot();
+      try {
+        localStorage.setItem(STORAGE_KEYS.PSYCHOLOGISTS, JSON.stringify(appState.psychologists));
+        localStorage.setItem(STORAGE_KEYS.QUEUE, JSON.stringify(appState.queue));
+        localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(appState.history));
+        localStorage.setItem(STORAGE_KEYS.ADMIN_PASS, appState.adminPassword);
+        localStorage.setItem(STORAGE_KEYS.PSYCH_PASS, appState.psychologistPassword);
+        localStorage.setItem(STORAGE_KEYS.SHARED_HUB, appState.sharedHubCode);
+      } catch (e) {}
+
+      try {
+        window.name = JSON.stringify({ escutatoria60Snapshot: snap });
+      } catch (e) {}
+
+      saveToIndexedDB(snap);
+
+      if (liveChannel) {
+        try {
+          liveChannel.postMessage({ type: 'STATE_UPDATED', snapshot: snap });
+        } catch (e) {}
+      }
+
+      if (pushRemote) {
+        pushToSharedHub(snap);
+      }
+    }
+
+    function getSharedHubEndpoint() {
+      const code = encodeURIComponent(String(appState.sharedHubCode || 'escutatoria60-rede-principal').trim() || 'escutatoria60-rede-principal');
+      return `https://kvdb.io/api/v1/buckets/${code}/keys/estado_principal`;
+    }
+
+    async function pushToSharedHub(snap) {
+      try {
+        await fetch(getSharedHubEndpoint(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(snap)
+        });
+      } catch (e) {}
+    }
+
+    window.pullFromSharedHub = async function(showFeedback = false) {
+      try {
+        const res = await fetch(getSharedHubEndpoint(), { cache: 'no-store' });
+        if (!res.ok) {
+          if (showFeedback) showToast('Nenhuma atualização remota nova encontrada agora.', 'info');
+          return;
+        }
+        const data = await res.json();
+        if (data && Array.isArray(data.psychologists) && data.psychologists.length > 0) {
+          applyStateSnapshot(data, { fromRemote: true });
+          renderAll();
+          if (showFeedback) showToast('Base compartilhada atualizada com sucesso!', 'success');
+        } else if (showFeedback) {
+          showToast('Base compartilhada ainda sem registros salvos.', 'info');
+        }
+      } catch (e) {
+        if (showFeedback) showToast('Sincronização em modo local ativa neste dispositivo.', 'info');
+      }
+    };
+
+    window.saveSharedHubCode = function() {
+      const input = document.getElementById('admin-shared-room-code');
+      const code = (input?.value || '').trim();
+      if (!code) {
+        showToast('Digite um código de rede válido.', 'error');
+        return;
+      }
+      appState.sharedHubCode = code;
+      saveLocalBackup(true);
+      pullFromSharedHub(true);
+    };
+
+    window.copyShareableSyncLink = function() {
+      try {
+        const compact = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(buildSnapshot())))));
+        const baseUrl = window.location.href.split('#')[0];
+        const shareUrl = `${baseUrl}#sync=${compact}`;
+        const aux = document.createElement('textarea');
+        aux.value = shareUrl;
+        document.body.appendChild(aux);
+        aux.select();
+        document.execCommand('copy');
+        document.body.removeChild(aux);
+        showToast('Link com os psicólogos copiado! Envie para o celular do idoso.', 'success');
+      } catch (e) {
+        showToast('Não foi possível gerar o link de compartilhamento.', 'error');
+      }
+    };
+
+    function parseHashSyncIfPresent() {
+      try {
+        const hash = window.location.hash || '';
+        const idx = hash.indexOf('sync=');
+        if (idx === -1) return;
+        const encoded = hash.slice(idx + 5).split('&')[0];
+        if (!encoded) return;
+        const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
+        const parsed = JSON.parse(jsonStr);
+        applyStateSnapshot(parsed, { fromRemote: true });
+        saveLocalBackup(false);
+      } catch (e) {}
+    }
+
+    function startCrossDeviceSyncLoop() {
+      setInterval(() => {
+        pullFromSharedHub(false);
+      }, 12000);
+    }
+
+    async function initCloudDatabase() {
+      try {
+        const localP = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
+        const localQ = localStorage.getItem(STORAGE_KEYS.QUEUE);
+        const localH = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        const localAdminPass = localStorage.getItem(STORAGE_KEYS.ADMIN_PASS);
+        const localPsychPass = localStorage.getItem(STORAGE_KEYS.PSYCH_PASS);
+        const localHub = localStorage.getItem(STORAGE_KEYS.SHARED_HUB);
+
+        if (localP) appState.psychologists = JSON.parse(localP);
+        if (localQ) appState.queue = JSON.parse(localQ);
+        if (localH) appState.history = JSON.parse(localH);
+        if (localAdminPass) appState.adminPassword = localAdminPass;
+        if (localPsychPass) appState.psychologistPassword = localPsychPass;
+        if (localHub) appState.sharedHubCode = localHub;
+
+        if (window.name && window.name.includes('escutatoria60Snapshot')) {
+          const parsedName = JSON.parse(window.name);
+          if (parsedName?.escutatoria60Snapshot) {
+            applyStateSnapshot(parsedName.escutatoria60Snapshot);
+          }
+        }
+
+        const idbSnap = await loadFromIndexedDB();
+        if (idbSnap) {
+          applyStateSnapshot(idbSnap);
+        }
+
+        parseHashSyncIfPresent();
+        renderAll();
+        pullFromSharedHub(false);
+
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const fbApp = initializeApp(firebaseConfig);
+          appState.auth = getAuth(fbApp);
+          appState.db = getFirestore(fbApp);
+
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(appState.auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(appState.auth);
+          }
+          appState.user = appState.auth.currentUser;
+          appState.dbReady = true;
+
+          const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
+          onSnapshot(psychCol, (snap) => {
+            if (!snap.empty) {
+              const cloudPsychs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+              const mergedMap = new Map();
+              appState.psychologists.forEach(p => mergedMap.set(p.id, p));
+              cloudPsychs.forEach(p => mergedMap.set(p.id, { ...mergedMap.get(p.id), ...p }));
+              appState.psychologists = Array.from(mergedMap.values());
+              saveLocalBackup(false);
+              renderAll();
+            }
+          });
+
+          const histCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'history');
+          onSnapshot(histCol, (snap) => {
+            if (!snap.empty) {
+              const cloudHist = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+              cloudHist.sort((a, b) => (b.endedAt || 0) - (a.endedAt || 0));
+              appState.history = cloudHist;
+              saveLocalBackup(false);
+              renderAll();
+            }
+          });
+        }
+      } catch (e) {}
+    }
 
     // =========================================================
     // 9. INICIALIZAÇÃO SEGURA
