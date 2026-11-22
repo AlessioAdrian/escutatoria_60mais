@@ -86,7 +86,7 @@
       </div>
 
       <!-- Seletor de Perfis / Abas -->
-      <nav aria-label="Modos de acesso" class="grid grid-cols-4 sm:flex items-center gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 w-full md:w-auto">
+      <nav aria-label="Modos de acesso" class="grid grid-cols-3 sm:flex items-center gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 w-full md:w-auto">
         <button
           id="tab-idoso"
           type="button"
@@ -113,16 +113,6 @@
         >
           <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
           <span>Admin</span>
-        </button>
-        <button
-          id="tab-demo"
-          type="button"
-          onclick="startLinkedInDemo()"
-          class="flex items-center justify-center gap-1.5 px-2 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-sm"
-          title="Iniciar apresentação automática para gravar vídeo"
-        >
-          <i data-lucide="play-circle" class="w-4 h-4 shrink-0"></i>
-          <span>Demo</span>
         </button>
       </nav>
     </div>
@@ -663,26 +653,152 @@
     </div>
   </div>
 
-  <!-- Overlay da Demonstração Guiada (LinkedIn) -->
-  <div id="demo-overlay" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[94vw] max-w-2xl bg-slate-900/95 text-white border border-indigo-400/40 rounded-3xl p-4 sm:p-5 shadow-2xl backdrop-blur-md">
-    <div class="flex items-center justify-between gap-3 mb-2">
-      <span id="demo-step-badge" class="text-xs font-extrabold uppercase tracking-wider bg-indigo-600 px-3 py-1 rounded-full">
-        Etapa 1 de 5
-      </span>
-      <button
-        type="button"
-        onclick="stopLinkedInDemo()"
-        class="text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1 rounded-xl"
-      >
-        Encerrar Demo
-      </button>
-    </div>
-    <p id="demo-caption-text" class="text-sm sm:text-base font-semibold leading-snug text-slate-100">
-      Apresentação automática em andamento...
-    </p>
-  </div>
+  <!-- Lógica Principal + Persistência -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  <!-- Lógica Principal + Persistência Firebase Firestore -->
+    const DEFAULT_PSYCHOLOGISTS = [
+      {
+        id: 'psi-helena',
+        name: 'Dra. Helena Vasconcelos',
+        crp: '06/142890',
+        specialty: 'Acolhimento emocional, solidão e memória afetiva',
+        online: true
+      },
+      {
+        id: 'psi-carlos',
+        name: 'Dr. Carlos Eduardo Mendes',
+        crp: '06/118432',
+        specialty: 'Escuta ativa, luto e adaptação na aposentadoria',
+        online: true
+      },
+      {
+        id: 'psi-beatriz',
+        name: 'Dra. Beatriz Nogueira',
+        crp: '06/165219',
+        specialty: 'Ansiedade, vínculos familiares e bem-estar 60+',
+        online: false
+      }
+    ];
+
+    const appState = {
+      currentView: 'idoso',
+      psychologists: [...DEFAULT_PSYCHOLOGISTS],
+      queue: [],
+      history: [],
+      selectedPsychologistId: 'psi-helena',
+      adminPassword: 'admin123',
+      adminUnlocked: false,
+      activeSeniorCall: null,
+      activePsychCall: null,
+      scheduleTargetPsychId: null,
+      callTimerInterval: null,
+      callSeconds: 0,
+      db: null,
+      auth: null,
+      user: null,
+      dbReady: false,
+      appId: typeof __app_id !== 'undefined' ? __app_id : 'escutatoria-60-mais'
+    };
+
+    let toastTimeout = null;
+    window.showToast = function(msg) {
+      const banner = document.getElementById('toast-banner');
+      const text = document.getElementById('toast-message');
+      if (!banner || !text) return;
+      text.textContent = msg;
+      banner.classList.remove('hidden');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 4200);
+    };
+
+    function updateDbBadge(connected, label) {
+      const badge = document.getElementById('db-status-badge');
+      if (!badge) return;
+      badge.innerHTML = connected
+        ? `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>${label}</span>`
+        : `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>${label}</span>`;
+    }
+
+    async function initCloudDatabase() {
+      try {
+        if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+          updateDbBadge(true, 'Modo Local Ativo');
+          return;
+        }
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        appState.auth = getAuth(app);
+        appState.db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(appState.auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(appState.auth);
+        }
+
+        onAuthStateChanged(appState.auth, async (user) => {
+          if (!user) return;
+          appState.user = user;
+          appState.dbReady = true;
+          updateDbBadge(true, 'Base Conectada');
+
+          try {
+            const configDoc = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'settings', 'admin_config');
+            const cfgSnap = await getDoc(configDoc);
+            if (cfgSnap.exists() && cfgSnap.data().password) {
+              appState.adminPassword = cfgSnap.data().password;
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+
+          const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
+          onSnapshot(psychCol, async (snapshot) => {
+            if (snapshot.empty) {
+              for (const p of DEFAULT_PSYCHOLOGISTS) {
+                await setDoc(doc(psychCol, p.id), p);
+              }
+              return;
+            }
+            const list = [];
+            snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+            list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            appState.psychologists = list;
+            if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
+              appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
+            }
+            renderAll();
+          });
+
+          const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
+          onSnapshot(queueCol, (snapshot) => {
+            const items = [];
+            snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            appState.queue = items;
+            renderAll();
+          });
+
+          const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
+          onSnapshot(historyCol, (snapshot) => {
+            const items = [];
+            snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            appState.history = items;
+            renderAll();
+          });
+        });
+      } catch (err) {
+        console.warn('Iniciando em modo local:', err);
+        updateDbBadge(true, 'Modo Local Ativo');
+      }
+    }
+
     // Gera nome de sala exclusivo por psicólogo
     function getRoomNameForPsych(psych) {
       const cleanId = String(psych.id || 'sala').replace(/[^a-zA-Z0-9]/g, '');
@@ -922,17 +1038,21 @@
       };
 
       // Registra entrada na fila para o psicólogo visualizar
-      if (appState.dbReady && appState.user) {
+      const queueItem = {
+        id: `q-${Date.now()}`,
+        seniorName,
+        psychId: psych.id,
+        psychName: psych.name,
+        type: 'Agora (Sala Ao Vivo)',
+        status: 'em_atendimento',
+        createdAt: Date.now()
+      };
+      appState.queue.unshift(queueItem);
+
+      if (appState.dbReady && appState.user && appState.db) {
         try {
           const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
-          await addDoc(queueCol, {
-            seniorName,
-            psychId: psych.id,
-            psychName: psych.name,
-            type: 'Agora (Sala Ao Vivo)',
-            status: 'em_atendimento',
-            createdAt: Date.now()
-          });
+          await addDoc(queueCol, queueItem);
         } catch (e) {
           console.error(e);
         }
@@ -958,21 +1078,27 @@
     window.endSeniorCall = async function() {
       const call = appState.activeSeniorCall;
       stopMediaStream('senior');
-      if (call && appState.dbReady && appState.user) {
-        try {
-          const durationMin = Math.max(1, Math.round((Date.now() - call.startedAt) / 60000));
-          const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
-          await addDoc(historyCol, {
-            seniorName: call.seniorName,
-            psychId: call.psychId,
-            psychName: call.psychName,
-            duration: `${durationMin} min`,
-            notes: 'Atendimento concluído pela sala do idoso.',
-            dateFormatted: new Date().toLocaleString('pt-BR'),
-            createdAt: Date.now()
-          });
-        } catch (e) {
-          console.error(e);
+      if (call) {
+        const durationMin = Math.max(1, Math.round((Date.now() - call.startedAt) / 60000));
+        const historyEntry = {
+          id: `hist-${Date.now()}`,
+          seniorName: call.seniorName,
+          psychId: call.psychId,
+          psychName: call.psychName,
+          duration: `${durationMin} min`,
+          notes: 'Atendimento concluído pela sala do idoso.',
+          dateFormatted: new Date().toLocaleString('pt-BR'),
+          createdAt: Date.now()
+        };
+        appState.history.unshift(historyEntry);
+
+        if (appState.dbReady && appState.user && appState.db) {
+          try {
+            const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
+            await addDoc(historyCol, historyEntry);
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
 
@@ -989,6 +1115,7 @@
       if (jitsiContainer) jitsiContainer.innerHTML = '';
       if (roomBox) roomBox.classList.add('hidden');
 
+      renderAll();
       showToast('Chamada encerrada. Obrigado por conversar conosco!');
     };
 
@@ -1014,19 +1141,26 @@
       const seniorName = document.getElementById('schedule-senior-name')?.value.trim() || 'Idoso(a) Agendado(a)';
       const period = document.getElementById('schedule-period')?.value || 'Hoje';
 
-      if (psych && appState.dbReady && appState.user) {
-        try {
-          const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
-          await addDoc(queueCol, {
-            seniorName,
-            psychId: psych.id,
-            psychName: psych.name,
-            type: `Agendado: ${period}`,
-            status: 'agendado',
-            createdAt: Date.now()
-          });
-        } catch (e) {
-          console.error(e);
+      if (psych) {
+        const newSchedule = {
+          id: `sched-${Date.now()}`,
+          seniorName,
+          psychId: psych.id,
+          psychName: psych.name,
+          type: `Agendado: ${period}`,
+          status: 'agendado',
+          createdAt: Date.now()
+        };
+        appState.queue.unshift(newSchedule);
+        renderAll();
+
+        if (appState.dbReady && appState.user && appState.db) {
+          try {
+            const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
+            await addDoc(queueCol, newSchedule);
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
       closeScheduleModal();
@@ -1099,25 +1233,35 @@
       const notes = document.getElementById('psych-session-notes')?.value.trim() || 'Escuta ativa realizada.';
       const durationMin = Math.max(1, Math.round(appState.callSeconds / 60));
 
-      if (psych && appState.dbReady && appState.user) {
-        try {
-          const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
-          await addDoc(historyCol, {
-            seniorName,
-            psychId: psych.id,
-            psychName: psych.name,
-            duration: `${durationMin} min`,
-            notes,
-            dateFormatted: new Date().toLocaleString('pt-BR'),
-            createdAt: Date.now()
-          });
+      if (psych) {
+        const historyEntry = {
+          id: `hist-${Date.now()}`,
+          seniorName,
+          psychId: psych.id,
+          psychName: psych.name,
+          duration: `${durationMin} min`,
+          notes,
+          dateFormatted: new Date().toLocaleString('pt-BR'),
+          createdAt: Date.now()
+        };
+        appState.history.unshift(historyEntry);
 
-          if (appState.activePsychCall?.queueItemId) {
-            const qRef = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue', appState.activePsychCall.queueItemId);
-            await deleteDoc(qRef);
+        if (appState.activePsychCall?.queueItemId) {
+          appState.queue = appState.queue.filter(q => q.id !== appState.activePsychCall.queueItemId);
+        }
+
+        if (appState.dbReady && appState.user && appState.db) {
+          try {
+            const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
+            await addDoc(historyCol, historyEntry);
+
+            if (appState.activePsychCall?.queueItemId) {
+              const qRef = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue', appState.activePsychCall.queueItemId);
+              await deleteDoc(qRef);
+            }
+          } catch (e) {
+            console.error(e);
           }
-        } catch (e) {
-          console.error(e);
         }
       }
 
@@ -1126,6 +1270,7 @@
       const container = document.getElementById('psych-jitsi-container');
       if (container) container.innerHTML = '';
       document.getElementById('psych-active-room')?.classList.add('hidden');
+      renderAll();
       showToast('Atendimento salvo no histórico do psicólogo!');
     };
 
@@ -1618,98 +1763,6 @@
       } else {
         document.getElementById('pwa-ios-modal')?.classList.remove('hidden');
       }
-    };
-
-    // =========================================================
-    // DEMONSTRAÇÃO AUTOMÁTICA GUIADA (PARA GRAVAÇÃO DE VÍDEO)
-    // =========================================================
-    let demoTimers = [];
-
-    function clearDemoTimers() {
-      demoTimers.forEach(id => clearTimeout(id));
-      demoTimers = [];
-    }
-
-    window.startLinkedInDemo = function() {
-      clearDemoTimers();
-      const overlay = document.getElementById('demo-overlay');
-      const badge = document.getElementById('demo-step-badge');
-      const caption = document.getElementById('demo-caption-text');
-      if (!overlay || !badge || !caption) return;
-
-      overlay.classList.remove('hidden');
-
-      const steps = [
-        {
-          delay: 0,
-          label: 'Etapa 1 de 5 • Visão do Idoso',
-          text: 'Interface acessível com letras grandes: o idoso digita apenas seu primeiro nome.',
-          action: () => {
-            window.switchView('idoso');
-            const input = document.getElementById('senior-name-input');
-            if (input) input.value = 'Dona Maria';
-          }
-        },
-        {
-          delay: 5500,
-          label: 'Etapa 2 de 5 • Entrada em 1 Clique',
-          text: 'Ao clicar em "Conversar Agora", a câmera e a sala de acolhimento abrem imediatamente.',
-          action: () => {
-            window.startImmediateCall();
-          }
-        },
-        {
-          delay: 12000,
-          label: 'Etapa 3 de 5 • Visão do Psicólogo',
-          text: 'O psicólogo acompanha solicitações em tempo real, atende na sala e registra sua escuta.',
-          action: () => {
-            window.endSeniorCall();
-            window.switchView('psicologo');
-            window.openPsychOwnRoom('Dona Maria');
-          }
-        },
-        {
-          delay: 18500,
-          label: 'Etapa 4 de 5 • Painel Administrativo',
-          text: 'Coordenação com cadastro permanente de psicólogos e histórico completo de atendimentos.',
-          action: () => {
-            stopMediaStream('psych');
-            document.getElementById('psych-active-room')?.classList.add('hidden');
-            appState.adminUnlocked = true;
-            window.switchView('admin');
-          }
-        },
-        {
-          delay: 24500,
-          label: 'Etapa 5 de 5 • Escutatória 60+',
-          text: 'Tecnologia simples, humana e acessível para combater a solidão na terceira idade.',
-          action: () => {
-            window.switchView('idoso');
-          }
-        }
-      ];
-
-      steps.forEach(step => {
-        const t = setTimeout(() => {
-          badge.textContent = step.label;
-          caption.textContent = step.text;
-          step.action();
-        }, step.delay);
-        demoTimers.push(t);
-      });
-
-      const endTimer = setTimeout(() => {
-        window.stopLinkedInDemo();
-      }, 30000);
-      demoTimers.push(endTimer);
-    };
-
-    window.stopLinkedInDemo = function() {
-      clearDemoTimers();
-      stopMediaStream('senior');
-      stopMediaStream('psych');
-      document.getElementById('demo-overlay')?.classList.add('hidden');
-      window.switchView('idoso');
     };
 
     if (document.readyState === 'loading') {
