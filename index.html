@@ -26,676 +26,618 @@
       color: #0f172a;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-senior {
-      min-height: 60px;
-      font-size: 1.2rem;
-      font-weight: 700;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    .senior-focus:focus-visible {
+      outline: 4px solid #f59e0b;
+      outline-offset: 2px;
     }
-    .btn-senior:active {
-      transform: scale(0.98);
-    }
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); opacity: 0.8; }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.7; }
       70% { transform: scale(1.25); opacity: 0; }
       100% { transform: scale(1.25); opacity: 0; }
     }
-    .online-dot-ring::before {
+    .pulse-ring::before {
       content: '';
       position: absolute;
       inset: -4px;
       border-radius: 9999px;
       background-color: #10b981;
-      animation: pulse-ring 1.8s infinite;
-    }
-    .custom-scroll::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
+      animation: pulseRing 2s infinite;
+      z-index: 0;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
 
-  <!-- Barra de Navegação Superior (Não sobrepõe o conteúdo no mobile) -->
-  <header id="main-header" class="bg-white border-b border-slate-200 relative lg:sticky lg:top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
-      <!-- Marca -->
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-sm shrink-0">
-            <i data-lucide="heart-handshake" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-          </div>
-          <div>
-            <h1 class="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Escutatória 60+
-            </h1>
-            <p class="text-[11px] sm:text-xs text-slate-600 font-medium hidden sm:block">
-              Acolhimento emocional e escuta ativa online
-            </p>
-          </div>
+  <!-- Barra de Navegação Superior -->
+  <header id="main-app-header" class="bg-teal-900 text-white shadow-md relative lg:sticky lg:top-0 z-40">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="bg-amber-400 text-teal-950 p-2 rounded-xl shadow-inner shrink-0">
+          <i data-lucide="heart-handshake" class="w-6 h-6 sm:w-7 sm:h-7"></i>
         </div>
-        <!-- Status da Base de Dados -->
-        <span id="db-status-badge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-          Conectando...
-        </span>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-xl font-extrabold tracking-tight leading-none">Escutatória 60+</h1>
+            <span id="db-status-badge" class="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-800 text-teal-200 border border-teal-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Base Ativa
+            </span>
+          </div>
+          <p class="hidden sm:block text-teal-200 text-xs mt-0.5">Acolhimento emocional e escuta ativa online</p>
+        </div>
       </div>
 
-      <!-- Seletor de Perfis / Abas -->
-      <nav aria-label="Modos de acesso" class="grid grid-cols-3 sm:flex items-center gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 w-full md:w-auto">
-        <button
-          id="tab-idoso"
-          type="button"
-          onclick="switchView('idoso')"
-          class="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition bg-teal-700 text-white shadow-sm"
-        >
-          <i data-lucide="smile" class="w-4 h-4 shrink-0"></i>
-          <span>Idoso</span>
+      <!-- Alternador de Perfis + Botão Instalar PWA -->
+      <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
+        <button id="pwa-install-btn" onclick="triggerPwaInstall()" class="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-teal-950 shadow transition-all cursor-pointer shrink-0" title="Instalar aplicativo no celular ou computador">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Instalar App</span>
         </button>
-        <button
-          id="tab-psicologo"
-          type="button"
-          onclick="switchView('psicologo')"
-          class="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-white transition"
-        >
-          <i data-lucide="video" class="w-4 h-4 shrink-0"></i>
-          <span>Psicólogo</span>
-        </button>
-        <button
-          id="tab-admin"
-          type="button"
-          onclick="switchView('admin')"
-          class="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-white transition"
-        >
-          <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
-          <span>Admin</span>
-        </button>
-      </nav>
+
+        <nav aria-label="Alternar perfil do sistema" class="flex items-center bg-teal-950/60 p-1 rounded-xl border border-teal-700/60 flex-1 sm:flex-initial">
+          <button id="tab-senior" onclick="switchView('senior')" class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-teal-950 shadow cursor-pointer">
+            <i data-lucide="smile" class="w-4 h-4 text-teal-700"></i>
+            <span>Idoso</span>
+          </button>
+          <button id="tab-psychologist" onclick="switchView('psychologist')" class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-teal-100 hover:bg-teal-800/70 transition-all cursor-pointer">
+            <i data-lucide="video" class="w-4 h-4"></i>
+            <span>Psicólogo</span>
+          </button>
+          <button id="tab-admin" onclick="switchView('admin')" class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-teal-100 hover:bg-teal-800/70 transition-all cursor-pointer">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Admin</span>
+          </button>
+        </nav>
+      </div>
     </div>
   </header>
 
   <!-- Container Principal -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
+  <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
 
     <!-- ========================================================= -->
-    <!-- VISÃO 1: PESSOA IDOSA (ACESSÍVEL E SIMPLES)               -->
+    <!-- VISÃO 1: PESSOA IDOSA (ACESSÍVEL, ALTO CONTRASTE, 1 CLIQUE) -->
     <!-- ========================================================= -->
-    <section id="view-idoso" class="space-y-6">
-
-      <!-- Banner de Boas-vindas (Oculto durante videochamada no celular) -->
-      <div id="senior-welcome-banner" class="bg-gradient-to-br from-teal-800 via-teal-700 to-emerald-700 rounded-3xl p-5 sm:p-8 text-white shadow-lg">
-        <div class="max-w-3xl space-y-2.5">
-          <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-3.5 py-1 rounded-full text-xs sm:text-sm font-semibold">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-pulse"></span>
-            Atendimento gratuito, sigiloso e sem pressa
-          </div>
-          <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">
-            Olá! Que bom ter você aqui. Vamos conversar?
+    <section id="view-senior" class="space-y-5 sm:space-y-6">
+      <!-- Banner de Boas-vindas -->
+      <div id="senior-welcome-banner" class="bg-gradient-to-br from-teal-800 to-teal-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-lg border border-teal-700">
+        <div class="max-w-3xl">
+          <span class="inline-flex items-center gap-2 bg-teal-700/70 text-amber-300 px-3 py-1 rounded-full text-xs sm:text-sm font-bold mb-2 sm:mb-3">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Gratuito, sigiloso e sem complicação
+          </span>
+          <h2 class="text-xl sm:text-3xl font-extrabold leading-snug mb-2">
+            Você não precisa enfrentar a solidão sozinho(a).
           </h2>
-          <p class="text-base sm:text-xl text-teal-50 leading-relaxed">
-            Você não precisa ter pressa nem entender de computador. Basta digitar seu nome abaixo e clicar no botão verde para falar com um psicólogo disponível agora.
+          <p class="text-teal-100 text-sm sm:text-lg leading-relaxed mb-4">
+            Nossos psicólogos voluntários estão prontos para ouvir suas histórias, dúvidas ou sentimentos com carinho e respeito.
           </p>
-        </div>
 
-        <!-- Entrada Rápida em 1 Passo -->
-        <div class="mt-6 bg-white rounded-2xl p-4 sm:p-6 text-slate-900 shadow-md">
-          <label for="senior-name-input" class="block text-base sm:text-lg font-bold text-slate-800 mb-2">
-            1. Como você gostaria de ser chamado(a)?
-          </label>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input
-              id="senior-name-input"
-              type="text"
-              placeholder="Digite seu primeiro nome (ex.: Dona Maria)"
-              class="flex-1 text-lg sm:text-xl px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-teal-600 focus:outline-none font-semibold"
-            />
-            <button
-              type="button"
-              onclick="startImmediateCall()"
-              class="btn-senior bg-emerald-600 hover:bg-emerald-700 text-white px-6 sm:px-8 py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2.5 shrink-0"
-            >
-              <i data-lucide="video" class="w-6 h-6"></i>
-              <span>CONVERSAR AGORA</span>
-            </button>
-          </div>
-          <p id="online-summary-text" class="mt-3 text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
-            <!-- Preenchido via JS -->
-          </p>
-        </div>
-      </div>
-
-      <!-- Sala de Videochamada Real do Idoso (Exibida ao iniciar chamada) -->
-      <div id="senior-active-room" class="hidden bg-white rounded-3xl border-2 border-teal-600 shadow-xl overflow-hidden">
-        <div class="bg-teal-800 text-white px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
-            <div>
-              <p class="text-xs uppercase tracking-wider text-teal-200 font-bold">Sala de Acolhimento Ao Vivo</p>
-              <h3 id="senior-room-psych-name" class="text-lg sm:text-xl font-extrabold">Conversando com Psicólogo(a)</h3>
+          <!-- Identificação simples -->
+          <div class="bg-white/10 backdrop-blur-sm p-3 sm:p-5 rounded-2xl border border-white/20 space-y-3">
+            <label for="senior-name-input" class="block text-base sm:text-lg font-bold text-amber-200">
+              Como você gostaria de ser chamado(a)?
+            </label>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <input
+                id="senior-name-input"
+                type="text"
+                placeholder="Digite seu primeiro nome (ex: Dona Maria)"
+                class="senior-focus flex-1 bg-white text-slate-900 placeholder-slate-400 text-base sm:text-lg font-medium px-4 py-3.5 rounded-xl border-2 border-transparent focus:border-amber-400 shadow-inner"
+              />
+              <button
+                id="btn-talk-now"
+                onclick="connectImmediateSenior()"
+                class="senior-focus bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-extrabold text-base sm:text-lg px-6 py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+              >
+                <i data-lucide="video" class="w-6 h-6"></i>
+                <span>CONVERSAR AGORA</span>
+              </button>
             </div>
-          </div>
-          <button
-            type="button"
-            onclick="endSeniorCall()"
-            class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-base sm:text-lg px-5 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-md"
-          >
-            <i data-lucide="phone-off" class="w-5 h-5"></i>
-            <span>Encerrar Chamada / Sair</span>
-          </button>
-        </div>
-
-        <div class="p-3 sm:p-5 bg-slate-900">
-          <div id="senior-camera-alert" class="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl px-4 py-2.5 mb-3 text-sm sm:text-base font-medium flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <i data-lucide="mic" class="w-5 h-5 text-amber-700 shrink-0"></i>
-              <span id="senior-camera-status-text">Se o navegador pedir permissão para usar <strong>Câmera e Microfone</strong>, clique em <strong>Permitir</strong>.</span>
-            </div>
-            <button
-              type="button"
-              onclick="retryCameraAccess('senior')"
-              class="bg-amber-700 hover:bg-amber-800 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl shrink-0"
-            >
-              Ativar Câmera
-            </button>
-          </div>
-          <div id="senior-jitsi-container" class="w-full h-[58vh] sm:h-[500px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-700 relative"></div>
-        </div>
-      </div>
-
-      <!-- Lista de Psicólogos Disponíveis e Agendamento Simples -->
-      <div id="senior-psych-list-section" class="space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">
-              2. Ou escolha com quem deseja conversar
-            </h3>
-            <p class="text-sm sm:text-base text-slate-600">
-              Veja quem está online agora ou agende um horário simples para mais tarde.
+            <p id="senior-online-summary" class="text-xs sm:text-sm text-teal-100 font-medium flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+              Verificando psicólogos disponíveis agora...
             </p>
           </div>
         </div>
-
-        <div id="senior-psychologists-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          <!-- Cards renderizados via JS -->
-        </div>
       </div>
 
+      <!-- Sala de Acolhimento ao Vivo do Idoso -->
+      <div id="senior-live-room" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-xl border-4 border-emerald-500 overflow-hidden">
+        <div class="bg-emerald-700 text-white px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-300 animate-ping"></span>
+            <div>
+              <p class="text-xs uppercase tracking-wider text-emerald-100 font-bold">Conversa ao Vivo</p>
+              <h3 id="senior-room-psych-name" class="text-lg sm:text-xl font-extrabold">Psicólogo(a)</h3>
+            </div>
+          </div>
+          <button
+            onclick="leaveSeniorRoom()"
+            class="senior-focus bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm sm:text-base px-4 py-2.5 rounded-xl shadow flex items-center gap-2 cursor-pointer"
+          >
+            <i data-lucide="phone-off" class="w-5 h-5"></i>
+            <span>Encerrar / Sair</span>
+          </button>
+        </div>
+
+        <div id="senior-video-container" class="w-full h-[380px] sm:h-[470px] bg-slate-950 relative"></div>
+
+        <!-- Chat simples abaixo do vídeo -->
+        <div class="p-3 sm:p-4 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row gap-2">
+          <input
+            id="senior-chat-input"
+            type="text"
+            placeholder="Escreva uma mensagem aqui se preferir digitar..."
+            class="flex-1 bg-white text-slate-900 text-base px-4 py-3 rounded-xl border border-slate-300"
+            onkeydown="if(event.key==='Enter') sendRoomChat('senior')"
+          />
+          <button
+            onclick="sendRoomChat('senior')"
+            class="bg-teal-700 hover:bg-teal-600 text-white font-bold px-5 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Enviar</span>
+          </button>
+        </div>
+        <div id="senior-chat-messages" class="px-4 py-2 bg-white max-h-36 overflow-y-auto space-y-1.5 text-sm"></div>
+      </div>
+
+      <!-- Lista de Psicólogos Disponíveis e Agendamento -->
+      <div id="senior-psych-list-section" class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">Escolha com quem conversar</h3>
+            <p class="text-sm sm:text-base text-slate-600">Profissionais com selo verde estão online e prontos para atender agora.</p>
+          </div>
+        </div>
+
+        <div id="senior-psychologists-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
     </section>
 
     <!-- ========================================================= -->
-    <!-- VISÃO 2: PSICÓLOGO (SALAS VIRTUAIS E HISTÓRICO)           -->
+    <!-- VISÃO 2: PSICÓLOGO (SALA VIRTUAL, FILA E PRONTUÁRIO)       -->
     <!-- ========================================================= -->
-    <section id="view-psicologo" class="hidden space-y-6">
-
-      <!-- Barra de Identificação do Psicólogo Conectado -->
-      <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
-          <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0">
-            <i data-lucide="user-check" class="w-6 h-6"></i>
+    <section id="view-psychologist" class="hidden space-y-6">
+      <!-- Barra de Controle do Profissional Conectado -->
+      <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="bg-teal-100 text-teal-800 p-3 rounded-2xl w-fit">
+            <i data-lucide="user-check" class="w-7 h-7"></i>
           </div>
-          <div class="flex-1">
-            <label for="psych-selector" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-              Profissional Conectado
-            </label>
+          <div>
+            <label for="psych-selector" class="block text-xs font-bold uppercase tracking-wider text-slate-500">Profissional Conectado</label>
             <select
               id="psych-selector"
-              onchange="changeLoggedPsychologist()"
-              class="w-full sm:max-w-md text-base font-bold text-slate-900 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-teal-600"
-            >
-              <!-- Opções preenchidas via JS -->
-            </select>
+              onchange="changeLoggedPsychologist(this.value)"
+              class="mt-1 bg-slate-50 border border-slate-300 text-slate-900 font-bold text-base sm:text-lg rounded-xl px-3 py-2 focus:ring-2 focus:ring-teal-500"
+            ></select>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
           <button
             id="btn-toggle-psych-status"
-            type="button"
             onclick="toggleLoggedPsychologistStatus()"
-            class="px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 border transition"
-          >
-            <!-- Atualizado via JS -->
-          </button>
+            class="px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm cursor-pointer"
+          ></button>
 
           <button
-            type="button"
             onclick="openPsychOwnRoom()"
-            class="bg-teal-700 hover:bg-teal-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm"
+            class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow flex items-center gap-2 cursor-pointer"
           >
             <i data-lucide="video" class="w-4 h-4"></i>
-            <span>Abrir Minha Sala de Vídeo</span>
+            <span>Abrir Minha Sala Virtual</span>
           </button>
         </div>
       </div>
 
-      <!-- Sala de Atendimento Ativa do Psicólogo -->
-      <div id="psych-active-room" class="hidden bg-white rounded-3xl border-2 border-teal-700 shadow-lg overflow-hidden">
-        <div class="bg-slate-900 text-white px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <span class="text-xs uppercase tracking-wider text-emerald-400 font-bold">Sala Virtual em Andamento</span>
-            <h3 id="psych-room-title" class="text-lg sm:text-xl font-bold">Atendimento Individual</h3>
+      <!-- Sala Virtual do Psicólogo -->
+      <div id="psych-live-room" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-teal-600 overflow-hidden">
+        <div class="bg-teal-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+            <h3 id="psych-room-title" class="font-extrabold text-base sm:text-lg">Sala Virtual de Escuta Ativa</h3>
           </div>
-          <div class="flex items-center gap-3">
-            <span id="psych-call-timer" class="font-mono text-base font-bold bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
-              00:00
-            </span>
-            <button
-              type="button"
-              onclick="finishPsychSession()"
-              class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2"
-            >
-              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-              <span>Concluir e Salvar Histórico</span>
-            </button>
-          </div>
+          <button
+            onclick="finishPsychSession()"
+            class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-xl shadow flex items-center gap-2 cursor-pointer"
+          >
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>Concluir Atendimento e Salvar Histórico</span>
+          </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3">
-          <!-- Vídeo -->
-          <div class="lg:col-span-2 bg-slate-950 p-3">
-            <div id="psych-jitsi-container" class="w-full h-[420px] sm:h-[480px] rounded-2xl overflow-hidden bg-black"></div>
+          <!-- Área de Vídeo -->
+          <div class="lg:col-span-2 flex flex-col">
+            <div id="psych-video-container" class="w-full h-[380px] sm:h-[460px] bg-slate-950 relative"></div>
+            <div class="p-3 bg-slate-100 border-t border-slate-200 flex gap-2">
+              <input
+                id="psych-chat-input"
+                type="text"
+                placeholder="Enviar mensagem escrita para o idoso..."
+                class="flex-1 bg-white text-slate-900 text-sm px-3.5 py-2.5 rounded-xl border border-slate-300"
+                onkeydown="if(event.key==='Enter') sendRoomChat('psych')"
+              />
+              <button
+                onclick="sendRoomChat('psych')"
+                class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl cursor-pointer"
+              >
+                Enviar
+              </button>
+            </div>
+            <div id="psych-chat-messages" class="px-4 py-2 bg-white max-h-32 overflow-y-auto space-y-1 text-sm"></div>
           </div>
 
-          <!-- Prontuário / Anotações Privadas da Sessão -->
-          <div class="p-5 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between gap-4">
+          <!-- Prontuário / Registro Rápido -->
+          <div class="p-4 sm:p-5 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between space-y-4">
             <div class="space-y-3">
-              <h4 class="font-bold text-slate-900 flex items-center gap-2">
+              <h4 class="font-extrabold text-slate-900 flex items-center gap-2">
                 <i data-lucide="file-text" class="w-4 h-4 text-teal-700"></i>
-                <span>Registro de Acolhimento</span>
+                Registro do Acolhimento
               </h4>
               <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">Nome do(a) Idoso(a) Atendido(a)</label>
                 <input
                   id="psych-session-senior-name"
                   type="text"
-                  placeholder="Nome do idoso..."
-                  class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm font-semibold"
+                  placeholder="Ex: Dona Maria"
+                  class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold"
                 />
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">Observações Clínicas / Escuta</label>
                 <textarea
                   id="psych-session-notes"
-                  rows="8"
-                  placeholder="Anote percepções importantes, humor, queixas de solidão ou encaminhamentos..."
-                  class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:border-teal-600"
+                  rows="6"
+                  placeholder="Anote percepções emocionais, temas conversados ou necessidade de retorno..."
+                  class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm"
                 ></textarea>
               </div>
             </div>
-            <p class="text-xs text-slate-500">
-              Ao clicar em <strong>Concluir e Salvar Histórico</strong>, este atendimento ficará registrado permanentemente na base de dados do profissional.
-            </p>
+            <button
+              onclick="finishPsychSession()"
+              class="w-full bg-teal-800 hover:bg-teal-700 text-white font-bold py-3 rounded-xl text-sm shadow cursor-pointer"
+            >
+              Registrar no Histórico do Paciente
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Grade: Fila de Espera / Agendamentos + Histórico do Psicólogo -->
+      <!-- Fila de Solicitações + Histórico do Psicólogo -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Fila e Agendamentos -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
+        <!-- Fila / Agendamentos -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <i data-lucide="clock" class="w-5 h-5 text-teal-700"></i>
-              <span>Solicitações e Agendamentos</span>
+              <i data-lucide="clock" class="w-5 h-5 text-amber-500"></i>
+              Solicitações e Agendamentos
             </h3>
-            <span id="psych-queue-count" class="text-xs font-bold bg-teal-50 text-teal-800 px-2.5 py-1 rounded-full">
-              0 pendentes
-            </span>
+            <span id="psych-queue-count" class="bg-amber-100 text-amber-900 text-xs font-extrabold px-2.5 py-1 rounded-full">0</span>
           </div>
-          <div id="psych-queue-list" class="space-y-3">
-            <!-- Itens da fila via JS -->
-          </div>
+          <div id="psych-queue-list" class="space-y-3"></div>
         </div>
 
         <!-- Histórico de Idosos Atendidos pelo Psicólogo -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <i data-lucide="history" class="w-5 h-5 text-emerald-700"></i>
-              <span>Histórico de Idosos Atendidos</span>
+              <i data-lucide="history" class="w-5 h-5 text-teal-700"></i>
+              Histórico de Idosos Atendidos
             </h3>
-            <span id="psych-history-count" class="text-xs font-bold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full">
-              0 realizados
-            </span>
+            <span id="psych-history-count" class="bg-teal-100 text-teal-900 text-xs font-extrabold px-2.5 py-1 rounded-full">0</span>
           </div>
-          <div id="psych-history-list" class="space-y-3 max-h-[420px] overflow-y-auto custom-scroll pr-1">
-            <!-- Histórico renderizado via JS -->
-          </div>
+          <div id="psych-history-list" class="space-y-3 max-h-96 overflow-y-auto"></div>
         </div>
       </div>
-
     </section>
 
     <!-- ========================================================= -->
-    <!-- VISÃO 3: ADMIN (SENHA, CADASTRO DE PSICÓLOGOS E HISTÓRICO) -->
+    <!-- VISÃO 3: PAINEL ADMIN (SENHA + CADASTRO + HISTÓRICO GERAL) -->
     <!-- ========================================================= -->
     <section id="view-admin" class="hidden space-y-6">
-
-      <!-- Tela de Bloqueio por Senha do Admin -->
-      <div id="admin-lock-screen" class="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md text-center space-y-5">
-        <div class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center mx-auto">
-          <i data-lucide="lock" class="w-7 h-7"></i>
+      <!-- Tela de Bloqueio por Senha -->
+      <div id="admin-lock-screen" class="max-w-md mx-auto bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mx-auto">
+          <i data-lucide="lock" class="w-8 h-8"></i>
         </div>
-        <div>
-          <h2 class="text-2xl font-extrabold text-slate-900">Acesso Administrativo</h2>
-          <p class="text-sm text-slate-600 mt-1">
-            Digite a senha para gerenciar psicólogos cadastrados e consultar históricos de atendimento.
-          </p>
-        </div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Área Administrativa</h2>
+        <p class="text-sm text-slate-600">Digite a senha de administrador para cadastrar psicólogos e consultar o histórico geral.</p>
         <form onsubmit="unlockAdmin(event)" class="space-y-3 text-left">
           <div>
-            <label for="admin-password-input" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-              Senha do Administrador
-            </label>
+            <label for="admin-password-input" class="block text-xs font-bold text-slate-700 mb-1">Senha de Acesso</label>
             <input
               id="admin-password-input"
               type="password"
+              placeholder="Senha padrão: admin123"
+              class="w-full border border-slate-300 rounded-xl px-4 py-3 text-base focus:ring-2 focus:ring-teal-600"
               required
-              placeholder="Digite a senha (padrão: admin123)"
-              class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-teal-600 focus:outline-none font-medium"
             />
           </div>
-          <button
-            type="submit"
-            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition shadow-sm"
-          >
+          <button type="submit" class="w-full bg-teal-800 hover:bg-teal-700 text-white font-bold py-3 rounded-xl shadow cursor-pointer">
             Entrar no Painel Admin
           </button>
         </form>
       </div>
 
       <!-- Conteúdo Desbloqueado do Admin -->
-      <div id="admin-dashboard" class="hidden space-y-6">
-
-        <!-- Cabeçalho Admin + Alterar Senha / Sair -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Painel de Coordenação</h2>
-            <p class="text-sm text-slate-600">Cadastro permanente de psicólogos e auditoria de acolhimentos realizados.</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onclick="toggleChangePasswordBox()"
-              class="px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-bold flex items-center gap-1.5"
-            >
-              <i data-lucide="key-round" class="w-4 h-4"></i>
-              <span>Alterar Senha</span>
-            </button>
-            <button
-              type="button"
-              onclick="lockAdmin()"
-              class="px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs sm:text-sm font-bold flex items-center gap-1.5"
-            >
-              <i data-lucide="log-out" class="w-4 h-4"></i>
-              <span>Bloquear Admin</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Caixa Opcional para Alterar Senha do Admin -->
-        <div id="admin-change-password-box" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
-          <div class="flex-1">
-            <label class="block text-xs font-bold text-amber-900 mb-1">Nova Senha do Administrador</label>
-            <input
-              id="admin-new-password-input"
-              type="password"
-              placeholder="Mínimo 4 caracteres"
-              class="w-full px-3.5 py-2 rounded-xl border border-amber-300 bg-white text-sm"
-            />
-          </div>
-          <button
-            type="button"
-            onclick="saveNewAdminPassword()"
-            class="bg-amber-700 hover:bg-amber-800 text-white font-bold text-sm px-4 py-2 rounded-xl"
-          >
-            Salvar Nova Senha
-          </button>
-        </div>
-
-        <!-- Indicadores Rápidos -->
+      <div id="admin-dashboard-content" class="hidden space-y-6">
+        <!-- Indicadores -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <p class="text-xs font-bold text-slate-500 uppercase">Psicólogos Cadastrados</p>
-            <p id="stat-total-psych" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</p>
+            <p id="stat-total-psychs" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</p>
           </div>
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <p class="text-xs font-bold text-emerald-600 uppercase">Online Agora</p>
-            <p id="stat-online-psych" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 mt-1">0</p>
+            <p id="stat-online-psychs" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">0</p>
           </div>
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200">
-            <p class="text-xs font-bold text-teal-600 uppercase">Idosos Atendidos</p>
-            <p id="stat-total-attended" class="text-2xl sm:text-3xl font-extrabold text-teal-800 mt-1">0</p>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-amber-600 uppercase">Na Fila / Agendados</p>
+            <p id="stat-queue-total" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</p>
           </div>
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200">
-            <p class="text-xs font-bold text-amber-600 uppercase">Agendamentos Abertos</p>
-            <p id="stat-pending-queue" class="text-2xl sm:text-3xl font-extrabold text-amber-700 mt-1">0</p>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-teal-700 uppercase">Idosos Atendidos</p>
+            <p id="stat-history-total" class="text-2xl sm:text-3xl font-extrabold text-teal-700 mt-1">0</p>
           </div>
         </div>
 
-        <!-- Formulário de Cadastro / Edição de Psicólogo -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
-          <h3 id="admin-form-title" class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-            <i data-lucide="user-plus" class="w-5 h-5 text-teal-700"></i>
-            <span>Cadastrar Novo Psicólogo(a)</span>
-          </h3>
+        <!-- Cadastro / Edição de Psicólogo + Segurança -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+              <h3 id="admin-form-title" class="text-lg font-extrabold text-slate-900">Cadastrar Novo Psicólogo</h3>
+              <button type="button" onclick="resetPsychologistForm()" class="text-xs font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer">
+                Limpar Formulário
+              </button>
+            </div>
+            <form onsubmit="savePsychologistForm(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input type="hidden" id="admin-psych-id" />
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nome Completo *</label>
+                <input id="admin-psych-name" type="text" required placeholder="Dra. Helena Costa" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Registro CRP *</label>
+                <input id="admin-psych-crp" type="text" required placeholder="CRP 06/123456" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Foco de Acolhimento *</label>
+                <input id="admin-psych-specialty" type="text" required placeholder="Luto, solidão e memória afetiva" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Turno Preferencial</label>
+                <select id="admin-psych-shift" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white">
+                  <option value="Manhã e Tarde">Manhã e Tarde</option>
+                  <option value="Manhã">Manhã</option>
+                  <option value="Tarde">Tarde</option>
+                  <option value="Noite">Noite</option>
+                  <option value="Integral">Integral</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-2">
+                <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                  <input id="admin-psych-online" type="checkbox" checked class="w-4 h-4 accent-teal-700 rounded" />
+                  <span>Disponível Online imediatamente após salvar</span>
+                </label>
+                <button type="submit" class="bg-teal-800 hover:bg-teal-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow cursor-pointer">
+                  Salvar Psicólogo na Base
+                </button>
+              </div>
+            </form>
+          </div>
 
-          <form onsubmit="savePsychologistForm(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-            <input type="hidden" id="edit-psych-id" value="" />
-            <div class="lg:col-span-2">
-              <label class="block text-xs font-bold text-slate-600 mb-1">Nome Completo *</label>
-              <input
-                id="psych-name-input"
-                type="text"
-                required
-                placeholder="Ex.: Dra. Helena Vasconcelos"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1">CRP *</label>
-              <input
-                id="psych-crp-input"
-                type="text"
-                required
-                placeholder="Ex.: 06/142890"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Foco de Acolhimento</label>
-              <input
-                id="psych-specialty-input"
-                type="text"
-                placeholder="Ex.: Luto, solidão e memória"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-              />
-            </div>
-            <div class="flex gap-2">
-              <button
-                type="submit"
-                class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-sm"
-              >
-                Salvar Cadastro
-              </button>
-              <button
-                id="btn-cancel-edit"
-                type="button"
-                onclick="resetPsychologistForm()"
-                class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-3 py-2.5 rounded-xl"
-              >
-                Cancelar
+          <!-- Alterar Senha / Bloquear Admin -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <h3 class="text-lg font-extrabold text-slate-900">Segurança do Admin</h3>
+              <p class="text-xs text-slate-600">Altere a senha de acesso administrativo (fica salva na base de dados).</p>
+              <input id="admin-new-password" type="password" placeholder="Nova senha (mín. 4 dígitos)" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+              <button onclick="updateAdminPassword()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl cursor-pointer">
+                Atualizar Senha
               </button>
             </div>
-          </form>
+            <button onclick="lockAdmin()" class="w-full border border-rose-300 text-rose-700 hover:bg-rose-50 font-bold text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              <span>Bloquear Painel Admin</span>
+            </button>
+          </div>
         </div>
 
         <!-- Tabela de Psicólogos Cadastrados -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
-          <h3 class="text-lg font-extrabold text-slate-900">Equipe Cadastrada na Base de Dados</h3>
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <h3 class="text-lg font-extrabold text-slate-900">Equipe de Psicólogos Cadastrados</h3>
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse text-sm">
               <thead>
-                <tr class="border-b border-slate-200 text-xs font-bold uppercase text-slate-500">
+                <tr class="border-b border-slate-200 text-slate-500 text-xs uppercase">
                   <th class="py-3 px-2">Profissional</th>
                   <th class="py-3 px-2">CRP</th>
-                  <th class="py-3 px-2">Especialidade</th>
+                  <th class="py-3 px-2">Foco</th>
                   <th class="py-3 px-2">Status</th>
                   <th class="py-3 px-2 text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody id="admin-psych-table-body" class="divide-y divide-slate-100 text-sm">
-                <!-- Linhas renderizadas via JS -->
-              </tbody>
+              <tbody id="admin-psychologists-table" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Histórico Geral de Atendimentos por Psicólogo -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 class="text-lg font-extrabold text-slate-900">Histórico de Idosos Atendidos por Psicólogo</h3>
-              <p class="text-xs text-slate-500">Registro completo de todos os atendimentos concluídos na plataforma.</p>
-            </div>
-            <select
-              id="admin-history-filter"
-              onchange="renderAdminHistory()"
-              class="px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50"
-            >
-              <option value="all">Todos os psicólogos</option>
+        <!-- Histórico Geral de Idosos Atendidos por Psicólogo -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="text-lg font-extrabold text-slate-900">Histórico Geral de Atendimentos por Psicólogo</h3>
+            <select id="admin-history-filter" onchange="renderAdminHistory()" class="border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white font-semibold">
+              <option value="ALL">Todos os Psicólogos</option>
             </select>
           </div>
-          <div id="admin-history-list" class="space-y-3">
-            <!-- Histórico renderizado via JS -->
-          </div>
+          <div id="admin-history-list" class="space-y-3"></div>
         </div>
-
       </div>
     </section>
-
   </main>
 
-  <!-- Modal Simples de Agendamento para o Idoso -->
-  <div id="schedule-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+  <!-- Modal de Agendamento Simplificado -->
+  <div id="schedule-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-xl font-extrabold text-slate-900">Agendar Conversa</h3>
-        <button type="button" onclick="closeScheduleModal()" class="p-2 rounded-xl hover:bg-slate-100">
+        <button onclick="closeScheduleModal()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 cursor-pointer">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <p id="schedule-modal-psych" class="text-base font-semibold text-teal-800"></p>
+      <p id="schedule-modal-psych" class="text-sm font-semibold text-teal-800 bg-teal-50 p-3 rounded-xl"></p>
       <div class="space-y-3">
         <div>
           <label class="block text-sm font-bold text-slate-700 mb-1">Seu Nome</label>
-          <input id="schedule-senior-name" type="text" placeholder="Ex.: Sr. Antônio" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-base" />
+          <input id="schedule-senior-name" type="text" placeholder="Ex: Sr. Antônio" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-base" />
         </div>
         <div>
           <label class="block text-sm font-bold text-slate-700 mb-1">Melhor Período</label>
-          <select id="schedule-period" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-base bg-white">
-            <option value="Hoje - Manhã (09h às 12h)">Hoje - Manhã (09h às 12h)</option>
-            <option value="Hoje - Tarde (14h às 17h)">Hoje - Tarde (14h às 17h)</option>
-            <option value="Amanhã - Manhã (09h às 12h)">Amanhã - Manhã (09h às 12h)</option>
-            <option value="Amanhã - Tarde (14h às 17h)">Amanhã - Tarde (14h às 17h)</option>
+          <select id="schedule-period" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-base bg-white">
+            <option value="Hoje — Manhã">Hoje — Manhã</option>
+            <option value="Hoje — Tarde">Hoje — Tarde</option>
+            <option value="Hoje — Noite">Hoje — Noite</option>
+            <option value="Amanhã — Manhã">Amanhã — Manhã</option>
+            <option value="Amanhã — Tarde">Amanhã — Tarde</option>
           </select>
         </div>
       </div>
-      <div class="flex gap-3 pt-2">
-        <button type="button" onclick="closeScheduleModal()" class="flex-1 py-3 rounded-xl border border-slate-300 font-bold text-slate-700">
-          Cancelar
-        </button>
-        <button type="button" onclick="confirmSchedule()" class="flex-1 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold">
-          Confirmar Horário
-        </button>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeScheduleModal()" class="flex-1 py-3 rounded-xl border border-slate-300 font-bold text-slate-700 cursor-pointer">Cancelar</button>
+        <button onclick="confirmSchedule()" class="flex-1 py-3 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-bold shadow cursor-pointer">Confirmar</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast / Notificação Flutuante (Substitui alert()) -->
-  <div id="toast-banner" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl text-sm sm:text-base font-semibold flex items-center gap-2.5 max-w-[92vw]">
-    <i data-lucide="info" class="w-5 h-5 text-emerald-400 shrink-0"></i>
-    <span id="toast-message">Mensagem</span>
-  </div>
-
-  <!-- Modal de Instruções de Instalação Manual (iPhone / Safari ou Desktop) -->
-  <div id="pwa-ios-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+  <!-- Modal de Instruções PWA (iOS / Manual) -->
+  <div id="pwa-help-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl bg-teal-700 text-white flex items-center justify-center">
-            <i data-lucide="smartphone" class="w-5 h-5"></i>
-          </div>
-          <h3 class="text-lg font-extrabold text-slate-900">Instalar na Tela Inicial</h3>
-        </div>
-        <button type="button" onclick="document.getElementById('pwa-ios-modal').classList.add('hidden')" class="p-2 rounded-xl hover:bg-slate-100">
+        <h3 class="text-lg font-extrabold text-slate-900">Instalar no Celular</h3>
+        <button onclick="document.getElementById('pwa-help-modal').classList.add('hidden')" class="p-2 rounded-xl hover:bg-slate-100 cursor-pointer">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <p class="text-sm text-slate-600 leading-relaxed">
-        Fixe o <strong>Escutatória 60+</strong> como um aplicativo no celular para abrir com apenas 1 toque:
+        Para deixar o <strong>Escutatória 60+</strong> com ícone direto na tela inicial do celular:
       </p>
-      <div class="bg-slate-50 rounded-2xl p-4 space-y-2.5 text-sm text-slate-800 border border-slate-200">
-        <p><strong>No iPhone (Safari):</strong> toque no ícone de <strong>Compartilhar</strong> (quadrado com seta para cima) e selecione <strong>Adicionar à Tela de Início</strong>.</p>
-        <p><strong>No Android (Chrome):</strong> toque nos <strong>3 pontinhos</strong> no canto superior direito e escolha <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong>.</p>
-      </div>
-      <button
-        type="button"
-        onclick="document.getElementById('pwa-ios-modal').classList.add('hidden')"
-        class="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm"
-      >
-        Entendi
-      </button>
+      <ul class="text-sm text-slate-700 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <li><strong>Android (Chrome):</strong> Toque nos <strong>3 pontinhos (⋮)</strong> no canto superior e escolha <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar aplicativo"</strong>.</li>
+        <li><strong>iPhone (Safari):</strong> Toque no ícone de <strong>Compartilhar (□↑)</strong> na barra inferior e escolha <strong>"Adicionar à Tela de Início"</strong>.</li>
+      </ul>
+      <button onclick="document.getElementById('pwa-help-modal').classList.add('hidden')" class="w-full py-3 rounded-xl bg-teal-800 text-white font-bold cursor-pointer">Entendi</button>
     </div>
   </div>
 
-  <!-- Lógica Principal + Persistência -->
+  <!-- Notificação Flutuante (Toast) -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- Script Principal -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Carrega PeerJS de forma assíncrona e segura para não bloquear a tela caso o CDN oscile
+    function loadPeerJsSafely() {
+      if (window.Peer) return;
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    loadPeerJsSafely();
+
+    // =========================================================
+    // 1. CONFIGURAÇÃO PWA (MANIFEST DINÂMICO + SERVICE WORKER)
+    // =========================================================
+    let deferredInstallPrompt = null;
+
+    function setupPwaAssets() {
+      try {
+        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#0f766e"/><circle cx="256" cy="256" r="185" fill="#fbbf24"/><text x="256" y="295" font-family="Arial, sans-serif" font-size="155" font-weight="900" fill="#042f2e" text-anchor="middle">60+</text></svg>`;
+        const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+        const appleLink = document.getElementById('apple-touch-icon-link');
+        if (appleLink) appleLink.href = iconUrl;
+
+        const manifest = {
+          name: 'Escutatória 60+ — Acolhimento Online',
+          short_name: 'Escutatória 60+',
+          start_url: './',
+          display: 'standalone',
+          background_color: '#f8fafc',
+          theme_color: '#0f766e',
+          icons: [
+            { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+            { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+          ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const manifestLink = document.getElementById('pwa-manifest-link');
+        if (manifestLink) manifestLink.href = URL.createObjectURL(manifestBlob);
+      } catch (e) {}
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
+
+    window.triggerPwaInstall = async function() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      } else {
+        const modal = document.getElementById('pwa-help-modal');
+        if (modal) modal.classList.remove('hidden');
+      }
+    };
+
+    // =========================================================
+    // 2. ESTADO GLOBAL E BASE DE DADOS PERSISTENTE
+    // =========================================================
     const DEFAULT_PSYCHOLOGISTS = [
       {
-        id: 'psi-helena',
+        id: 'psych_1',
         name: 'Dra. Helena Vasconcelos',
-        crp: '06/142890',
-        specialty: 'Acolhimento emocional, solidão e memória afetiva',
+        crp: 'CRP 06/98412',
+        specialty: 'Escuta ativa, solidão e vínculos familiares',
+        shift: 'Manhã e Tarde',
         online: true
       },
       {
-        id: 'psi-carlos',
+        id: 'psych_2',
         name: 'Dr. Carlos Eduardo Mendes',
-        crp: '06/118432',
-        specialty: 'Escuta ativa, luto e adaptação na aposentadoria',
+        crp: 'CRP 05/44190',
+        specialty: 'Acolhimento ao luto, ansiedade e autoestima 60+',
+        shift: 'Tarde e Noite',
         online: true
       },
       {
-        id: 'psi-beatriz',
+        id: 'psych_3',
         name: 'Dra. Beatriz Nogueira',
-        crp: '06/165219',
-        specialty: 'Ansiedade, vínculos familiares e bem-estar 60+',
+        crp: 'CRP 04/71205',
+        specialty: 'Memória afetiva, autonomia e bem-estar emocional',
+        shift: 'Manhã',
         online: false
       }
     ];
 
     const appState = {
-      currentView: 'idoso',
+      currentView: 'senior',
       psychologists: [...DEFAULT_PSYCHOLOGISTS],
       queue: [],
       history: [],
-      selectedPsychologistId: 'psi-helena',
-      adminPassword: 'admin123',
+      selectedPsychologistId: 'psych_1',
       adminUnlocked: false,
+      adminPassword: 'admin123',
       activeSeniorCall: null,
       activePsychCall: null,
       scheduleTargetPsychId: null,
-      callTimerInterval: null,
-      callSeconds: 0,
       db: null,
       auth: null,
       user: null,
@@ -704,30 +646,51 @@
     };
 
     const STORAGE_KEYS = {
-      PSYCHOLOGISTS: 'escutatoria60_psychologists_v2',
-      QUEUE: 'escutatoria60_queue_v2',
-      HISTORY: 'escutatoria60_history_v2',
-      ADMIN_PASS: 'escutatoria60_admin_pass_v2'
+      PSYCHOLOGISTS: 'escutatoria60_psychologists_v4',
+      QUEUE: 'escutatoria60_queue_v4',
+      HISTORY: 'escutatoria60_history_v4',
+      ADMIN_PASS: 'escutatoria60_admin_pass_v4'
     };
 
-    // Canal em tempo real entre abas (sincroniza estado, presença e vídeo ao vivo)
     const liveChannel = ('BroadcastChannel' in window)
-      ? new BroadcastChannel('escutatoria60_live_channel')
+      ? new BroadcastChannel('escutatoria60_live_v4')
       : null;
 
-    function persistPayloadToWindowName(payloadObj) {
+    function openLocalIndexedDB() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) return reject('No IndexedDB');
+        const req = indexedDB.open('Escutatoria60DB_v4', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('store')) {
+            db.createObjectStore('store');
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    async function saveToIndexedDB(snapshot) {
       try {
-        window.name = 'ESCUTATORIA60_STATE:' + JSON.stringify(payloadObj);
+        const db = await openLocalIndexedDB();
+        const tx = db.transaction('store', 'readwrite');
+        tx.objectStore('store').put(snapshot, 'app_snapshot');
       } catch (e) {}
     }
 
-    function readPayloadFromWindowName() {
+    async function loadFromIndexedDB() {
       try {
-        if (typeof window.name === 'string' && window.name.startsWith('ESCUTATORIA60_STATE:')) {
-          return JSON.parse(window.name.slice('ESCUTATORIA60_STATE:'.length));
-        }
-      } catch (e) {}
-      return null;
+        const db = await openLocalIndexedDB();
+        return await new Promise((resolve) => {
+          const tx = db.transaction('store', 'readonly');
+          const req = tx.objectStore('store').get('app_snapshot');
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
     }
 
     function saveLocalBackup(broadcast = true) {
@@ -738,7 +701,10 @@
         adminPassword: appState.adminPassword,
         updatedAt: Date.now()
       };
-      persistPayloadToWindowName(snapshot);
+      try {
+        window.name = 'ESCUTATORIA60_STATE:' + JSON.stringify(snapshot);
+      } catch (e) {}
+      saveToIndexedDB(snapshot);
       try {
         localStorage.setItem(STORAGE_KEYS.PSYCHOLOGISTS, JSON.stringify(snapshot.psychologists));
         localStorage.setItem(STORAGE_KEYS.QUEUE, JSON.stringify(snapshot.queue));
@@ -775,15 +741,15 @@
       }
     }
 
-    function loadLocalBackup() {
-      // 1. Tenta localStorage
+    async function loadLocalBackup() {
+      const idbSnap = await loadFromIndexedDB();
+      if (idbSnap) applyStateSnapshot(idbSnap);
+
       try {
         const savedPsychs = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
         if (savedPsychs) {
           const parsed = JSON.parse(savedPsychs);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            appState.psychologists = parsed;
-          }
+          if (Array.isArray(parsed) && parsed.length > 0) appState.psychologists = parsed;
         }
         const savedQueue = localStorage.getItem(STORAGE_KEYS.QUEUE);
         if (savedQueue) {
@@ -799,26 +765,26 @@
         if (savedPass) appState.adminPassword = savedPass;
       } catch (e) {}
 
-      // 2. Fallback sessionStorage / window.name (funciona mesmo em iframes sem localStorage)
       try {
         const sess = sessionStorage.getItem('ESCUTATORIA60_SESSION');
         if (sess) applyStateSnapshot(JSON.parse(sess));
       } catch (e) {}
 
-      const winSnap = readPayloadFromWindowName();
-      if (winSnap) applyStateSnapshot(winSnap);
+      try {
+        if (typeof window.name === 'string' && window.name.startsWith('ESCUTATORIA60_STATE:')) {
+          applyStateSnapshot(JSON.parse(window.name.slice('ESCUTATORIA60_STATE:'.length)));
+        }
+      } catch (e) {}
 
       if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
         appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
       }
     }
 
-    // Sincroniza em tempo real entre diferentes abas do navegador (ex.: aba Idoso + aba Psicólogo)
-    window.addEventListener('storage', (event) => {
+    window.addEventListener('storage', async (event) => {
       if (Object.values(STORAGE_KEYS).includes(event.key)) {
-        loadLocalBackup();
+        await loadLocalBackup();
         renderAll();
-        refreshActiveRoomPresence();
       }
     });
 
@@ -829,36 +795,75 @@
         if (msg.type === 'STATE_SYNC') {
           applyStateSnapshot(msg.payload);
           renderAll();
-          refreshActiveRoomPresence();
         } else if (msg.type === 'VIDEO_FRAME') {
           handleIncomingVideoFrame(msg);
+        } else if (msg.type === 'ROOM_CHAT') {
+          appendChatMessage(msg.targetRole, msg.sender, msg.text);
+        } else if (msg.type === 'ROOM_PRESENCE_PING') {
+          if (appState.activeSeniorCall) {
+            const roomName = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
+            if (msg.roomName === roomName) {
+              sendPresencePong('senior', roomName, appState.activeSeniorCall.seniorName);
+            }
+          }
+          if (appState.activePsychCall) {
+            const roomName = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
+            if (msg.roomName === roomName) {
+              sendPresencePong('psych', roomName, appState.activePsychCall.psychName);
+            }
+          }
+        } else if (msg.type === 'ROOM_PRESENCE_PONG') {
+          applyRemotePresence(msg.fromRole, msg.roomName, msg.senderName);
         }
       };
     }
 
-    let toastTimeout = null;
-    window.showToast = function(msg) {
-      const banner = document.getElementById('toast-banner');
-      const text = document.getElementById('toast-message');
-      if (!banner || !text) return;
-      text.textContent = msg;
-      banner.classList.remove('hidden');
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        banner.classList.add('hidden');
-      }, 4200);
-    };
+    function sendPresencePong(role, roomName, senderName) {
+      if (!liveChannel) return;
+      try {
+        liveChannel.postMessage({ type: 'ROOM_PRESENCE_PONG', fromRole: role, roomName, senderName });
+      } catch (e) {}
+    }
 
-    function updateDbBadge(connected, label) {
+    function applyRemotePresence(fromRole, roomName, senderName) {
+      if (fromRole === 'psych' && appState.activeSeniorCall) {
+        const myRoom = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
+        if (roomName === myRoom) {
+          const badge = document.getElementById('senior-remote-badge');
+          const title = document.getElementById('senior-remote-title');
+          if (badge) {
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1.5';
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Psicólogo(a) Conectado(a) na Sala`;
+          }
+          if (title && senderName) title.textContent = senderName;
+        }
+      }
+      if (fromRole === 'senior' && appState.activePsychCall) {
+        const myRoom = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
+        if (roomName === myRoom) {
+          const badge = document.getElementById('psych-remote-badge');
+          const title = document.getElementById('psych-remote-title');
+          const roomHeader = document.getElementById('psych-room-title');
+          const seniorInput = document.getElementById('psych-session-senior-name');
+          if (badge) {
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1.5';
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Idoso(a) Conectado(a) na Sala`;
+          }
+          if (title && senderName) title.textContent = senderName;
+          if (roomHeader && senderName) roomHeader.textContent = `Sala de ${appState.activePsychCall.psychName} — Conversando com ${senderName}`;
+          if (seniorInput && !seniorInput.value && senderName) seniorInput.value = senderName;
+        }
+      }
+    }
+
+    function updateDbBadge(active, label) {
       const badge = document.getElementById('db-status-badge');
       if (!badge) return;
-      badge.innerHTML = connected
-        ? `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>${label}</span>`
-        : `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>${label}</span>`;
+      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></span> ${label}`;
     }
 
     async function initCloudDatabase() {
-      loadLocalBackup();
+      await loadLocalBackup();
       renderAll();
 
       try {
@@ -872,27 +877,16 @@
         appState.db = getFirestore(app);
 
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(appState.auth, __initial_auth_token);
+          const cred = await signInWithCustomToken(appState.auth, __initial_auth_token);
+          appState.user = cred.user;
         } else {
-          await signInAnonymously(appState.auth);
+          const cred = await signInAnonymously(appState.auth);
+          appState.user = cred.user;
         }
 
-        onAuthStateChanged(appState.auth, async (user) => {
-          if (!user) return;
-          appState.user = user;
+        if (appState.user) {
           appState.dbReady = true;
-          updateDbBadge(true, 'Base Conectada');
-
-          try {
-            const configDoc = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'settings', 'admin_config');
-            const cfgSnap = await getDoc(configDoc);
-            if (cfgSnap.exists() && cfgSnap.data().password) {
-              appState.adminPassword = cfgSnap.data().password;
-              saveLocalBackup();
-            }
-          } catch (e) {
-            console.warn(e);
-          }
+          updateDbBadge(true, 'Nuvem Sincronizada');
 
           const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
           onSnapshot(psychCol, async (snapshot) => {
@@ -904,9 +898,8 @@
             }
             const cloudMap = new Map();
             snapshot.forEach(d => cloudMap.set(d.id, { id: d.id, ...d.data() }));
-            // Mescla cadastros locais recém-criados caso ainda não tenham subido para a nuvem
             for (const localP of appState.psychologists) {
-              if (!cloudMap.has(localP.id) && localP.isLocalNew) {
+              if (!cloudMap.has(localP.id)) {
                 cloudMap.set(localP.id, localP);
                 setDoc(doc(psychCol, localP.id), localP).catch(() => {});
               }
@@ -919,71 +912,167 @@
               appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
             }
             renderAll();
-          });
+          }, () => {});
 
-          const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
+          const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue');
           onSnapshot(queueCol, (snapshot) => {
-            const items = [];
-            snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
-            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            appState.queue = items;
+            const list = [];
+            snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+            list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            appState.queue = list;
             saveLocalBackup(false);
             renderAll();
-            refreshActiveRoomPresence();
-          });
+          }, () => {});
 
-          const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
-          onSnapshot(historyCol, (snapshot) => {
-            const items = [];
-            snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
-            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            appState.history = items;
+          const histCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'history');
+          onSnapshot(histCol, (snapshot) => {
+            const list = [];
+            snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+            list.sort((a, b) => (b.endedAt || 0) - (a.endedAt || 0));
+            appState.history = list;
             saveLocalBackup(false);
             renderAll();
-          });
-        });
-      } catch (err) {
-        console.warn('Iniciando em modo local persistente:', err);
+          }, () => {});
+        }
+      } catch (e) {
         updateDbBadge(true, 'Base Local Salva');
       }
     }
 
-    // Gera nome de sala exclusivo por psicólogo
-    function getRoomNameForPsych(psych) {
-      const cleanId = String(psych.id || 'sala').replace(/[^a-zA-Z0-9]/g, '');
-      return `Escutatoria60Mais_Sala_${cleanId}`;
-    }
+    // =========================================================
+    // 3. NOTIFICAÇÕES E NAVEGAÇÃO ENTRE ABAS
+    // =========================================================
+    window.showToast = function(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const colors = {
+        success: 'bg-emerald-800 text-white border-emerald-500',
+        error: 'bg-rose-800 text-white border-rose-500',
+        info: 'bg-slate-900 text-white border-teal-500'
+      };
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl border text-sm font-bold flex items-center gap-2 transition-all ${colors[type] || colors.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3400);
+    };
 
-    // Gerenciador de Câmera, Presença e Transmissão Ao Vivo entre Idoso e Psicólogo
+    window.switchView = function(view) {
+      appState.currentView = view;
+      const views = ['senior', 'psychologist', 'admin'];
+      views.forEach(v => {
+        const sec = document.getElementById(`view-${v}`);
+        const tab = document.getElementById(`tab-${v}`);
+        if (sec) sec.classList.toggle('hidden', v !== view);
+        if (tab) {
+          if (v === view) {
+            tab.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-teal-950 shadow cursor-pointer';
+          } else {
+            tab.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-teal-100 hover:bg-teal-800/70 transition-all cursor-pointer';
+          }
+        }
+      });
+      renderAll();
+    };
+
+    // =========================================================
+    // 4. SALA DE VÍDEO (CÂMERA LOCAL + WEBRTC + STREAM ENTRE ABAS)
+    // =========================================================
     const mediaState = {
       seniorStream: null,
       psychStream: null,
+      seniorPeer: null,
+      psychPeer: null,
       seniorMicOn: true,
       seniorCamOn: true,
       psychMicOn: true,
       psychCamOn: true,
       seniorFrameTimer: null,
-      psychFrameTimer: null,
-      seniorLastFrameAt: 0,
-      psychLastFrameAt: 0
+      psychFrameTimer: null
     };
+
+    function getRoomNameForPsych(psych) {
+      const cleanId = String(psych?.id || 'geral').replace(/[^a-zA-Z0-9]/g, '');
+      return `Escutatoria60_Sala_${cleanId}`;
+    }
 
     function stopMediaStream(role) {
       const key = role === 'senior' ? 'seniorStream' : 'psychStream';
       const timerKey = role === 'senior' ? 'seniorFrameTimer' : 'psychFrameTimer';
+      const peerKey = role === 'senior' ? 'seniorPeer' : 'psychPeer';
       if (mediaState[timerKey]) {
         clearInterval(mediaState[timerKey]);
         mediaState[timerKey] = null;
       }
+      if (mediaState[peerKey]) {
+        try { mediaState[peerKey].destroy(); } catch (e) {}
+        mediaState[peerKey] = null;
+      }
       if (mediaState[key]) {
-        mediaState[key].getTracks().forEach(track => track.stop());
+        mediaState[key].getTracks().forEach(t => t.stop());
         mediaState[key] = null;
+      }
+    }
+
+    function setupPeerWebRTC(role, roomName, localName, stream) {
+      if (typeof window.Peer === 'undefined' || !stream) return;
+      const peerKey = role === 'senior' ? 'seniorPeer' : 'psychPeer';
+      if (mediaState[peerKey]) {
+        try { mediaState[peerKey].destroy(); } catch (e) {}
+      }
+
+      const psychPeerId = `${roomName}_PSYCH`;
+      const seniorPeerId = `${roomName}_SENIOR_${Date.now().toString().slice(-4)}`;
+      const myPeerId = role === 'psych' ? psychPeerId : seniorPeerId;
+
+      try {
+        const peer = new window.Peer(myPeerId);
+        mediaState[peerKey] = peer;
+
+        peer.on('open', () => {
+          if (role === 'senior') {
+            const call = peer.call(psychPeerId, stream, { metadata: { senderName: localName } });
+            if (call) {
+              call.on('stream', (remoteStream) => {
+                attachRemoteWebRTCStream('senior', remoteStream, 'Psicólogo(a)');
+              });
+            }
+          }
+        });
+
+        peer.on('call', (incomingCall) => {
+          incomingCall.answer(stream);
+          const callerName = incomingCall.metadata?.senderName || 'Idoso(a)';
+          incomingCall.on('stream', (remoteStream) => {
+            attachRemoteWebRTCStream('psych', remoteStream, callerName);
+          });
+        });
+      } catch (e) {}
+    }
+
+    function attachRemoteWebRTCStream(role, remoteStream, senderName) {
+      const remoteVideo = document.getElementById(`${role}-remote-webrtc-video`);
+      const placeholder = document.getElementById(`${role}-remote-placeholder`);
+      const nameBadge = document.getElementById(`${role}-remote-name-overlay`);
+      if (remoteVideo) {
+        remoteVideo.srcObject = remoteStream;
+        remoteVideo.classList.remove('hidden');
+        remoteVideo.play().catch(() => {});
+      }
+      if (placeholder) placeholder.classList.add('hidden');
+      if (nameBadge) {
+        nameBadge.textContent = `${senderName} (Ao Vivo)`;
+        nameBadge.classList.remove('hidden');
       }
     }
 
     function startBroadcastingFrames(role, roomName, senderName) {
       const timerKey = role === 'senior' ? 'seniorFrameTimer' : 'psychFrameTimer';
       if (mediaState[timerKey]) clearInterval(mediaState[timerKey]);
+      if (!liveChannel) return;
 
       const canvas = document.createElement('canvas');
       canvas.width = 320;
@@ -992,246 +1081,149 @@
 
       mediaState[timerKey] = setInterval(() => {
         const videoEl = document.getElementById(`${role}-local-video`);
-        if (!videoEl || videoEl.readyState < 2 || !liveChannel) return;
-        const camOn = role === 'senior' ? mediaState.seniorCamOn : mediaState.psychCamOn;
-        if (!camOn) return;
+        if (!videoEl || videoEl.readyState < 2 || videoEl.paused) return;
         try {
           ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.55);
+          const frameData = canvas.toDataURL('image/jpeg', 0.45);
           liveChannel.postMessage({
             type: 'VIDEO_FRAME',
             fromRole: role,
             roomName,
             senderName,
-            frame: dataUrl,
-            ts: Date.now()
+            frameData
           });
         } catch (e) {}
-      }, 140);
+      }, 180);
     }
 
     function handleIncomingVideoFrame(msg) {
-      // Se sou o idoso e recebi frame do psicólogo na minha sala
-      if (msg.fromRole === 'psych' && appState.activeSeniorCall) {
-        const myRoom = `Escutatoria60Mais_Sala_${String(appState.activeSeniorCall.psychId || '').replace(/[^a-zA-Z0-9]/g, '')}`;
-        if (msg.roomName === myRoom) {
-          mediaState.seniorLastFrameAt = Date.now();
-          const img = document.getElementById('senior-remote-feed');
-          const placeholder = document.getElementById('senior-remote-placeholder');
-          const nameBadge = document.getElementById('senior-remote-name-overlay');
-          if (img) {
-            img.src = msg.frame;
-            img.classList.remove('hidden');
-          }
-          if (placeholder) placeholder.classList.add('hidden');
-          if (nameBadge) {
-            nameBadge.textContent = `${msg.senderName} (Ao Vivo)`;
-            nameBadge.classList.remove('hidden');
-          }
-        }
-      }
-
-      // Se sou o psicólogo e recebi frame do idoso na minha sala
       if (msg.fromRole === 'senior' && appState.activePsychCall) {
-        const myRoom = `Escutatoria60Mais_Sala_${String(appState.activePsychCall.psychId || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+        const myRoom = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
         if (msg.roomName === myRoom) {
-          mediaState.psychLastFrameAt = Date.now();
-          const img = document.getElementById('psych-remote-feed');
-          const placeholder = document.getElementById('psych-remote-placeholder');
-          const nameBadge = document.getElementById('psych-remote-name-overlay');
-          const seniorInput = document.getElementById('psych-session-senior-name');
-          const titleEl = document.getElementById('psych-room-title');
-          if (img) {
-            img.src = msg.frame;
-            img.classList.remove('hidden');
-          }
-          if (placeholder) placeholder.classList.add('hidden');
-          if (nameBadge) {
-            nameBadge.textContent = `${msg.senderName} (Idoso Conectado)`;
-            nameBadge.classList.remove('hidden');
-          }
-          if (seniorInput && !seniorInput.value) seniorInput.value = msg.senderName;
-          if (titleEl) titleEl.textContent = `Sala de ${appState.activePsychCall.psychName} — Atendendo ${msg.senderName}`;
+          displayRemoteFrame('psych', msg.frameData, msg.senderName);
+        }
+      } else if (msg.fromRole === 'psych' && appState.activeSeniorCall) {
+        const myRoom = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
+        if (msg.roomName === myRoom) {
+          displayRemoteFrame('senior', msg.frameData, msg.senderName);
         }
       }
     }
 
-    function refreshActiveRoomPresence() {
-      // Atualiza tela do psicólogo se um idoso entrar na sala dele enquanto ela já está aberta
-      if (appState.activePsychCall) {
-        const activeSenior = appState.queue.find(
-          q => q.psychId === appState.activePsychCall.psychId && q.status === 'em_atendimento'
-        );
-        const titleEl = document.getElementById('psych-room-title');
-        const seniorInput = document.getElementById('psych-session-senior-name');
-        const remoteTitle = document.getElementById('psych-remote-title');
-        const remoteBadge = document.getElementById('psych-remote-badge');
-        if (activeSenior) {
-          if (titleEl) titleEl.textContent = `Sala de ${appState.activePsychCall.psychName} — Atendendo ${activeSenior.seniorName}`;
-          if (seniorInput && !seniorInput.value) seniorInput.value = activeSenior.seniorName;
-          if (remoteTitle) remoteTitle.textContent = activeSenior.seniorName;
-          if (remoteBadge) {
-            remoteBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Idoso(a) Conectado(a) na Sala`;
-          }
-        }
+    function displayRemoteFrame(targetRole, frameData, senderName) {
+      const imgEl = document.getElementById(`${targetRole}-remote-feed`);
+      const placeholder = document.getElementById(`${targetRole}-remote-placeholder`);
+      const nameBadge = document.getElementById(`${targetRole}-remote-name-overlay`);
+      if (imgEl) {
+        imgEl.src = frameData;
+        imgEl.classList.remove('hidden');
+      }
+      if (placeholder) placeholder.classList.add('hidden');
+      if (nameBadge && senderName) {
+        nameBadge.textContent = `${senderName} (Ao Vivo)`;
+        nameBadge.classList.remove('hidden');
       }
     }
 
-    async function startNativeVideoRoom(containerId, role, localName, remoteName, roomName) {
+    async function mountVideoRoom(containerId, roomName, localName, role, remoteParticipantName = '') {
       const container = document.getElementById(containerId);
       if (!container) return;
-
       const isSenior = role === 'senior';
-      const externalUrl = `https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&userInfo.displayName="${encodeURIComponent(localName)}"`;
-
-      // Verifica se a outra ponta já está conectada na fila/sala deste psicólogo
-      const activeSessionForRoom = appState.queue.find(q =>
-        `Escutatoria60Mais_Sala_${String(q.psychId || '').replace(/[^a-zA-Z0-9]/g, '')}` === roomName &&
-        q.status === 'em_atendimento'
-      );
-      const effectiveRemoteName = isSenior
-        ? (remoteName || 'Psicólogo(a)')
-        : (remoteName || activeSessionForRoom?.seniorName || '');
+      const activeReq = !isSenior
+        ? appState.queue.find(q => q.psychId === appState.selectedPsychologistId && (q.status === 'in_call' || q.status === 'waiting'))
+        : null;
+      const effectiveRemoteName = remoteParticipantName || (activeReq ? activeReq.seniorName : '');
 
       container.innerHTML = `
-        <div class="relative w-full h-full bg-slate-950 flex flex-col justify-between overflow-hidden">
-          <!-- Grade Dupla: Tela Remota (Idoso ou Psicólogo) + Câmera Local -->
+        <div class="w-full h-full flex flex-col justify-between bg-slate-950 text-white relative overflow-hidden">
           <div class="grid grid-cols-1 md:grid-cols-2 w-full h-full gap-1.5 p-1.5 bg-slate-950">
-            <!-- Quadro 1: Outro Participante (Psicólogo para o Idoso / Idoso para o Psicólogo) -->
+            <!-- Quadro 1: Outro Participante -->
             <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 via-slate-900 to-teal-950 border border-white/10 flex flex-col items-center justify-center text-center">
-              <!-- Imagem ao vivo recebida da outra tela -->
-              <img
-                id="${role}-remote-feed"
-                alt="Vídeo do participante"
-                class="hidden w-full h-full object-cover scale-x-[-1]"
-              />
-              <div
-                id="${role}-remote-name-overlay"
-                class="hidden absolute top-2.5 left-2.5 bg-emerald-700/90 text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/15 shadow"
-              >
+              <video id="${role}-remote-webrtc-video" autoplay playsinline class="hidden w-full h-full object-cover"></video>
+              <img id="${role}-remote-feed" alt="Vídeo do participante" class="hidden w-full h-full object-cover scale-x-[-1]" />
+              <div id="${role}-remote-name-overlay" class="hidden absolute top-2.5 left-2.5 bg-emerald-700/90 text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/15 shadow">
                 ${effectiveRemoteName}
               </div>
 
-              <!-- Placeholder enquanto a outra câmera não transmite -->
               <div id="${role}-remote-placeholder" class="p-4 flex flex-col items-center justify-center">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-teal-600/30 border-2 border-emerald-400/60 text-white flex items-center justify-center mb-3 shadow-lg">
-                  <i data-lucide="${isSenior ? 'heart-handshake' : 'smile'}" class="w-10 h-10 sm:w-12 sm:h-12 text-emerald-300"></i>
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-teal-600/30 border-2 border-emerald-400/60 text-white flex items-center justify-center mb-2.5 shadow-lg">
+                  <i data-lucide="${isSenior ? 'heart-handshake' : 'smile'}" class="w-9 h-9 text-emerald-300"></i>
                 </div>
-                <span id="${role}-remote-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${effectiveRemoteName ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'} mb-1.5">
+                <span id="${role}-remote-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${effectiveRemoteName ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'} mb-1">
                   <span class="w-2 h-2 rounded-full ${effectiveRemoteName ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></span>
-                  ${effectiveRemoteName ? (isSenior ? 'Psicólogo(a) na Sala' : 'Idoso(a) Conectado(a) na Sala') : 'Aguardando Idoso(a) entrar...'}
+                  ${effectiveRemoteName ? (isSenior ? 'Psicólogo(a) na Sala' : 'Idoso(a) Conectado(a)') : 'Aguardando entrada...'}
                 </span>
-                <h4 id="${role}-remote-title" class="text-lg sm:text-xl font-extrabold text-white">
+                <h4 id="${role}-remote-title" class="text-base sm:text-lg font-extrabold text-white">
                   ${effectiveRemoteName || 'Sala Pronta para Acolhimento'}
                 </h4>
                 <p class="text-xs text-slate-300 mt-1 max-w-xs">
-                  ${effectiveRemoteName
-                    ? 'A imagem da câmera aparecerá aqui assim que a outra ponta abrir a sala, ou use o botão abaixo para chamada externa.'
-                    : 'Assim que o idoso clicar em Entrar na Sala de Conversa, ele aparecerá aqui automaticamente.'}
+                  Assim que a outra pessoa ativar a câmera na mesma sala, o vídeo aparecerá aqui automaticamente.
                 </p>
-                <a
-                  href="${externalUrl}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="mt-3 inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow"
-                >
-                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                  <span>Abrir Vídeo Externo (Multi-dispositivo)</span>
-                </a>
               </div>
             </div>
 
-            <!-- Quadro 2: Câmera Local do Usuário Atual -->
+            <!-- Quadro 2: Câmera Local -->
             <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
-              <video
-                id="${role}-local-video"
-                autoplay
-                playsinline
-                muted
-                class="w-full h-full object-cover scale-x-[-1]"
-              ></video>
-              <div class="absolute top-2.5 left-2.5 bg-slate-900/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">
+              <video id="${role}-local-video" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
+              <div class="absolute top-2.5 left-2.5 bg-slate-950/75 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/15">
                 Você (${localName})
               </div>
+              <div id="${role}-camera-fallback" class="hidden absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center p-4 text-center">
+                <i data-lucide="camera-off" class="w-8 h-8 text-amber-400 mb-2"></i>
+                <p id="${role}-fallback-reason" class="text-xs text-slate-300 mb-3 max-w-xs">Clique abaixo para liberar câmera e microfone.</p>
+                <button onclick="retryCameraAccess('${role}')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl cursor-pointer">
+                  Ativar Câmera
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Fallback caso a câmera esteja bloqueada ou indisponível -->
-          <div id="${role}-camera-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/95 text-white space-y-3 z-20">
-            <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
-              <i data-lucide="video-off" class="w-8 h-8"></i>
-            </div>
-            <h4 class="text-lg sm:text-xl font-extrabold">Câmera aguardando permissão</h4>
-            <p id="${role}-fallback-reason" class="text-sm text-slate-300 max-w-md">
-              Clique no ícone de cadeado ou câmera na barra de endereço do navegador e selecione <strong>Permitir</strong> para liberar vídeo e áudio.
-            </p>
-            <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
-              <button
-                type="button"
-                onclick="retryCameraAccess('${role}')"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl"
-              >
-                Tentar Novamente
-              </button>
-              <a
-                href="${externalUrl}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl"
-              >
-                Abrir Sala Externa
-              </a>
-            </div>
-          </div>
-
-          <!-- Barra de Controles Grandes de Áudio e Vídeo -->
-          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/15 shadow-lg z-10">
-            <button
-              id="${role}-btn-mic"
-              type="button"
-              onclick="toggleRoleMic('${role}')"
-              class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition"
-            >
+          <!-- Controles Inferiores -->
+          <div class="bg-slate-900/95 border-t border-white/10 px-3 py-2 flex flex-wrap items-center justify-center gap-2">
+            <button id="${role}-btn-mic" onclick="toggleMic('${role}')" class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
               <i data-lucide="mic" class="w-4 h-4"></i>
-              <span>Microfone Ativo</span>
+              <span>Microfone Ligado</span>
             </button>
-            <button
-              id="${role}-btn-cam"
-              type="button"
-              onclick="toggleRoleCam('${role}')"
-              class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition"
-            >
+            <button id="${role}-btn-cam" onclick="toggleCam('${role}')" class="bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
               <i data-lucide="video" class="w-4 h-4"></i>
-              <span>Câmera Ativa</span>
+              <span>Câmera Ligada</span>
             </button>
           </div>
         </div>
       `;
 
       if (window.lucide) lucide.createIcons();
-      await activateDeviceCamera(role);
+      const stream = await activateDeviceCamera(role);
+      setupPeerWebRTC(role, roomName, localName, stream);
       startBroadcastingFrames(role, roomName, localName);
+
+      if (liveChannel) {
+        try {
+          liveChannel.postMessage({
+            type: 'ROOM_PRESENCE_PING',
+            fromRole: role,
+            roomName,
+            senderName: localName
+          });
+        } catch (e) {}
+      }
     }
 
     async function activateDeviceCamera(role) {
       const videoEl = document.getElementById(`${role}-local-video`);
       const fallbackEl = document.getElementById(`${role}-camera-fallback`);
       const reasonEl = document.getElementById(`${role}-fallback-reason`);
-      const statusTextEl = document.getElementById(`${role}-camera-status-text`);
 
       stopMediaStream(role);
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         if (fallbackEl) fallbackEl.classList.remove('hidden');
-        if (reasonEl) reasonEl.textContent = 'Este navegador ou janela restrita bloqueou o acesso direto à câmera. Abra o aplicativo em uma aba normal do navegador (HTTPS) ou use o botão Sala Externa.';
-        return;
+        if (reasonEl) reasonEl.textContent = 'Navegador ou janela restrita bloqueou a câmera. Abra em uma aba normal HTTPS.';
+        return null;
       }
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user' },
-          audio: true
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
         if (role === 'senior') {
           mediaState.seniorStream = stream;
           mediaState.seniorMicOn = true;
@@ -1246,199 +1238,183 @@
           await videoEl.play().catch(() => {});
         }
         if (fallbackEl) fallbackEl.classList.add('hidden');
-        if (statusTextEl) {
-          statusTextEl.innerHTML = '<strong>Câmera e microfone conectados!</strong> Você já está visível na sala de acolhimento.';
-        }
+        return stream;
       } catch (err) {
-        console.warn('Erro ao acessar câmera:', err);
         if (fallbackEl) fallbackEl.classList.remove('hidden');
         if (reasonEl) {
-          reasonEl.innerHTML = err.name === 'NotAllowedError'
-            ? 'Permissão de câmera negada. Clique no cadeado ao lado do endereço do site, permita <strong>Câmera e Microfone</strong> e clique em <strong>Tentar Novamente</strong>.'
-            : 'Não foi possível iniciar a câmera neste ambiente de prévia (iframe restrito). Abra o arquivo no navegador ou clique em <strong>Abrir Sala Externa</strong>.';
+          reasonEl.textContent = err.name === 'NotAllowedError'
+            ? 'Permissão de câmera negada. Libere câmera e microfone no navegador e clique em Ativar Câmera.'
+            : 'Não foi possível iniciar a câmera nesta janela de prévia.';
         }
+        return null;
       }
     }
 
-    window.retryCameraAccess = function(role) {
-      activateDeviceCamera(role);
+    window.retryCameraAccess = async function(role) {
+      const stream = await activateDeviceCamera(role);
+      if (role === 'senior' && appState.activeSeniorCall) {
+        const roomName = getRoomNameForPsych({ id: appState.activeSeniorCall.psychId });
+        setupPeerWebRTC('senior', roomName, appState.activeSeniorCall.seniorName, stream);
+      } else if (role === 'psych' && appState.activePsychCall) {
+        const roomName = getRoomNameForPsych({ id: appState.activePsychCall.psychId });
+        setupPeerWebRTC('psych', roomName, appState.activePsychCall.psychName, stream);
+      }
     };
 
-    window.toggleRoleMic = function(role) {
+    window.toggleMic = function(role) {
       const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
-      if (!stream) return;
-      const key = role === 'senior' ? 'seniorMicOn' : 'psychMicOn';
-      mediaState[key] = !mediaState[key];
-      stream.getAudioTracks().forEach(t => { t.enabled = mediaState[key]; });
       const btn = document.getElementById(`${role}-btn-mic`);
-      if (btn) {
-        btn.className = mediaState[key]
-          ? 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition'
-          : 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs sm:text-sm font-bold transition';
-        btn.innerHTML = `<i data-lucide="${mediaState[key] ? 'mic' : 'mic-off'}" class="w-4 h-4"></i><span>${mediaState[key] ? 'Microfone Ativo' : 'Microfone Mudo'}</span>`;
-        if (window.lucide) lucide.createIcons();
-      }
-    };
-
-    window.toggleRoleCam = function(role) {
-      const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
       if (!stream) return;
-      const key = role === 'senior' ? 'seniorCamOn' : 'psychCamOn';
-      mediaState[key] = !mediaState[key];
-      stream.getVideoTracks().forEach(t => { t.enabled = mediaState[key]; });
-      const btn = document.getElementById(`${role}-btn-cam`);
+      const nextState = role === 'senior' ? !mediaState.seniorMicOn : !mediaState.psychMicOn;
+      if (role === 'senior') mediaState.seniorMicOn = nextState; else mediaState.psychMicOn = nextState;
+      stream.getAudioTracks().forEach(t => t.enabled = nextState);
       if (btn) {
-        btn.className = mediaState[key]
-          ? 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition'
-          : 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs sm:text-sm font-bold transition';
-        btn.innerHTML = `<i data-lucide="${mediaState[key] ? 'video' : 'video-off'}" class="w-4 h-4"></i><span>${mediaState[key] ? 'Câmera Ativa' : 'Câmera Pausada'}</span>`;
+        btn.className = `${nextState ? 'bg-teal-700 hover:bg-teal-600' : 'bg-rose-700 hover:bg-rose-600'} text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer`;
+        btn.innerHTML = `<i data-lucide="${nextState ? 'mic' : 'mic-off'}" class="w-4 h-4"></i><span>${nextState ? 'Microfone Ligado' : 'Microfone Mudo'}</span>`;
         if (window.lucide) lucide.createIcons();
       }
     };
 
-    // =========================================================
-    // NAVEGAÇÃO ENTRE ABAS
-    // =========================================================
-    window.switchView = function(viewName) {
-      appState.currentView = viewName;
-      ['idoso', 'psicologo', 'admin'].forEach(v => {
-        const section = document.getElementById(`view-${v}`);
-        const tab = document.getElementById(`tab-${v}`);
-        if (!section || !tab) return;
-        if (v === viewName) {
-          section.classList.remove('hidden');
-          tab.classList.add('bg-teal-700', 'text-white', 'shadow-sm');
-          tab.classList.remove('text-slate-700', 'hover:bg-white');
-        } else {
-          section.classList.add('hidden');
-          tab.classList.remove('bg-teal-700', 'text-white', 'shadow-sm');
-          tab.classList.add('text-slate-700', 'hover:bg-white');
-        }
-      });
-      renderAll();
+    window.toggleCam = function(role) {
+      const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
+      const btn = document.getElementById(`${role}-btn-cam`);
+      if (!stream) return;
+      const nextState = role === 'senior' ? !mediaState.seniorCamOn : !mediaState.psychCamOn;
+      if (role === 'senior') mediaState.seniorCamOn = nextState; else mediaState.psychCamOn = nextState;
+      stream.getVideoTracks().forEach(t => t.enabled = nextState);
+      if (btn) {
+        btn.className = `${nextState ? 'bg-teal-700 hover:bg-teal-600' : 'bg-rose-700 hover:bg-rose-600'} text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer`;
+        btn.innerHTML = `<i data-lucide="${nextState ? 'video' : 'video-off'}" class="w-4 h-4"></i><span>${nextState ? 'Câmera Ligada' : 'Câmera Pausada'}</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
     };
 
+    window.sendRoomChat = function(senderRole) {
+      const input = document.getElementById(`${senderRole}-chat-input`);
+      if (!input || !input.value.trim()) return;
+      const text = input.value.trim();
+      input.value = '';
+      const senderName = senderRole === 'senior'
+        ? (appState.activeSeniorCall?.seniorName || 'Idoso(a)')
+        : (appState.activePsychCall?.psychName || 'Psicólogo(a)');
+      appendChatMessage(senderRole, senderName, text);
+      const otherRole = senderRole === 'senior' ? 'psych' : 'senior';
+      appendChatMessage(otherRole, senderName, text);
+      if (liveChannel) {
+        try {
+          liveChannel.postMessage({ type: 'ROOM_CHAT', targetRole: otherRole, sender: senderName, text });
+        } catch (e) {}
+      }
+    };
+
+    function appendChatMessage(targetRole, sender, text) {
+      const box = document.getElementById(`${targetRole}-chat-messages`);
+      if (!box) return;
+      const line = document.createElement('div');
+      line.className = 'bg-slate-100 rounded-lg px-3 py-1.5 text-slate-800';
+      line.innerHTML = `<strong class="text-teal-800">${escapeHtml(sender)}:</strong> ${escapeHtml(text)}`;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
     // =========================================================
-    // FLUXO DO IDOSO
+    // 5. FLUXO DO IDOSO
     // =========================================================
-    window.startImmediateCall = function() {
-      const onlinePsychs = appState.psychologists.filter(p => p.online);
-      if (onlinePsychs.length === 0) {
-        showToast('Nenhum psicólogo está online no momento. Você pode agendar um horário abaixo.');
+    window.connectImmediateSenior = function() {
+      const onlinePsych = appState.psychologists.find(p => p.online);
+      if (!onlinePsych) {
+        showToast('Nenhum psicólogo online agora. Você pode agendar um horário abaixo!', 'info');
         return;
       }
-      connectSeniorWithPsych(onlinePsychs[0].id);
+      startSeniorRoomWithPsych(onlinePsych.id);
     };
 
-    window.connectSeniorWithPsych = async function(psychId) {
+    window.startSeniorRoomWithPsych = async function(psychId) {
       const psych = appState.psychologists.find(p => p.id === psychId);
       if (!psych) return;
+      const nameInput = document.getElementById('senior-name-input');
+      const seniorName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Visitante 60+';
 
-      const input = document.getElementById('senior-name-input');
-      const seniorName = (input && input.value.trim()) ? input.value.trim() : 'Visitante 60+';
-
-      appState.activeSeniorCall = {
+      const reqId = 'req_' + Date.now();
+      const requestObj = {
+        id: reqId,
+        seniorName,
         psychId: psych.id,
         psychName: psych.name,
+        type: 'Imediato',
+        period: 'Agora',
+        status: 'in_call',
+        createdAt: Date.now()
+      };
+
+      appState.queue = [requestObj, ...appState.queue];
+      saveLocalBackup();
+
+      if (appState.dbReady && appState.user) {
+        const qRef = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue', reqId);
+        setDoc(qRef, requestObj).catch(() => {});
+      }
+
+      appState.activeSeniorCall = {
+        requestId: reqId,
         seniorName,
+        psychId: psych.id,
+        psychName: psych.name,
         startedAt: Date.now()
       };
 
-      // Registra entrada na fila para o psicólogo visualizar
-      const queueItem = {
-        id: `q-${Date.now()}`,
-        seniorName,
-        psychId: psych.id,
-        psychName: psych.name,
-        type: 'Agora (Sala Ao Vivo)',
-        status: 'em_atendimento',
-        createdAt: Date.now()
-      };
-      appState.queue.unshift(queueItem);
-      saveLocalBackup();
-
-      if (appState.dbReady && appState.user && appState.db) {
-        try {
-          const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
-          await addDoc(queueCol, queueItem);
-        } catch (e) {
-          console.error(e);
-        }
+      // Modo foco no celular
+      if (window.innerWidth < 768) {
+        document.getElementById('main-app-header')?.classList.add('hidden');
+        document.getElementById('senior-welcome-banner')?.classList.add('hidden');
       }
 
-      // Modo foco no celular (oculta cabeçalho e banner para liberar tela)
-      const header = document.getElementById('main-header');
-      const banner = document.getElementById('senior-welcome-banner');
-      const listSec = document.getElementById('senior-psych-list-section');
-      const roomBox = document.getElementById('senior-active-room');
-      const roomTitle = document.getElementById('senior-room-psych-name');
+      document.getElementById('senior-psych-list-section')?.classList.add('hidden');
+      const liveRoom = document.getElementById('senior-live-room');
+      if (liveRoom) liveRoom.classList.remove('hidden');
+      const roomNameEl = document.getElementById('senior-room-psych-name');
+      if (roomNameEl) roomNameEl.textContent = `${psych.name} (${psych.crp})`;
 
-      if (window.innerWidth < 768 && header) header.classList.add('hidden');
-      if (banner) banner.classList.add('hidden');
-      if (listSec) listSec.classList.add('hidden');
-      if (roomTitle) roomTitle.textContent = `Conversando com ${psych.name}`;
-      if (roomBox) roomBox.classList.remove('hidden');
-
-      startNativeVideoRoom('senior-jitsi-container', 'senior', seniorName, psych.name, getRoomNameForPsych(psych));
-      showToast(`Conectando você com ${psych.name}...`);
+      const roomName = getRoomNameForPsych(psych);
+      await mountVideoRoom('senior-video-container', roomName, seniorName, 'senior', psych.name);
+      showToast(`Conectado(a) à sala de ${psych.name}!`, 'success');
     };
 
-    window.endSeniorCall = async function() {
-      const call = appState.activeSeniorCall;
+    window.leaveSeniorRoom = function() {
       stopMediaStream('senior');
-      if (call) {
-        const durationMin = Math.max(1, Math.round((Date.now() - call.startedAt) / 60000));
-        const historyEntry = {
-          id: `hist-${Date.now()}`,
-          seniorName: call.seniorName,
-          psychId: call.psychId,
-          psychName: call.psychName,
+      if (appState.activeSeniorCall) {
+        const { requestId, seniorName, psychId, psychName, startedAt } = appState.activeSeniorCall;
+        const durationMin = Math.max(1, Math.round((Date.now() - startedAt) / 60000));
+        recordCompletedSession({
+          seniorName,
+          psychId,
+          psychName,
           duration: `${durationMin} min`,
-          notes: 'Atendimento concluído pela sala do idoso.',
-          dateFormatted: new Date().toLocaleString('pt-BR'),
-          createdAt: Date.now()
-        };
-        appState.history.unshift(historyEntry);
-        appState.queue = appState.queue.filter(q => !(q.psychId === call.psychId && q.seniorName === call.seniorName && q.status === 'em_atendimento'));
-        saveLocalBackup();
-
-        if (appState.dbReady && appState.user && appState.db) {
-          try {
-            const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
-            await addDoc(historyCol, historyEntry);
-          } catch (e) {
-            console.error(e);
-          }
-        }
+          notes: 'Atendimento encerrado pelo(a) paciente na sala virtual.'
+        });
+        removeQueueItem(requestId);
+        appState.activeSeniorCall = null;
       }
 
-      appState.activeSeniorCall = null;
-      const header = document.getElementById('main-header');
-      const banner = document.getElementById('senior-welcome-banner');
-      const listSec = document.getElementById('senior-psych-list-section');
-      const roomBox = document.getElementById('senior-active-room');
-      const jitsiContainer = document.getElementById('senior-jitsi-container');
-
-      if (header) header.classList.remove('hidden');
-      if (banner) banner.classList.remove('hidden');
-      if (listSec) listSec.classList.remove('hidden');
-      if (jitsiContainer) jitsiContainer.innerHTML = '';
-      if (roomBox) roomBox.classList.add('hidden');
-
+      document.getElementById('main-app-header')?.classList.remove('hidden');
+      document.getElementById('senior-welcome-banner')?.classList.remove('hidden');
+      document.getElementById('senior-psych-list-section')?.classList.remove('hidden');
+      document.getElementById('senior-live-room')?.classList.add('hidden');
+      const vc = document.getElementById('senior-video-container');
+      if (vc) vc.innerHTML = '';
       renderAll();
-      showToast('Chamada encerrada. Obrigado por conversar conosco!');
+      showToast('Conversa encerrada com carinho. Até breve!', 'info');
     };
 
-    // Agendamento Simples
     window.openScheduleModal = function(psychId) {
       const psych = appState.psychologists.find(p => p.id === psychId);
       if (!psych) return;
       appState.scheduleTargetPsychId = psychId;
+      const mainName = document.getElementById('senior-name-input')?.value.trim() || '';
+      const modalName = document.getElementById('schedule-senior-name');
+      if (modalName && mainName) modalName.value = mainName;
       const label = document.getElementById('schedule-modal-psych');
-      const nameInput = document.getElementById('schedule-senior-name');
-      const mainSeniorName = document.getElementById('senior-name-input')?.value || '';
-      if (label) label.textContent = `Com ${psych.name}`;
-      if (nameInput) nameInput.value = mainSeniorName;
+      if (label) label.textContent = `Profissional: ${psych.name} (${psych.crp})`;
       document.getElementById('schedule-modal')?.classList.remove('hidden');
     };
 
@@ -1446,438 +1422,388 @@
       document.getElementById('schedule-modal')?.classList.add('hidden');
     };
 
-    window.confirmSchedule = async function() {
+    window.confirmSchedule = function() {
       const psych = appState.psychologists.find(p => p.id === appState.scheduleTargetPsychId);
+      if (!psych) return;
       const seniorName = document.getElementById('schedule-senior-name')?.value.trim() || 'Idoso(a) Agendado(a)';
-      const period = document.getElementById('schedule-period')?.value || 'Hoje';
-
-      if (psych) {
-        const newSchedule = {
-          id: `sched-${Date.now()}`,
-          seniorName,
-          psychId: psych.id,
-          psychName: psych.name,
-          type: `Agendado: ${period}`,
-          status: 'agendado',
-          createdAt: Date.now()
-        };
-        appState.queue.unshift(newSchedule);
-        saveLocalBackup();
-        renderAll();
-
-        if (appState.dbReady && appState.user && appState.db) {
-          try {
-            const queueCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
-            await addDoc(queueCol, newSchedule);
-          } catch (e) {
-            console.error(e);
-          }
-        }
-      }
-      closeScheduleModal();
-      showToast(`Horário agendado com ${psych ? psych.name : 'o psicólogo'}!`);
-    };
-
-    // =========================================================
-    // FLUXO DO PSICÓLOGO
-    // =========================================================
-    window.changeLoggedPsychologist = function() {
-      const sel = document.getElementById('psych-selector');
-      if (sel) {
-        appState.selectedPsychologistId = sel.value;
-        renderAll();
-      }
-    };
-
-    window.toggleLoggedPsychologistStatus = async function() {
-      const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
-      if (!psych) return;
-      const nextStatus = !psych.online;
-      psych.online = nextStatus;
-      saveLocalBackup();
-      renderAll();
-
-      if (appState.dbReady && appState.user) {
-        const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', psych.id);
-        await updateDoc(ref, { online: nextStatus });
-      }
-      showToast(`Seu status agora é: ${nextStatus ? 'ONLINE' : 'OFFLINE'}`);
-    };
-
-    window.openPsychOwnRoom = function(seniorName = '', queueItemId = '') {
-      const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
-      if (!psych) return;
-
-      // Se nenhum nome foi passado, busca automaticamente se há idoso aguardando na sala deste psicólogo
-      const waitingSenior = appState.queue.find(q => q.psychId === psych.id && q.status === 'em_atendimento');
-      const resolvedSeniorName = seniorName || waitingSenior?.seniorName || '';
-      const resolvedQueueId = queueItemId || waitingSenior?.id || '';
-
-      appState.activePsychCall = {
+      const period = document.getElementById('schedule-period')?.value || 'Hoje — Tarde';
+      const reqId = 'sched_' + Date.now();
+      const item = {
+        id: reqId,
+        seniorName,
         psychId: psych.id,
         psychName: psych.name,
-        queueItemId: resolvedQueueId,
+        type: 'Agendado',
+        period,
+        status: 'waiting',
+        createdAt: Date.now()
+      };
+      appState.queue = [item, ...appState.queue];
+      saveLocalBackup();
+      if (appState.dbReady && appState.user) {
+        setDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue', reqId), item).catch(() => {});
+      }
+      closeScheduleModal();
+      renderAll();
+      showToast(`Agendamento confirmado com ${psych.name} (${period})!`, 'success');
+    };
+
+    // =========================================================
+    // 6. FLUXO DO PSICÓLOGO
+    // =========================================================
+    window.changeLoggedPsychologist = function(psychId) {
+      appState.selectedPsychologistId = psychId;
+      renderPsychologistView();
+    };
+
+    window.toggleLoggedPsychologistStatus = function() {
+      const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
+      if (!psych) return;
+      psych.online = !psych.online;
+      saveLocalBackup();
+      if (appState.dbReady && appState.user) {
+        setDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', psych.id), psych).catch(() => {});
+      }
+      renderAll();
+      showToast(`Status alterado para ${psych.online ? 'ONLINE' : 'OFFLINE'}.`, 'info');
+    };
+
+    window.openPsychOwnRoom = async function(reqId = null) {
+      const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
+      if (!psych) return;
+
+      let seniorName = '';
+      if (reqId) {
+        const req = appState.queue.find(q => q.id === reqId);
+        if (req) {
+          seniorName = req.seniorName;
+          req.status = 'in_call';
+          saveLocalBackup();
+        }
+      } else {
+        const activeReq = appState.queue.find(q => q.psychId === psych.id);
+        if (activeReq) seniorName = activeReq.seniorName;
+      }
+
+      appState.activePsychCall = {
+        requestId: reqId,
+        psychId: psych.id,
+        psychName: psych.name,
+        seniorName,
         startedAt: Date.now()
       };
 
-      const roomBox = document.getElementById('psych-active-room');
-      const title = document.getElementById('psych-room-title');
-      const seniorInput = document.getElementById('psych-session-senior-name');
-      const notesInput = document.getElementById('psych-session-notes');
+      const roomCard = document.getElementById('psych-live-room');
+      if (roomCard) roomCard.classList.remove('hidden');
+      const titleEl = document.getElementById('psych-room-title');
+      if (titleEl) titleEl.textContent = seniorName ? `Sala de ${psych.name} — Atendendo ${seniorName}` : `Sala Virtual de ${psych.name}`;
+      const nameInput = document.getElementById('psych-session-senior-name');
+      if (nameInput) nameInput.value = seniorName;
 
-      if (title) title.textContent = resolvedSeniorName ? `Sala de ${psych.name} — Atendendo ${resolvedSeniorName}` : `Sala de ${psych.name}`;
-      if (seniorInput) seniorInput.value = resolvedSeniorName;
-      if (notesInput) notesInput.value = '';
-      if (roomBox) roomBox.classList.remove('hidden');
-
-      startNativeVideoRoom('psych-jitsi-container', 'psych', psych.name, resolvedSeniorName, getRoomNameForPsych(psych));
-
-      clearInterval(appState.callTimerInterval);
-      appState.callSeconds = 0;
-      appState.callTimerInterval = setInterval(() => {
-        appState.callSeconds++;
-        const mins = String(Math.floor(appState.callSeconds / 60)).padStart(2, '0');
-        const secs = String(appState.callSeconds % 60).padStart(2, '0');
-        const timerEl = document.getElementById('psych-call-timer');
-        if (timerEl) timerEl.textContent = `${mins}:${secs}`;
-      }, 1000);
+      const roomName = getRoomNameForPsych(psych);
+      await mountVideoRoom('psych-video-container', roomName, psych.name, 'psych', seniorName);
+      showToast('Sua sala virtual está aberta e conectada!', 'success');
     };
 
-    window.finishPsychSession = async function() {
-      const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
+    window.finishPsychSession = function() {
       stopMediaStream('psych');
+      const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
       const seniorName = document.getElementById('psych-session-senior-name')?.value.trim() || 'Idoso(a) Atendido(a)';
-      const notes = document.getElementById('psych-session-notes')?.value.trim() || 'Escuta ativa realizada.';
-      const durationMin = Math.max(1, Math.round(appState.callSeconds / 60));
+      const notes = document.getElementById('psych-session-notes')?.value.trim() || 'Escuta ativa realizada com acolhimento.';
+      const startedAt = appState.activePsychCall?.startedAt || Date.now();
+      const durationMin = Math.max(1, Math.round((Date.now() - startedAt) / 60000));
 
       if (psych) {
-        const historyEntry = {
-          id: `hist-${Date.now()}`,
+        recordCompletedSession({
           seniorName,
           psychId: psych.id,
           psychName: psych.name,
           duration: `${durationMin} min`,
-          notes,
-          dateFormatted: new Date().toLocaleString('pt-BR'),
-          createdAt: Date.now()
-        };
-        appState.history.unshift(historyEntry);
-
-        if (appState.activePsychCall?.queueItemId) {
-          appState.queue = appState.queue.filter(q => q.id !== appState.activePsychCall.queueItemId);
-        }
-        saveLocalBackup();
-
-        if (appState.dbReady && appState.user && appState.db) {
-          try {
-            const historyCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
-            await addDoc(historyCol, historyEntry);
-
-            if (appState.activePsychCall?.queueItemId) {
-              const qRef = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue', appState.activePsychCall.queueItemId);
-              await deleteDoc(qRef);
-            }
-          } catch (e) {
-            console.error(e);
-          }
-        }
+          notes
+        });
       }
 
-      clearInterval(appState.callTimerInterval);
+      if (appState.activePsychCall?.requestId) {
+        removeQueueItem(appState.activePsychCall.requestId);
+      }
+
       appState.activePsychCall = null;
-      const container = document.getElementById('psych-jitsi-container');
-      if (container) container.innerHTML = '';
-      document.getElementById('psych-active-room')?.classList.add('hidden');
+      document.getElementById('psych-live-room')?.classList.add('hidden');
+      const vc = document.getElementById('psych-video-container');
+      if (vc) vc.innerHTML = '';
+      const notesEl = document.getElementById('psych-session-notes');
+      if (notesEl) notesEl.value = '';
       renderAll();
-      showToast('Atendimento salvo no histórico do psicólogo!');
+      showToast('Atendimento salvo no histórico com sucesso!', 'success');
     };
 
+    function removeQueueItem(reqId) {
+      if (!reqId) return;
+      appState.queue = appState.queue.filter(q => q.id !== reqId);
+      saveLocalBackup();
+      if (appState.dbReady && appState.user) {
+        deleteDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'queue', reqId)).catch(() => {});
+      }
+    }
+
+    function recordCompletedSession({ seniorName, psychId, psychName, duration, notes }) {
+      const histId = 'hist_' + Date.now();
+      const now = new Date();
+      const record = {
+        id: histId,
+        seniorName,
+        psychId,
+        psychName,
+        dateStr: now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        duration,
+        notes,
+        endedAt: Date.now()
+      };
+      appState.history = [record, ...appState.history];
+      saveLocalBackup();
+      if (appState.dbReady && appState.user) {
+        setDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'history', histId), record).catch(() => {});
+      }
+    }
+
     // =========================================================
-    // FLUXO DO ADMIN (SENHA + CRUD PSICÓLOGOS + HISTÓRICO)
+    // 7. PAINEL ADMIN (SENHA + CRUD PSICÓLOGOS + HISTÓRICO)
     // =========================================================
-    window.unlockAdmin = function(e) {
-      e.preventDefault();
-      const input = document.getElementById('admin-password-input');
-      if (input && input.value === appState.adminPassword) {
+    window.unlockAdmin = function(event) {
+      event.preventDefault();
+      const pass = document.getElementById('admin-password-input')?.value || '';
+      if (pass === appState.adminPassword) {
         appState.adminUnlocked = true;
-        input.value = '';
-        renderAll();
-        showToast('Painel administrativo desbloqueado.');
+        document.getElementById('admin-password-input').value = '';
+        renderAdminView();
+        showToast('Painel Admin desbloqueado!', 'success');
       } else {
-        showToast('Senha incorreta. Tente novamente.');
+        showToast('Senha incorreta. Tente novamente.', 'error');
       }
     };
 
     window.lockAdmin = function() {
       appState.adminUnlocked = false;
-      renderAll();
+      renderAdminView();
+      showToast('Painel Admin bloqueado.', 'info');
     };
 
-    window.toggleChangePasswordBox = function() {
-      document.getElementById('admin-change-password-box')?.classList.toggle('hidden');
-    };
-
-    window.saveNewAdminPassword = async function() {
-      const input = document.getElementById('admin-new-password-input');
-      const newPass = input ? input.value.trim() : '';
+    window.updateAdminPassword = function() {
+      const newPass = document.getElementById('admin-new-password')?.value.trim() || '';
       if (newPass.length < 4) {
-        showToast('A nova senha deve ter pelo menos 4 caracteres.');
+        showToast('A nova senha deve ter pelo menos 4 caracteres.', 'error');
         return;
       }
       appState.adminPassword = newPass;
       saveLocalBackup();
+      document.getElementById('admin-new-password').value = '';
+      showToast('Senha administrativa atualizada e salva!', 'success');
+    };
+
+    window.savePsychologistForm = function(event) {
+      event.preventDefault();
+      const idInput = document.getElementById('admin-psych-id')?.value || '';
+      const name = document.getElementById('admin-psych-name')?.value.trim() || '';
+      const crp = document.getElementById('admin-psych-crp')?.value.trim() || '';
+      const specialty = document.getElementById('admin-psych-specialty')?.value.trim() || '';
+      const shift = document.getElementById('admin-psych-shift')?.value || 'Manhã e Tarde';
+      const online = document.getElementById('admin-psych-online')?.checked ?? true;
+
+      if (!name || !crp) {
+        showToast('Preencha Nome e CRP do psicólogo.', 'error');
+        return;
+      }
+
+      const psychId = idInput || ('psych_' + Date.now());
+      const psychObj = { id: psychId, name, crp, specialty, shift, online };
+
+      const existingIdx = appState.psychologists.findIndex(p => p.id === psychId);
+      if (existingIdx >= 0) {
+        appState.psychologists[existingIdx] = psychObj;
+      } else {
+        appState.psychologists.push(psychObj);
+      }
+
+      if (!appState.selectedPsychologistId) {
+        appState.selectedPsychologistId = psychId;
+      }
+
+      saveLocalBackup();
+
       if (appState.dbReady && appState.user) {
-        const configDoc = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'settings', 'admin_config');
-        await setDoc(configDoc, { password: newPass }, { merge: true });
+        setDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', psychId), psychObj).catch(() => {});
       }
-      input.value = '';
-      document.getElementById('admin-change-password-box')?.classList.add('hidden');
-      showToast('Senha do administrador atualizada na base de dados!');
-    };
 
-    window.savePsychologistForm = async function(e) {
-      e.preventDefault();
-      const editId = document.getElementById('edit-psych-id').value;
-      const name = document.getElementById('psych-name-input').value.trim();
-      const crp = document.getElementById('psych-crp-input').value.trim();
-      const specialty = document.getElementById('psych-specialty-input').value.trim() || 'Escuta ativa e acolhimento 60+';
-
-      if (!name || !crp) return;
-
-      const targetId = editId || `psi-${Date.now()}`;
-      const psychPayload = {
-        id: targetId,
-        name,
-        crp,
-        specialty,
-        isLocalNew: true,
-        online: editId
-          ? Boolean(appState.psychologists.find(p => p.id === editId)?.online)
-          : true
-      };
-
-      // Atualiza imediatamente em memória e salva na base persistente
-      if (editId) {
-        const idx = appState.psychologists.findIndex(p => p.id === editId);
-        if (idx !== -1) {
-          appState.psychologists[idx] = { ...appState.psychologists[idx], ...psychPayload };
-        }
-      } else {
-        appState.psychologists.push(psychPayload);
-        appState.selectedPsychologistId = targetId;
-      }
-      appState.psychologists.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-      saveLocalBackup(true);
-      renderAll();
       resetPsychologistForm();
-
-      // Persiste na base de dados na nuvem quando conectada
-      if (appState.dbReady && appState.user && appState.db) {
-        try {
-          const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
-          if (editId) {
-            await updateDoc(doc(psychCol, editId), { name, crp, specialty });
-            showToast('Dados do psicólogo atualizados na base de dados!');
-          } else {
-            await setDoc(doc(psychCol, targetId), psychPayload);
-            showToast('Psicólogo cadastrado e salvo na base de dados!');
-          }
-        } catch (err) {
-          console.error('Erro ao salvar psicólogo:', err);
-          showToast('Cadastro salvo na base local com sucesso!');
-        }
-      } else {
-        showToast(editId ? 'Dados do psicólogo atualizados e salvos!' : 'Psicólogo cadastrado e salvo na base!');
-      }
+      renderAll();
+      showToast(`${name} salvo(a) na base de dados com sucesso!`, 'success');
     };
 
-    window.editPsychologist = function(id) {
-      const psych = appState.psychologists.find(p => p.id === id);
+    window.editPsychologistAdmin = function(psychId) {
+      const psych = appState.psychologists.find(p => p.id === psychId);
       if (!psych) return;
-      document.getElementById('edit-psych-id').value = psych.id;
-      document.getElementById('psych-name-input').value = psych.name;
-      document.getElementById('psych-crp-input').value = psych.crp;
-      document.getElementById('psych-specialty-input').value = psych.specialty || '';
-      document.getElementById('admin-form-title').innerHTML = `<i data-lucide="edit-3" class="w-5 h-5 text-teal-700"></i><span>Editando: ${psych.name}</span>`;
-      document.getElementById('btn-cancel-edit').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
+      document.getElementById('admin-form-title').textContent = `Editando: ${psych.name}`;
+      document.getElementById('admin-psych-id').value = psych.id;
+      document.getElementById('admin-psych-name').value = psych.name;
+      document.getElementById('admin-psych-crp').value = psych.crp;
+      document.getElementById('admin-psych-specialty').value = psych.specialty;
+      document.getElementById('admin-psych-shift').value = psych.shift || 'Manhã e Tarde';
+      document.getElementById('admin-psych-online').checked = !!psych.online;
     };
 
     window.resetPsychologistForm = function() {
-      document.getElementById('edit-psych-id').value = '';
-      document.getElementById('psych-name-input').value = '';
-      document.getElementById('psych-crp-input').value = '';
-      document.getElementById('psych-specialty-input').value = '';
-      document.getElementById('admin-form-title').innerHTML = `<i data-lucide="user-plus" class="w-5 h-5 text-teal-700"></i><span>Cadastrar Novo Psicólogo(a)</span>`;
-      document.getElementById('btn-cancel-edit').classList.add('hidden');
-      if (window.lucide) lucide.createIcons();
+      document.getElementById('admin-form-title').textContent = 'Cadastrar Novo Psicólogo';
+      document.getElementById('admin-psych-id').value = '';
+      document.getElementById('admin-psych-name').value = '';
+      document.getElementById('admin-psych-crp').value = '';
+      document.getElementById('admin-psych-specialty').value = '';
+      document.getElementById('admin-psych-shift').value = 'Manhã e Tarde';
+      document.getElementById('admin-psych-online').checked = true;
     };
 
-    window.togglePsychologistStatusAdmin = async function(id) {
-      const psych = appState.psychologists.find(p => p.id === id);
+    window.togglePsychologistStatusAdmin = function(psychId) {
+      const psych = appState.psychologists.find(p => p.id === psychId);
       if (!psych) return;
-      const nextStatus = !psych.online;
-      psych.online = nextStatus;
+      psych.online = !psych.online;
       saveLocalBackup();
-      renderAll();
-
-      if (appState.dbReady && appState.user && appState.db) {
-        try {
-          const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', id);
-          await updateDoc(ref, { online: nextStatus });
-        } catch (err) {
-          console.error('Erro ao atualizar status:', err);
-        }
+      if (appState.dbReady && appState.user) {
+        setDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', psych.id), psych).catch(() => {});
       }
+      renderAll();
     };
 
-    window.deletePsychologistAdmin = async function(id) {
-      appState.psychologists = appState.psychologists.filter(p => p.id !== id);
-      if (appState.selectedPsychologistId === id) {
+    window.deletePsychologistAdmin = function(psychId) {
+      appState.psychologists = appState.psychologists.filter(p => p.id !== psychId);
+      if (appState.selectedPsychologistId === psychId) {
         appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
       }
       saveLocalBackup();
-      renderAll();
-
-      if (appState.dbReady && appState.user && appState.db) {
-        try {
-          const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', id);
-          await deleteDoc(ref);
-        } catch (err) {
-          console.error('Erro ao remover psicólogo:', err);
-        }
+      if (appState.dbReady && appState.user) {
+        deleteDoc(doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', psychId)).catch(() => {});
       }
-      showToast('Cadastro removido.');
+      renderAll();
+      showToast('Psicólogo removido da lista.', 'info');
     };
 
     // =========================================================
-    // RENDERIZAÇÃO DA INTERFACE
+    // 8. RENDERIZAÇÃO DA INTERFACE
     // =========================================================
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
     function renderAll() {
       renderSeniorView();
-      renderPsychView();
+      renderPsychologistView();
       renderAdminView();
       if (window.lucide) lucide.createIcons();
     }
 
     function renderSeniorView() {
-      const onlineCount = appState.psychologists.filter(p => p.online).length;
-      const summary = document.getElementById('online-summary-text');
-      if (summary) {
-        summary.innerHTML = onlineCount > 0
-          ? `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0"></i><span>Há <strong>${onlineCount} psicólogo(s) online</strong> prontos para te ouvir agora.</span>`
-          : `<i data-lucide="clock" class="w-5 h-5 text-amber-600 shrink-0"></i><span>No momento todos estão em atendimento. Agende um horário abaixo!</span>`;
-      }
-
       const grid = document.getElementById('senior-psychologists-grid');
+      const summary = document.getElementById('senior-online-summary');
       if (!grid) return;
 
-      grid.innerHTML = appState.psychologists.map(psych => {
-        const isOnline = Boolean(psych.online);
-        return `
-          <div class="bg-white rounded-3xl border-2 ${isOnline ? 'border-emerald-200' : 'border-slate-200'} p-5 sm:p-6 shadow-sm flex flex-col justify-between gap-4">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between gap-2">
-                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs sm:text-sm font-bold ${isOnline ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
-                  <span class="relative w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-500 online-dot-ring' : 'bg-slate-400'}"></span>
-                  ${isOnline ? 'ONLINE AGORA' : 'INDISPONÍVEL NO MOMENTO'}
-                </span>
-                <span class="text-xs font-semibold text-slate-400">CRP ${psych.crp}</span>
-              </div>
-              <h4 class="text-xl sm:text-2xl font-extrabold text-slate-900">${psych.name}</h4>
-              <p class="text-base text-slate-600">${psych.specialty || 'Escuta ativa e acolhimento'}</p>
-            </div>
+      const onlineCount = appState.psychologists.filter(p => p.online).length;
+      if (summary) {
+        summary.innerHTML = onlineCount > 0
+          ? `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> ${onlineCount} psicólogo(s) online e prontos para conversar agora.`
+          : `<span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Nenhum psicólogo online neste instante — escolha um profissional abaixo para agendar.`;
+      }
 
-            <div class="pt-2">
-              ${isOnline ? `
-                <button
-                  type="button"
-                  onclick="connectSeniorWithPsych('${psych.id}')"
-                  class="btn-senior w-full bg-teal-700 hover:bg-teal-800 text-white rounded-2xl px-5 py-3.5 flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <i data-lucide="video" class="w-6 h-6"></i>
+      const sorted = [...appState.psychologists].sort((a, b) => Number(b.online) - Number(a.online));
+      grid.innerHTML = sorted.map(p => `
+        <article class="bg-white rounded-2xl p-5 shadow-sm border-2 ${p.online ? 'border-emerald-400' : 'border-slate-200'} flex flex-col justify-between space-y-4">
+          <div class="space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="w-12 h-12 rounded-2xl ${p.online ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'} flex items-center justify-center font-extrabold text-lg shrink-0">
+                ${escapeHtml(p.name.replace(/^Dr(a)?\.\s*/i, '').charAt(0).toUpperCase())}
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold ${p.online ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+                <span class="w-2 h-2 rounded-full ${p.online ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></span>
+                ${p.online ? 'ONLINE AGORA' : 'OFFLINE'}
+              </span>
+            </div>
+            <div>
+              <h4 class="text-lg sm:text-xl font-extrabold text-slate-900">${escapeHtml(p.name)}</h4>
+              <p class="text-xs font-bold text-teal-700">${escapeHtml(p.crp)} • Turno: ${escapeHtml(p.shift || 'Integral')}</p>
+            </div>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed">${escapeHtml(p.specialty)}</p>
+          </div>
+
+          <div class="pt-2">
+            ${p.online
+              ? `<button onclick="startSeniorRoomWithPsych('${p.id}')" class="senior-focus w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base py-3.5 px-4 rounded-xl shadow flex items-center justify-center gap-2 cursor-pointer">
+                  <i data-lucide="video" class="w-5 h-5"></i>
                   <span>Entrar na Sala de Conversa</span>
-                </button>
-              ` : `
-                <button
-                  type="button"
-                  onclick="openScheduleModal('${psych.id}')"
-                  class="btn-senior w-full bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-2xl px-5 py-3.5 flex items-center justify-center gap-2 border border-slate-300"
-                >
+                </button>`
+              : `<button onclick="openScheduleModal('${p.id}')" class="senior-focus w-full bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-base py-3 px-4 rounded-xl border border-amber-300 flex items-center justify-center gap-2 cursor-pointer">
                   <i data-lucide="calendar" class="w-5 h-5"></i>
                   <span>Agendar Horário</span>
-                </button>
-              `}
-            </div>
+                </button>`
+            }
           </div>
-        `;
-      }).join('');
+        </article>
+      `).join('');
     }
 
-    function renderPsychView() {
+    function renderPsychologistView() {
       const selector = document.getElementById('psych-selector');
-      if (selector) {
-        selector.innerHTML = appState.psychologists.map(p =>
-          `<option value="${p.id}" ${p.id === appState.selectedPsychologistId ? 'selected' : ''}>${p.name} (CRP ${p.crp})</option>`
-        ).join('');
-      }
+      if (!selector) return;
+
+      selector.innerHTML = appState.psychologists.map(p =>
+        `<option value="${p.id}" ${p.id === appState.selectedPsychologistId ? 'selected' : ''}>${escapeHtml(p.name)} (${escapeHtml(p.crp)})</option>`
+      ).join('');
 
       const currentPsych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId) || appState.psychologists[0];
       const statusBtn = document.getElementById('btn-toggle-psych-status');
       if (statusBtn && currentPsych) {
-        if (currentPsych.online) {
-          statusBtn.className = 'px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 border border-emerald-300 bg-emerald-50 text-emerald-800';
-          statusBtn.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span>Estou Online</span>`;
-        } else {
-          statusBtn.className = 'px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 border border-slate-300 bg-slate-100 text-slate-700';
-          statusBtn.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span><span>Estou Offline</span>`;
-        }
+        statusBtn.className = currentPsych.online
+          ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer'
+          : 'bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer';
+        statusBtn.innerHTML = `<span class="w-2.5 h-2.5 rounded-full ${currentPsych.online ? 'bg-emerald-600' : 'bg-slate-500'}"></span><span>${currentPsych.online ? 'Status: ONLINE (Visível)' : 'Status: OFFLINE'}</span>`;
       }
 
-      // Fila do psicólogo selecionado
-      const myQueue = currentPsych
-        ? appState.queue.filter(q => q.psychId === currentPsych.id)
-        : [];
-      const queueCountEl = document.getElementById('psych-queue-count');
-      const queueListEl = document.getElementById('psych-queue-list');
-      if (queueCountEl) queueCountEl.textContent = `${myQueue.length} pendente(s)`;
-      if (queueListEl) {
-        queueListEl.innerHTML = myQueue.length === 0
-          ? `<p class="text-sm text-slate-500 bg-slate-50 rounded-2xl p-4 text-center">Nenhuma solicitação aguardando no momento.</p>`
-          : myQueue.map(item => `
-            <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+      // Fila do psicólogo
+      const queueList = document.getElementById('psych-queue-list');
+      const queueCount = document.getElementById('psych-queue-count');
+      const myQueue = appState.queue.filter(q => !currentPsych || q.psychId === currentPsych.id);
+      if (queueCount) queueCount.textContent = myQueue.length;
+      if (queueList) {
+        queueList.innerHTML = myQueue.length === 0
+          ? `<p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-dashed border-slate-200">Nenhuma solicitação aguardando no momento.</p>`
+          : myQueue.map(q => `
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p class="font-bold text-slate-900">${item.seniorName}</p>
-                <p class="text-xs text-teal-700 font-semibold">${item.type}</p>
+                <p class="font-extrabold text-slate-900">${escapeHtml(q.seniorName)}</p>
+                <p class="text-xs text-slate-600">${escapeHtml(q.type)} • ${escapeHtml(q.period)}</p>
               </div>
-              <button
-                type="button"
-                onclick="openPsychOwnRoom('${item.seniorName.replace(/'/g, "\\'")}', '${item.id}')"
-                class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl"
-              >
+              <button onclick="openPsychOwnRoom('${q.id}')" class="bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer">
                 Atender na Sala
               </button>
             </div>
           `).join('');
       }
 
-      // Histórico do psicólogo selecionado
-      const myHistory = currentPsych
-        ? appState.history.filter(h => h.psychId === currentPsych.id)
-        : [];
-      const histCountEl = document.getElementById('psych-history-count');
-      const histListEl = document.getElementById('psych-history-list');
-      if (histCountEl) histCountEl.textContent = `${myHistory.length} realizado(s)`;
-      if (histListEl) {
-        histListEl.innerHTML = myHistory.length === 0
-          ? `<p class="text-sm text-slate-500 bg-slate-50 rounded-2xl p-4 text-center">Nenhum atendimento concluído registrado ainda.</p>`
+      // Histórico do psicólogo
+      const histList = document.getElementById('psych-history-list');
+      const histCount = document.getElementById('psych-history-count');
+      const myHistory = appState.history.filter(h => !currentPsych || h.psychId === currentPsych.id);
+      if (histCount) histCount.textContent = myHistory.length;
+      if (histList) {
+        histList.innerHTML = myHistory.length === 0
+          ? `<p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-dashed border-slate-200">Nenhum atendimento registrado ainda para este profissional.</p>`
           : myHistory.map(h => `
-            <div class="p-3.5 rounded-2xl border border-slate-200 bg-white space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-900">${h.seniorName}</span>
-                <span class="text-xs font-semibold text-slate-500">${h.dateFormatted || ''} • ${h.duration || ''}</span>
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
+              <div class="flex items-center justify-between text-xs font-bold text-teal-800">
+                <span>${escapeHtml(h.seniorName)}</span>
+                <span>${escapeHtml(h.dateStr)} (${escapeHtml(h.duration)})</span>
               </div>
-              <p class="text-xs text-slate-600">${h.notes || ''}</p>
+              <p class="text-xs text-slate-600">${escapeHtml(h.notes)}</p>
             </div>
           `).join('');
       }
@@ -1885,209 +1811,80 @@
 
     function renderAdminView() {
       const lockScreen = document.getElementById('admin-lock-screen');
-      const dashboard = document.getElementById('admin-dashboard');
+      const dashboard = document.getElementById('admin-dashboard-content');
       if (!lockScreen || !dashboard) return;
 
-      if (!appState.adminUnlocked) {
-        lockScreen.classList.remove('hidden');
-        dashboard.classList.add('hidden');
-        return;
-      }
+      lockScreen.classList.toggle('hidden', appState.adminUnlocked);
+      dashboard.classList.toggle('hidden', !appState.adminUnlocked);
+      if (!appState.adminUnlocked) return;
 
-      lockScreen.classList.add('hidden');
-      dashboard.classList.remove('hidden');
+      document.getElementById('stat-total-psychs').textContent = appState.psychologists.length;
+      document.getElementById('stat-online-psychs').textContent = appState.psychologists.filter(p => p.online).length;
+      document.getElementById('stat-queue-total').textContent = appState.queue.length;
+      document.getElementById('stat-history-total').textContent = appState.history.length;
 
-      // Estatísticas
-      document.getElementById('stat-total-psych').textContent = appState.psychologists.length;
-      document.getElementById('stat-online-psych').textContent = appState.psychologists.filter(p => p.online).length;
-      document.getElementById('stat-total-attended').textContent = appState.history.length;
-      document.getElementById('stat-pending-queue').textContent = appState.queue.length;
-
-      // Tabela de psicólogos
-      const tbody = document.getElementById('admin-psych-table-body');
+      const tbody = document.getElementById('admin-psychologists-table');
       if (tbody) {
         tbody.innerHTML = appState.psychologists.map(p => `
           <tr>
-            <td class="py-3 px-2 font-bold text-slate-900">${p.name}</td>
-            <td class="py-3 px-2 text-slate-600">${p.crp}</td>
-            <td class="py-3 px-2 text-slate-600">${p.specialty || '-'}</td>
+            <td class="py-3 px-2 font-bold text-slate-900">${escapeHtml(p.name)}</td>
+            <td class="py-3 px-2 text-slate-600">${escapeHtml(p.crp)}</td>
+            <td class="py-3 px-2 text-slate-600">${escapeHtml(p.specialty)}</td>
             <td class="py-3 px-2">
-              <button
-                type="button"
-                onclick="togglePsychologistStatusAdmin('${p.id}')"
-                class="px-2.5 py-1 rounded-full text-xs font-bold ${p.online ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}"
-              >
+              <button onclick="togglePsychologistStatusAdmin('${p.id}')" class="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer ${p.online ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}">
                 ${p.online ? 'Online' : 'Offline'}
               </button>
             </td>
-            <td class="py-3 px-2 text-right space-x-1">
-              <button
-                type="button"
-                onclick="editPsychologist('${p.id}')"
-                class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold"
-              >
-                Editar
-              </button>
-              <button
-                type="button"
-                onclick="deletePsychologistAdmin('${p.id}')"
-                class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold"
-              >
-                Remover
-              </button>
+            <td class="py-3 px-2 text-right space-x-2">
+              <button onclick="editPsychologistAdmin('${p.id}')" class="text-teal-700 hover:underline font-bold text-xs cursor-pointer">Editar</button>
+              <button onclick="deletePsychologistAdmin('${p.id}')" class="text-rose-600 hover:underline font-bold text-xs cursor-pointer">Excluir</button>
             </td>
           </tr>
         `).join('');
       }
 
-      // Filtro do histórico geral
-      const filterSelect = document.getElementById('admin-history-filter');
-      if (filterSelect) {
-        const currentFilter = filterSelect.value || 'all';
-        filterSelect.innerHTML = `<option value="all">Todos os psicólogos</option>` +
-          appState.psychologists.map(p =>
-            `<option value="${p.id}" ${p.id === currentFilter ? 'selected' : ''}>${p.name}</option>`
-          ).join('');
+      const filterSel = document.getElementById('admin-history-filter');
+      if (filterSel) {
+        const currentFilter = filterSel.value || 'ALL';
+        filterSel.innerHTML = `<option value="ALL">Todos os Psicólogos</option>` +
+          appState.psychologists.map(p => `<option value="${p.id}" ${p.id === currentFilter ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('');
       }
-
       renderAdminHistory();
     }
 
     window.renderAdminHistory = function() {
-      const filter = document.getElementById('admin-history-filter')?.value || 'all';
-      const listEl = document.getElementById('admin-history-list');
-      if (!listEl) return;
+      const container = document.getElementById('admin-history-list');
+      const filter = document.getElementById('admin-history-filter')?.value || 'ALL';
+      if (!container) return;
 
-      const filtered = filter === 'all'
+      const filtered = filter === 'ALL'
         ? appState.history
         : appState.history.filter(h => h.psychId === filter);
 
-      listEl.innerHTML = filtered.length === 0
-        ? `<p class="text-sm text-slate-500 bg-slate-50 rounded-2xl p-4 text-center">Nenhum registro de atendimento encontrado para este filtro.</p>`
+      container.innerHTML = filtered.length === 0
+        ? `<p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-dashed border-slate-200">Nenhum atendimento concluído registrado até o momento.</p>`
         : filtered.map(h => `
-          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <p class="font-bold text-slate-900">Idoso(a): ${h.seniorName}</p>
-              <p class="text-xs font-semibold text-teal-800">Psicólogo(a): ${h.psychName}</p>
-              <p class="text-xs text-slate-600 mt-1">${h.notes || ''}</p>
+              <p class="font-extrabold text-slate-900">Paciente: ${escapeHtml(h.seniorName)} <span class="text-xs font-semibold text-teal-700">• Atendido por ${escapeHtml(h.psychName)}</span></p>
+              <p class="text-xs text-slate-600 mt-1">${escapeHtml(h.notes)}</p>
             </div>
-            <div class="text-left sm:text-right text-xs text-slate-500 font-semibold shrink-0">
-              <p>${h.dateFormatted || ''}</p>
-              <p>Duração: ${h.duration || '-'}</p>
-            </div>
+            <span class="text-xs font-bold text-slate-500 shrink-0">${escapeHtml(h.dateStr)} • ${escapeHtml(h.duration)}</span>
           </div>
         `).join('');
     };
 
-    // Inicialização segura
+    // =========================================================
+    // 9. INICIALIZAÇÃO SEGURA
+    // =========================================================
     function bootstrapApp() {
-      initPWA();
-      switchView(appState.currentView || 'idoso');
+      setupPwaAssets();
+      renderAll();
       initCloudDatabase();
     }
 
-    // =========================================================
-    // SUPORTE COMPLETO A PWA (MANIFEST, SERVICE WORKER E INSTALAÇÃO)
-    // =========================================================
-    let deferredInstallPrompt = null;
-
-    function initPWA() {
-      try {
-        // Ícone vetorial SVG embarcado (192x192 e 512x512)
-        const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#0f766e"/><path d="M256 416s-144-86.4-144-200c0-53 43-96 96-96 31.4 0 59.3 15.1 76.8 38.4C302.3 135.1 330.2 120 361.6 120c53 0 96 43 96 96 0 113.6-144 200-144 200z" fill="#ffffff" opacity="0.95"/><text x="256" y="255" font-family="Arial, sans-serif" font-weight="800" font-size="88" fill="#0f766e" text-anchor="middle">60+</text></svg>`;
-        const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
-
-        const appleIconLink = document.getElementById('apple-touch-icon-link');
-        if (appleIconLink) appleIconLink.href = iconDataUrl;
-
-        // Web App Manifest gerado dinamicamente para funcionar em arquivo único
-        const manifestObj = {
-          name: 'Escutatória 60+ — Acolhimento Online',
-          short_name: 'Escutatória 60+',
-          description: 'Escuta ativa e acolhimento emocional online para pessoas com 60 anos ou mais.',
-          start_url: window.location.href,
-          display: 'standalone',
-          orientation: 'portrait',
-          background_color: '#f8fafc',
-          theme_color: '#0f766e',
-          icons: [
-            { src: iconDataUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-            { src: iconDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
-          ]
-        };
-
-        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-        const manifestUrl = URL.createObjectURL(manifestBlob);
-        const manifestLink = document.getElementById('pwa-manifest-link');
-        if (manifestLink) manifestLink.href = manifestUrl;
-
-        // Registro de Service Worker para cache básico e requisitos de instalabilidade
-        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-          const swCode = `
-            const CACHE_NAME = 'escutatoria-60-v1';
-            self.addEventListener('install', (event) => {
-              self.skipWaiting();
-            });
-            self.addEventListener('activate', (event) => {
-              event.waitUntil(clients.claim());
-            });
-            self.addEventListener('fetch', (event) => {
-              if (event.request.method !== 'GET') return;
-              event.respondWith(
-                fetch(event.request)
-                  .then((response) => {
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
-                    return response;
-                  })
-                  .catch(() => caches.match(event.request))
-              );
-            });
-          `;
-          const swBlob = new Blob([swCode], { type: 'application/javascript' });
-          const swUrl = URL.createObjectURL(swBlob);
-          navigator.serviceWorker.register(swUrl).catch(() => {
-            // Ignora silenciosamente em ambientes sandboxed/iframe sem suporte a SW via Blob
-          });
-        }
-
-        // Exibe botão Instalar App se não estiver rodando já em modo standalone
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        const installBtn = document.getElementById('btn-install-pwa');
-        if (!isStandalone && installBtn) {
-          installBtn.classList.remove('hidden');
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredInstallPrompt = e;
-          if (installBtn) installBtn.classList.remove('hidden');
-        });
-
-        window.addEventListener('appinstalled', () => {
-          deferredInstallPrompt = null;
-          if (installBtn) installBtn.classList.add('hidden');
-          showToast('Aplicativo instalado na tela inicial com sucesso!');
-        });
-      } catch (err) {
-        console.warn('Aviso ao configurar PWA:', err);
-      }
-    }
-
-    window.triggerPwaInstall = async function() {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const { outcome } = await deferredInstallPrompt.userChoice;
-        if (outcome === 'accepted') {
-          deferredInstallPrompt = null;
-        }
-      } else {
-        document.getElementById('pwa-ios-modal')?.classList.remove('hidden');
-      }
-    };
-
     if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', bootstrapApp);
+      document.addEventListener('DOMContentLoaded', bootstrapApp);
     } else {
       bootstrapApp();
     }
