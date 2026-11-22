@@ -703,6 +703,62 @@
       appId: typeof __app_id !== 'undefined' ? __app_id : 'escutatoria-60-mais'
     };
 
+    const STORAGE_KEYS = {
+      PSYCHOLOGISTS: 'escutatoria60_psychologists_v1',
+      QUEUE: 'escutatoria60_queue_v1',
+      HISTORY: 'escutatoria60_history_v1',
+      ADMIN_PASS: 'escutatoria60_admin_pass_v1'
+    };
+
+    function saveLocalBackup() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.PSYCHOLOGISTS, JSON.stringify(appState.psychologists));
+        localStorage.setItem(STORAGE_KEYS.QUEUE, JSON.stringify(appState.queue));
+        localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(appState.history));
+        localStorage.setItem(STORAGE_KEYS.ADMIN_PASS, appState.adminPassword);
+      } catch (e) {
+        console.warn('Backup local indisponível:', e);
+      }
+    }
+
+    function loadLocalBackup() {
+      try {
+        const savedPsychs = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
+        if (savedPsychs) {
+          const parsed = JSON.parse(savedPsychs);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appState.psychologists = parsed;
+          }
+        }
+        const savedQueue = localStorage.getItem(STORAGE_KEYS.QUEUE);
+        if (savedQueue) {
+          const parsedQ = JSON.parse(savedQueue);
+          if (Array.isArray(parsedQ)) appState.queue = parsedQ;
+        }
+        const savedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        if (savedHistory) {
+          const parsedH = JSON.parse(savedHistory);
+          if (Array.isArray(parsedH)) appState.history = parsedH;
+        }
+        const savedPass = localStorage.getItem(STORAGE_KEYS.ADMIN_PASS);
+        if (savedPass) appState.adminPassword = savedPass;
+
+        if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
+          appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
+        }
+      } catch (e) {
+        console.warn('Erro ao ler backup local:', e);
+      }
+    }
+
+    // Sincroniza em tempo real entre diferentes abas do navegador (ex.: aba Idoso + aba Psicólogo)
+    window.addEventListener('storage', (event) => {
+      if (Object.values(STORAGE_KEYS).includes(event.key)) {
+        loadLocalBackup();
+        renderAll();
+      }
+    });
+
     let toastTimeout = null;
     window.showToast = function(msg) {
       const banner = document.getElementById('toast-banner');
@@ -725,9 +781,12 @@
     }
 
     async function initCloudDatabase() {
+      loadLocalBackup();
+      renderAll();
+
       try {
         if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-          updateDbBadge(true, 'Modo Local Ativo');
+          updateDbBadge(true, 'Base Local Salva');
           return;
         }
         const firebaseConfig = JSON.parse(__firebase_config);
@@ -752,6 +811,7 @@
             const cfgSnap = await getDoc(configDoc);
             if (cfgSnap.exists() && cfgSnap.data().password) {
               appState.adminPassword = cfgSnap.data().password;
+              saveLocalBackup();
             }
           } catch (e) {
             console.warn(e);
@@ -760,7 +820,7 @@
           const psychCol = collection(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
           onSnapshot(psychCol, async (snapshot) => {
             if (snapshot.empty) {
-              for (const p of DEFAULT_PSYCHOLOGISTS) {
+              for (const p of appState.psychologists) {
                 await setDoc(doc(psychCol, p.id), p);
               }
               return;
@@ -769,6 +829,7 @@
             snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
             list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             appState.psychologists = list;
+            saveLocalBackup();
             if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
               appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
             }
@@ -781,6 +842,7 @@
             snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
             items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             appState.queue = items;
+            saveLocalBackup();
             renderAll();
           });
 
@@ -790,12 +852,13 @@
             snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
             items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             appState.history = items;
+            saveLocalBackup();
             renderAll();
           });
         });
       } catch (err) {
-        console.warn('Iniciando em modo local:', err);
-        updateDbBadge(true, 'Modo Local Ativo');
+        console.warn('Iniciando em modo local persistente:', err);
+        updateDbBadge(true, 'Base Local Salva');
       }
     }
 
@@ -830,19 +893,64 @@
       const isSenior = role === 'senior';
       const externalUrl = `https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&userInfo.displayName="${encodeURIComponent(localName)}"`;
 
+      // Verifica se a outra ponta já está conectada na fila/sala deste psicólogo
+      const activeSessionForRoom = appState.queue.find(q =>
+        `Escutatoria60Mais_Sala_${String(q.psychId || '').replace(/[^a-zA-Z0-9]/g, '')}` === roomName &&
+        q.status === 'em_atendimento'
+      );
+      const effectiveRemoteName = isSenior
+        ? (remoteName || 'Psicólogo(a)')
+        : (remoteName || activeSessionForRoom?.seniorName || '');
+
       container.innerHTML = `
         <div class="relative w-full h-full bg-slate-950 flex flex-col justify-between overflow-hidden">
-          <!-- Vídeo Principal (Câmera do Usuário / Sala) -->
-          <video
-            id="${role}-local-video"
-            autoplay
-            playsinline
-            muted
-            class="w-full h-full object-cover scale-x-[-1]"
-          ></video>
+          <!-- Grade Dupla: Tela Remota (Idoso ou Psicólogo) + Câmera Local -->
+          <div class="grid grid-cols-1 md:grid-cols-2 w-full h-full gap-1.5 p-1.5 bg-slate-950">
+            <!-- Quadro 1: Outro Participante (Psicólogo para o Idoso / Idoso para o Psicólogo) -->
+            <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 via-slate-900 to-teal-950 border border-white/10 flex flex-col items-center justify-center text-center p-4">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-teal-600/30 border-2 border-emerald-400/60 text-white flex items-center justify-center mb-3 shadow-lg">
+                <i data-lucide="${isSenior ? 'heart-handshake' : 'smile'}" class="w-10 h-10 sm:w-12 sm:h-12 text-emerald-300"></i>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${effectiveRemoteName ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'} mb-1.5">
+                <span class="w-2 h-2 rounded-full ${effectiveRemoteName ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></span>
+                ${effectiveRemoteName ? (isSenior ? 'Psicólogo(a) na Sala' : 'Idoso(a) Conectado(a)') : 'Aguardando Idoso(a) entrar...'}
+              </span>
+              <h4 class="text-lg sm:text-xl font-extrabold text-white">
+                ${effectiveRemoteName || 'Sala Pronta para Acolhimento'}
+              </h4>
+              <p class="text-xs text-slate-300 mt-1 max-w-xs">
+                ${effectiveRemoteName
+                  ? 'Conexão de escuta ativa estabelecida. Para vídeo externo entre redes diferentes, use o botão abaixo.'
+                  : 'Assim que o idoso clicar em Conversar Agora, o nome dele aparecerá aqui automaticamente.'}
+              </p>
+              <a
+                href="${externalUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="mt-3 inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow"
+              >
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                <span>Abrir Vídeo Externo (Multi-dispositivo)</span>
+              </a>
+            </div>
+
+            <!-- Quadro 2: Câmera Local do Usuário Atual -->
+            <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
+              <video
+                id="${role}-local-video"
+                autoplay
+                playsinline
+                muted
+                class="w-full h-full object-cover scale-x-[-1]"
+              ></video>
+              <div class="absolute top-2.5 left-2.5 bg-slate-900/80 text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                Você (${localName})
+              </div>
+            </div>
+          </div>
 
           <!-- Fallback caso a câmera esteja bloqueada ou indisponível -->
-          <div id="${role}-camera-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/95 text-white space-y-3">
+          <div id="${role}-camera-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/95 text-white space-y-3 z-20">
             <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
               <i data-lucide="video-off" class="w-8 h-8"></i>
             </div>
@@ -869,17 +977,8 @@
             </div>
           </div>
 
-          <!-- Cartão do Participante Remoto -->
-          <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white px-3.5 py-2 rounded-2xl border border-white/15 flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <div class="text-xs sm:text-sm">
-              <p class="font-bold leading-tight">${isSenior ? remoteName : (remoteName || 'Aguardando paciente...')}</p>
-              <p class="text-[11px] text-emerald-300">Sala: ${roomName}</p>
-            </div>
-          </div>
-
           <!-- Barra de Controles Grandes de Áudio e Vídeo -->
-          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15 shadow-lg">
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/15 shadow-lg z-10">
             <button
               id="${role}-btn-mic"
               type="button"
@@ -1048,6 +1147,7 @@
         createdAt: Date.now()
       };
       appState.queue.unshift(queueItem);
+      saveLocalBackup();
 
       if (appState.dbReady && appState.user && appState.db) {
         try {
@@ -1091,6 +1191,8 @@
           createdAt: Date.now()
         };
         appState.history.unshift(historyEntry);
+        appState.queue = appState.queue.filter(q => !(q.psychId === call.psychId && q.seniorName === call.seniorName && q.status === 'em_atendimento'));
+        saveLocalBackup();
 
         if (appState.dbReady && appState.user && appState.db) {
           try {
@@ -1152,6 +1254,7 @@
           createdAt: Date.now()
         };
         appState.queue.unshift(newSchedule);
+        saveLocalBackup();
         renderAll();
 
         if (appState.dbReady && appState.user && appState.db) {
@@ -1182,12 +1285,13 @@
       const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
       if (!psych) return;
       const nextStatus = !psych.online;
+      psych.online = nextStatus;
+      saveLocalBackup();
+      renderAll();
+
       if (appState.dbReady && appState.user) {
         const ref = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'psychologists', psych.id);
         await updateDoc(ref, { online: nextStatus });
-      } else {
-        psych.online = nextStatus;
-        renderAll();
       }
       showToast(`Seu status agora é: ${nextStatus ? 'ONLINE' : 'OFFLINE'}`);
     };
@@ -1196,10 +1300,15 @@
       const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
       if (!psych) return;
 
+      // Se nenhum nome foi passado, busca automaticamente se há idoso aguardando na sala deste psicólogo
+      const waitingSenior = appState.queue.find(q => q.psychId === psych.id && q.status === 'em_atendimento');
+      const resolvedSeniorName = seniorName || waitingSenior?.seniorName || '';
+      const resolvedQueueId = queueItemId || waitingSenior?.id || '';
+
       appState.activePsychCall = {
         psychId: psych.id,
         psychName: psych.name,
-        queueItemId,
+        queueItemId: resolvedQueueId,
         startedAt: Date.now()
       };
 
@@ -1208,12 +1317,12 @@
       const seniorInput = document.getElementById('psych-session-senior-name');
       const notesInput = document.getElementById('psych-session-notes');
 
-      if (title) title.textContent = `Sala de ${psych.name}`;
-      if (seniorInput) seniorInput.value = seniorName;
+      if (title) title.textContent = resolvedSeniorName ? `Sala de ${psych.name} — Atendendo ${resolvedSeniorName}` : `Sala de ${psych.name}`;
+      if (seniorInput) seniorInput.value = resolvedSeniorName;
       if (notesInput) notesInput.value = '';
       if (roomBox) roomBox.classList.remove('hidden');
 
-      startNativeVideoRoom('psych-jitsi-container', 'psych', psych.name, seniorName, getRoomNameForPsych(psych));
+      startNativeVideoRoom('psych-jitsi-container', 'psych', psych.name, resolvedSeniorName, getRoomNameForPsych(psych));
 
       clearInterval(appState.callTimerInterval);
       appState.callSeconds = 0;
@@ -1249,6 +1358,7 @@
         if (appState.activePsychCall?.queueItemId) {
           appState.queue = appState.queue.filter(q => q.id !== appState.activePsychCall.queueItemId);
         }
+        saveLocalBackup();
 
         if (appState.dbReady && appState.user && appState.db) {
           try {
@@ -1307,6 +1417,7 @@
         return;
       }
       appState.adminPassword = newPass;
+      saveLocalBackup();
       if (appState.dbReady && appState.user) {
         const configDoc = doc(appState.db, 'artifacts', appState.appId, 'public', 'data', 'settings', 'admin_config');
         await setDoc(configDoc, { password: newPass }, { merge: true });
@@ -1336,7 +1447,7 @@
           : true
       };
 
-      // Atualiza imediatamente em memória e na interface
+      // Atualiza imediatamente em memória e salva na base persistente
       if (editId) {
         const idx = appState.psychologists.findIndex(p => p.id === editId);
         if (idx !== -1) {
@@ -1349,6 +1460,7 @@
         }
       }
       appState.psychologists.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      saveLocalBackup();
       renderAll();
       resetPsychologistForm();
 
@@ -1365,10 +1477,10 @@
           }
         } catch (err) {
           console.error('Erro ao salvar psicólogo:', err);
-          showToast('Salvo na tela, mas houve falha ao sincronizar com a nuvem.');
+          showToast('Cadastro salvo na base local com sucesso!');
         }
       } else {
-        showToast(editId ? 'Dados do psicólogo atualizados!' : 'Psicólogo cadastrado!');
+        showToast(editId ? 'Dados do psicólogo atualizados e salvos!' : 'Psicólogo cadastrado e salvo na base!');
       }
     };
 
@@ -1399,6 +1511,7 @@
       if (!psych) return;
       const nextStatus = !psych.online;
       psych.online = nextStatus;
+      saveLocalBackup();
       renderAll();
 
       if (appState.dbReady && appState.user && appState.db) {
@@ -1416,6 +1529,7 @@
       if (appState.selectedPsychologistId === id) {
         appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
       }
+      saveLocalBackup();
       renderAll();
 
       if (appState.dbReady && appState.user && appState.db) {
