@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Escutatória 60+" />
+  <meta name="description" content="Aplicativo de escuta ativa e acolhimento emocional online para pessoas 60+." />
+  <link id="pwa-manifest-link" rel="manifest" href="" />
+  <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
   <title>Escutatória 60+ — Acolhimento Online</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -79,12 +86,12 @@
       </div>
 
       <!-- Seletor de Perfis / Abas -->
-      <nav aria-label="Modos de acesso" class="grid grid-cols-3 sm:flex items-center gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 w-full md:w-auto">
+      <nav aria-label="Modos de acesso" class="grid grid-cols-4 sm:flex items-center gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 w-full md:w-auto">
         <button
           id="tab-idoso"
           type="button"
           onclick="switchView('idoso')"
-          class="flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition bg-teal-700 text-white shadow-sm"
+          class="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition bg-teal-700 text-white shadow-sm"
         >
           <i data-lucide="smile" class="w-4 h-4 shrink-0"></i>
           <span>Idoso</span>
@@ -93,7 +100,7 @@
           id="tab-psicologo"
           type="button"
           onclick="switchView('psicologo')"
-          class="flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-white transition"
+          class="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-white transition"
         >
           <i data-lucide="video" class="w-4 h-4 shrink-0"></i>
           <span>Psicólogo</span>
@@ -102,10 +109,20 @@
           id="tab-admin"
           type="button"
           onclick="switchView('admin')"
-          class="flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-white transition"
+          class="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-white transition"
         >
           <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
           <span>Admin</span>
+        </button>
+        <button
+          id="tab-demo"
+          type="button"
+          onclick="startLinkedInDemo()"
+          class="flex items-center justify-center gap-1.5 px-2 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-sm"
+          title="Iniciar apresentação automática para gravar vídeo"
+        >
+          <i data-lucide="play-circle" class="w-4 h-4 shrink-0"></i>
+          <span>Demo</span>
         </button>
       </nav>
     </div>
@@ -144,22 +161,22 @@
               id="senior-name-input"
               type="text"
               placeholder="Digite seu primeiro nome (ex.: Dona Maria)"
-              class="flex-1 text-lg sm:text-xl px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-teal-600 focus:outline-none bg-slate-50 font-medium"
-            />
-            <button
-              id="btn-conversar-agora"
-              type="button"
-              onclick="startImmediateCall()"
-              class="btn-senior bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-2xl shadow-md flex items-center justify-center gap-2.5 shrink-0"
-            >
-              <i data-lucide="phone-call" class="w-6 h-6"></i>
-              <span>CONVERSAR AGORA</span>
-            </button>
-          </div>
-          <p id="online-summary-text" class="mt-3 text-sm sm:text-base font-semibold text-teal-800 flex items-center gap-2">
-            <i data-lucide="users" class="w-5 h-5 text-emerald-600 shrink-0"></i>
-            <span>Verificando psicólogos disponíveis...</span>
-          </p>
+        <!-- Status da Base de Dados + Botão Instalar App (PWA) -->
+        <div class="flex items-center gap-2">
+          <button
+            id="btn-install-pwa"
+            type="button"
+            onclick="triggerPwaInstall()"
+            class="hidden inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition"
+            title="Instalar aplicativo na tela inicial do celular ou computador"
+          >
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Instalar App</span>
+          </button>
+          <span id="db-status-badge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            Conectando...
+          </span>
         </div>
       </div>
 
@@ -606,6 +623,37 @@
   <div id="toast-banner" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl text-sm sm:text-base font-semibold flex items-center gap-2.5 max-w-[92vw]">
     <i data-lucide="info" class="w-5 h-5 text-emerald-400 shrink-0"></i>
     <span id="toast-message">Mensagem</span>
+  </div>
+
+  <!-- Modal de Instruções de Instalação Manual (iPhone / Safari ou Desktop) -->
+  <div id="pwa-ios-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-teal-700 text-white flex items-center justify-center">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-extrabold text-slate-900">Instalar na Tela Inicial</h3>
+        </div>
+        <button type="button" onclick="document.getElementById('pwa-ios-modal').classList.add('hidden')" class="p-2 rounded-xl hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-sm text-slate-600 leading-relaxed">
+        Fixe o <strong>Escutatória 60+</strong> como um aplicativo no celular para abrir com apenas 1 toque:
+      </p>
+      <div class="bg-slate-50 rounded-2xl p-4 space-y-2.5 text-sm text-slate-800 border border-slate-200">
+        <p><strong>No iPhone (Safari):</strong> toque no ícone de <strong>Compartilhar</strong> (quadrado com seta para cima) e selecione <strong>Adicionar à Tela de Início</strong>.</p>
+        <p><strong>No Android (Chrome):</strong> toque nos <strong>3 pontinhos</strong> no canto superior direito e escolha <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong>.</p>
+      </div>
+      <button
+        type="button"
+        onclick="document.getElementById('pwa-ios-modal').classList.add('hidden')"
+        class="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm"
+      >
+        Entendi
+      </button>
+    </div>
   </div>
 
   <!-- Lógica Principal + Persistência Firebase Firestore -->
@@ -1437,9 +1485,116 @@
 
     // Inicialização segura
     function bootstrapApp() {
+      initPWA();
       switchView(appState.currentView || 'idoso');
       initCloudDatabase();
     }
+
+    // =========================================================
+    // SUPORTE COMPLETO A PWA (MANIFEST, SERVICE WORKER E INSTALAÇÃO)
+    // =========================================================
+    let deferredInstallPrompt = null;
+
+    function initPWA() {
+      try {
+        // Ícone vetorial SVG embarcado (192x192 e 512x512)
+        const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#0f766e"/><path d="M256 416s-144-86.4-144-200c0-53 43-96 96-96 31.4 0 59.3 15.1 76.8 38.4C302.3 135.1 330.2 120 361.6 120c53 0 96 43 96 96 0 113.6-144 200-144 200z" fill="#ffffff" opacity="0.95"/><text x="256" y="255" font-family="Arial, sans-serif" font-weight="800" font-size="88" fill="#0f766e" text-anchor="middle">60+</text></svg>`;
+        const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+        const appleIconLink = document.getElementById('apple-touch-icon-link');
+        if (appleIconLink) appleIconLink.href = iconDataUrl;
+
+        // Web App Manifest gerado dinamicamente para funcionar em arquivo único
+        const manifestObj = {
+          name: 'Escutatória 60+ — Acolhimento Online',
+          short_name: 'Escutatória 60+',
+          description: 'Escuta ativa e acolhimento emocional online para pessoas com 60 anos ou mais.',
+          start_url: window.location.href,
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#f8fafc',
+          theme_color: '#0f766e',
+          icons: [
+            { src: iconDataUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+            { src: iconDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById('pwa-manifest-link');
+        if (manifestLink) manifestLink.href = manifestUrl;
+
+        // Registro de Service Worker para cache básico e requisitos de instalabilidade
+        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+          const swCode = `
+            const CACHE_NAME = 'escutatoria-60-v1';
+            self.addEventListener('install', (event) => {
+              self.skipWaiting();
+            });
+            self.addEventListener('activate', (event) => {
+              event.waitUntil(clients.claim());
+            });
+            self.addEventListener('fetch', (event) => {
+              if (event.request.method !== 'GET') return;
+              event.respondWith(
+                fetch(event.request)
+                  .then((response) => {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
+                    return response;
+                  })
+                  .catch(() => caches.match(event.request))
+              );
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {
+            // Ignora silenciosamente em ambientes sandboxed/iframe sem suporte a SW via Blob
+          });
+        }
+
+        // Exibe botão Instalar App se não estiver rodando já em modo standalone
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const installBtn = document.getElementById('btn-install-pwa');
+        if (!isStandalone && installBtn) {
+          installBtn.classList.remove('hidden');
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          if (installBtn) installBtn.classList.remove('hidden');
+        });
+
+        window.addEventListener('appinstalled', () => {
+          deferredInstallPrompt = null;
+          if (installBtn) installBtn.classList.add('hidden');
+          showToast('Aplicativo instalado na tela inicial com sucesso!');
+        });
+      } catch (err) {
+        console.warn('Aviso ao configurar PWA:', err);
+      }
+    }
+
+    window.triggerPwaInstall = async function() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === 'accepted') {
+          deferredInstallPrompt = null;
+        }
+      } else {
+        document.getElementById('pwa-ios-modal')?.classList.remove('hidden');
+      }
+    };
+
+    window.stopLinkedInDemo = function() {
+      clearDemoTimers();
+      document.getElementById('demo-overlay')?.classList.add('hidden');
+      window.switchView('idoso');
+    };
 
     if (document.readyState === 'loading') {
       window.addEventListener('DOMContentLoaded', bootstrapApp);
