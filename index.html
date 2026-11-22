@@ -439,6 +439,34 @@
                 Atualizar Senha
               </button>
             </div>
+
+            <!-- Conexão com Google Planilhas -->
+            <div class="pt-3 border-t border-slate-200 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <i data-lucide="sheet" class="w-4 h-4 text-emerald-700"></i>
+                  <span>Base via Google Planilha</span>
+                </h4>
+                <button type="button" onclick="toggleSheetsHelpModal(true)" class="text-xs font-bold text-teal-700 hover:underline cursor-pointer">
+                  Como configurar
+                </button>
+              </div>
+              <input
+                id="admin-sheets-webhook-url"
+                type="url"
+                placeholder="Cole a URL do Apps Script (https://script.google.com/macros/s/.../exec)"
+                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs"
+              />
+              <div class="flex gap-2">
+                <button type="button" onclick="saveSheetsWebhookUrl()" class="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 rounded-xl cursor-pointer">
+                  Salvar e Sincronizar
+                </button>
+                <button type="button" onclick="pullFromGoogleSheets()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2.5 rounded-xl cursor-pointer" title="Buscar dados da planilha agora">
+                  Atualizar
+                </button>
+              </div>
+            </div>
+
             <button onclick="lockAdmin()" class="w-full border border-rose-300 text-rose-700 hover:bg-rose-50 font-bold text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer">
               <i data-lucide="log-out" class="w-4 h-4"></i>
               <span>Bloquear Painel Admin</span>
@@ -529,6 +557,42 @@
         <li><strong>iPhone (Safari):</strong> Toque no ícone de <strong>Compartilhar (□↑)</strong> na barra inferior e escolha <strong>"Adicionar à Tela de Início"</strong>.</li>
       </ul>
       <button onclick="document.getElementById('pwa-help-modal').classList.add('hidden')" class="w-full py-3 rounded-xl bg-teal-800 text-white font-bold cursor-pointer">Entendi</button>
+    </div>
+  </div>
+
+  <!-- Modal de Instruções Google Planilhas -->
+  <div id="sheets-help-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-extrabold text-slate-900">Conectar ao Google Planilhas</h3>
+        <button onclick="toggleSheetsHelpModal(false)" class="p-2 rounded-xl hover:bg-slate-100 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        Para manter os psicólogos e o histórico salvos em uma planilha do Google sem custo:
+      </p>
+      <ol class="text-xs sm:text-sm text-slate-700 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200 list-decimal list-inside">
+        <li>Abra uma nova planilha no <strong>Google Planilhas</strong> e vá em <strong>Extensões &gt; Apps Script</strong>.</li>
+        <li>Apague o conteúdo atual e cole o script abaixo. Depois clique em <strong>Implantar &gt; Nova implantação</strong> escolhendo <strong>App da Web</strong>, com acesso definido para <strong>Qualquer pessoa</strong>.</li>
+        <li>Copie a <strong>URL do App da Web</strong> gerada, cole no campo <strong>Base via Google Planilha</strong> no Admin e clique em <strong>Salvar e Sincronizar</strong>.</li>
+      </ol>
+      <pre class="bg-slate-900 text-emerald-300 text-[11px] p-3.5 rounded-2xl overflow-x-auto leading-relaxed">function doGet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Escutatoria60') || ss.insertSheet('Escutatoria60');
+  const raw = sheet.getRange('A1').getValue();
+  return ContentService.createTextOutput(raw || '{}')
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Escutatoria60') || ss.insertSheet('Escutatoria60');
+  sheet.getRange('A1').setValue(e.postData.contents);
+  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+      <button onclick="toggleSheetsHelpModal(false)" class="w-full py-3 rounded-xl bg-teal-800 text-white font-bold cursor-pointer">Fechar</button>
     </div>
   </div>
 
@@ -649,7 +713,92 @@
       PSYCHOLOGISTS: 'escutatoria60_psychologists_v4',
       QUEUE: 'escutatoria60_queue_v4',
       HISTORY: 'escutatoria60_history_v4',
-      ADMIN_PASS: 'escutatoria60_admin_pass_v4'
+      ADMIN_PASS: 'escutatoria60_admin_pass_v4',
+      SHEETS_URL: 'escutatoria60_sheets_url_v4'
+    };
+
+    function getSheetsWebhookUrl() {
+      const inputVal = document.getElementById('admin-sheets-webhook-url')?.value?.trim();
+      if (inputVal) return inputVal;
+      try {
+        return localStorage.getItem(STORAGE_KEYS.SHEETS_URL) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    window.toggleSheetsHelpModal = function(show) {
+      const modal = document.getElementById('sheets-help-modal');
+      if (!modal) return;
+      modal.classList.toggle('hidden', !show);
+      if (show && window.lucide) lucide.createIcons();
+    };
+
+    window.saveSheetsWebhookUrl = async function() {
+      const url = document.getElementById('admin-sheets-webhook-url')?.value?.trim() || '';
+      try {
+        localStorage.setItem(STORAGE_KEYS.SHEETS_URL, url);
+      } catch (e) {}
+      saveLocalBackup(true, false);
+      if (url) {
+        await pushToGoogleSheets(url);
+        showToast('Conexão com Google Planilha salva e sincronizada!', 'success');
+      } else {
+        showToast('URL da planilha limpa.', 'info');
+      }
+    };
+
+    async function pushToGoogleSheets(customUrl = null) {
+      const webhookUrl = customUrl || getSheetsWebhookUrl();
+      if (!webhookUrl) return;
+      const payload = {
+        psychologists: appState.psychologists,
+        queue: appState.queue,
+        history: appState.history,
+        adminPassword: appState.adminPassword,
+        updatedAt: Date.now()
+      };
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        updateDbBadge(true, 'Planilha Sincronizada');
+      } catch (e) {}
+    }
+
+    window.pullFromGoogleSheets = async function() {
+      const webhookUrl = getSheetsWebhookUrl();
+      if (!webhookUrl) return;
+      try {
+        const res = await fetch(webhookUrl, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && Array.isArray(data.psychologists) && data.psychologists.length > 0) {
+          // Mescla preservando psicólogos locais caso a planilha ainda não tenha recebido o último envio
+          const sheetMap = new Map();
+          data.psychologists.forEach(p => {
+            if (p && p.id) sheetMap.set(p.id, p);
+          });
+          appState.psychologists.forEach(localP => {
+            if (localP && localP.id && !sheetMap.has(localP.id)) {
+              sheetMap.set(localP.id, localP);
+            }
+          });
+          appState.psychologists = Array.from(sheetMap.values());
+          if (Array.isArray(data.queue)) appState.queue = data.queue;
+          if (Array.isArray(data.history)) appState.history = data.history;
+          if (data.adminPassword) appState.adminPassword = data.adminPassword;
+          if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
+            appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
+          }
+          saveLocalBackup(true, false);
+          renderAll();
+          updateDbBadge(true, 'Planilha Sincronizada');
+        }
+      } catch (e) {}
     };
 
     const liveChannel = ('BroadcastChannel' in window)
@@ -660,22 +809,22 @@
       return new Promise((resolve, reject) => {
         if (!('indexedDB' in window)) return reject('No IndexedDB');
         const req = indexedDB.open('Escutatoria60DB_v4', 1);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('store')) {
-            db.createObjectStore('store');
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains('state')) {
+            db.createObjectStore('state');
           }
         };
-        req.onsuccess = (e) => resolve(e.target.result);
-        req.onerror = (e) => reject(e);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
       });
     }
 
     async function saveToIndexedDB(snapshot) {
       try {
         const db = await openLocalIndexedDB();
-        const tx = db.transaction('store', 'readwrite');
-        tx.objectStore('store').put(snapshot, 'app_snapshot');
+        const tx = db.transaction('state', 'readwrite');
+        tx.objectStore('state').put(snapshot, 'snapshot');
       } catch (e) {}
     }
 
@@ -683,8 +832,8 @@
       try {
         const db = await openLocalIndexedDB();
         return await new Promise((resolve) => {
-          const tx = db.transaction('store', 'readonly');
-          const req = tx.objectStore('store').get('app_snapshot');
+          const tx = db.transaction('state', 'readonly');
+          const req = tx.objectStore('state').get('snapshot');
           req.onsuccess = () => resolve(req.result || null);
           req.onerror = () => resolve(null);
         });
@@ -693,7 +842,32 @@
       }
     }
 
-    function saveLocalBackup(broadcast = true) {
+    function applyStateSnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== 'object') return;
+      if (Array.isArray(snapshot.psychologists) && snapshot.psychologists.length > 0) {
+        const map = new Map();
+        snapshot.psychologists.forEach(p => {
+          if (p && p.id) map.set(p.id, p);
+        });
+        appState.psychologists.forEach(localP => {
+          if (localP && localP.id && !map.has(localP.id)) {
+            map.set(localP.id, localP);
+          }
+        });
+        appState.psychologists = Array.from(map.values());
+      }
+      if (Array.isArray(snapshot.queue)) {
+        appState.queue = snapshot.queue;
+      }
+      if (Array.isArray(snapshot.history)) {
+        appState.history = snapshot.history;
+      }
+      if (snapshot.adminPassword) {
+        appState.adminPassword = snapshot.adminPassword;
+      }
+    }
+
+    function saveLocalBackup(broadcast = true, syncSheets = true) {
       const snapshot = {
         psychologists: appState.psychologists,
         queue: appState.queue,
@@ -720,50 +894,36 @@
           liveChannel.postMessage({ type: 'STATE_SYNC', payload: snapshot });
         } catch (e) {}
       }
-    }
 
-    function applyStateSnapshot(snapshot) {
-      if (!snapshot) return;
-      if (Array.isArray(snapshot.psychologists) && snapshot.psychologists.length > 0) {
-        appState.psychologists = snapshot.psychologists;
-      }
-      if (Array.isArray(snapshot.queue)) {
-        appState.queue = snapshot.queue;
-      }
-      if (Array.isArray(snapshot.history)) {
-        appState.history = snapshot.history;
-      }
-      if (snapshot.adminPassword) {
-        appState.adminPassword = snapshot.adminPassword;
-      }
-      if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
-        appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
+      if (syncSheets) {
+        pushToGoogleSheets();
       }
     }
 
     async function loadLocalBackup() {
-      const idbSnap = await loadFromIndexedDB();
-      if (idbSnap) applyStateSnapshot(idbSnap);
-
       try {
         const savedPsychs = localStorage.getItem(STORAGE_KEYS.PSYCHOLOGISTS);
+        const savedQueue = localStorage.getItem(STORAGE_KEYS.QUEUE);
+        const savedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        const savedPass = localStorage.getItem(STORAGE_KEYS.ADMIN_PASS);
+        const savedSheetsUrl = localStorage.getItem(STORAGE_KEYS.SHEETS_URL);
+
         if (savedPsychs) {
           const parsed = JSON.parse(savedPsychs);
-          if (Array.isArray(parsed) && parsed.length > 0) appState.psychologists = parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appState.psychologists = parsed;
+          }
         }
-        const savedQueue = localStorage.getItem(STORAGE_KEYS.QUEUE);
-        if (savedQueue) {
-          const parsedQ = JSON.parse(savedQueue);
-          if (Array.isArray(parsedQ)) appState.queue = parsedQ;
-        }
-        const savedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
-        if (savedHistory) {
-          const parsedH = JSON.parse(savedHistory);
-          if (Array.isArray(parsedH)) appState.history = parsedH;
-        }
-        const savedPass = localStorage.getItem(STORAGE_KEYS.ADMIN_PASS);
+        if (savedQueue) appState.queue = JSON.parse(savedQueue) || [];
+        if (savedHistory) appState.history = JSON.parse(savedHistory) || [];
         if (savedPass) appState.adminPassword = savedPass;
+
+        const sheetsInput = document.getElementById('admin-sheets-webhook-url');
+        if (savedSheetsUrl && sheetsInput) sheetsInput.value = savedSheetsUrl;
       } catch (e) {}
+
+      const idbSnap = await loadFromIndexedDB();
+      if (idbSnap) applyStateSnapshot(idbSnap);
 
       try {
         const sess = sessionStorage.getItem('ESCUTATORIA60_SESSION');
@@ -865,6 +1025,7 @@
     async function initCloudDatabase() {
       await loadLocalBackup();
       renderAll();
+      await pullFromGoogleSheets();
 
       try {
         if (typeof __firebase_config === 'undefined' || !__firebase_config) {
@@ -907,7 +1068,7 @@
             const list = Array.from(cloudMap.values());
             list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             appState.psychologists = list;
-            saveLocalBackup(false);
+            saveLocalBackup(false, false);
             if (!appState.psychologists.some(p => p.id === appState.selectedPsychologistId)) {
               appState.selectedPsychologistId = appState.psychologists[0]?.id || '';
             }
@@ -920,7 +1081,7 @@
             snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
             list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             appState.queue = list;
-            saveLocalBackup(false);
+            saveLocalBackup(false, false);
             renderAll();
           }, () => {});
 
@@ -930,7 +1091,7 @@
             snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
             list.sort((a, b) => (b.endedAt || 0) - (a.endedAt || 0));
             appState.history = list;
-            saveLocalBackup(false);
+            saveLocalBackup(false, false);
             renderAll();
           }, () => {});
         }
