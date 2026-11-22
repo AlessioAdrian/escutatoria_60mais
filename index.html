@@ -161,22 +161,20 @@
               id="senior-name-input"
               type="text"
               placeholder="Digite seu primeiro nome (ex.: Dona Maria)"
-        <!-- Status da Base de Dados + Botão Instalar App (PWA) -->
-        <div class="flex items-center gap-2">
-          <button
-            id="btn-install-pwa"
-            type="button"
-            onclick="triggerPwaInstall()"
-            class="hidden inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition"
-            title="Instalar aplicativo na tela inicial do celular ou computador"
-          >
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Instalar App</span>
-          </button>
-          <span id="db-status-badge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-            Conectando...
-          </span>
+              class="flex-1 text-lg sm:text-xl px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-teal-600 focus:outline-none font-semibold"
+            />
+            <button
+              type="button"
+              onclick="startImmediateCall()"
+              class="btn-senior bg-emerald-600 hover:bg-emerald-700 text-white px-6 sm:px-8 py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2.5 shrink-0"
+            >
+              <i data-lucide="video" class="w-6 h-6"></i>
+              <span>CONVERSAR AGORA</span>
+            </button>
+          </div>
+          <p id="online-summary-text" class="mt-3 text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
+            <!-- Preenchido via JS -->
+          </p>
         </div>
       </div>
 
@@ -201,11 +199,20 @@
         </div>
 
         <div class="p-3 sm:p-5 bg-slate-900">
-          <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl px-4 py-2.5 mb-3 text-sm sm:text-base font-medium flex items-center gap-2">
-            <i data-lucide="mic" class="w-5 h-5 text-amber-700 shrink-0"></i>
-            <span>Se o navegador pedir permissão para usar <strong>Câmera e Microfone</strong>, clique em <strong>Permitir</strong>.</span>
+          <div id="senior-camera-alert" class="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl px-4 py-2.5 mb-3 text-sm sm:text-base font-medium flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="mic" class="w-5 h-5 text-amber-700 shrink-0"></i>
+              <span id="senior-camera-status-text">Se o navegador pedir permissão para usar <strong>Câmera e Microfone</strong>, clique em <strong>Permitir</strong>.</span>
+            </div>
+            <button
+              type="button"
+              onclick="retryCameraAccess('senior')"
+              class="bg-amber-700 hover:bg-amber-800 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl shrink-0"
+            >
+              Ativar Câmera
+            </button>
           </div>
-          <div id="senior-jitsi-container" class="w-full h-[62vh] sm:h-[520px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-700"></div>
+          <div id="senior-jitsi-container" class="w-full h-[58vh] sm:h-[500px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-700 relative"></div>
         </div>
       </div>
 
@@ -656,193 +663,215 @@
     </div>
   </div>
 
+  <!-- Overlay da Demonstração Guiada (LinkedIn) -->
+  <div id="demo-overlay" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[94vw] max-w-2xl bg-slate-900/95 text-white border border-indigo-400/40 rounded-3xl p-4 sm:p-5 shadow-2xl backdrop-blur-md">
+    <div class="flex items-center justify-between gap-3 mb-2">
+      <span id="demo-step-badge" class="text-xs font-extrabold uppercase tracking-wider bg-indigo-600 px-3 py-1 rounded-full">
+        Etapa 1 de 5
+      </span>
+      <button
+        type="button"
+        onclick="stopLinkedInDemo()"
+        class="text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1 rounded-xl"
+      >
+        Encerrar Demo
+      </button>
+    </div>
+    <p id="demo-caption-text" class="text-sm sm:text-base font-semibold leading-snug text-slate-100">
+      Apresentação automática em andamento...
+    </p>
+  </div>
+
   <!-- Lógica Principal + Persistência Firebase Firestore -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      setDoc,
-      updateDoc,
-      deleteDoc,
-      addDoc,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // Estado global da aplicação
-    const appState = {
-      currentView: 'idoso',
-      adminUnlocked: false,
-      adminPassword: 'admin123',
-      selectedPsychologistId: '',
-      scheduleTargetPsychId: '',
-      activeSeniorCall: null,
-      activePsychCall: null,
-      callSeconds: 0,
-      callTimerInterval: null,
-      psychologists: [],
-      queue: [],
-      history: [],
-      dbReady: false,
-      user: null,
-      db: null,
-      appId: 'escutatoria-60-mais'
-    };
-
-    // Dados iniciais caso a base esteja vazia
-    const DEFAULT_PSYCHOLOGISTS = [
-      {
-        id: 'psi-helena',
-        name: 'Dra. Helena Vasconcelos',
-        crp: '06/142890',
-        specialty: 'Escuta ativa, solidão e vínculos familiares',
-        online: true
-      },
-      {
-        id: 'psi-carlos',
-        name: 'Dr. Carlos Eduardo Lima',
-        crp: '05/38912',
-        specialty: 'Acolhimento ao luto, ansiedade e autoestima',
-        online: true
-      },
-      {
-        id: 'psi-mariana',
-        name: 'Dra. Mariana Albuquerque',
-        crp: '04/51209',
-        specialty: 'Memória, autonomia e bem-estar emocional',
-        online: false
-      }
-    ];
-
-    // Utilitário de Toast (sem alert())
-    let toastTimeout = null;
-    function showToast(msg) {
-      const banner = document.getElementById('toast-banner');
-      const text = document.getElementById('toast-message');
-      if (!banner || !text) return;
-      text.textContent = msg;
-      banner.classList.remove('hidden');
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => banner.classList.add('hidden'), 4000);
-    }
-
-    function updateDbBadge(connected, label) {
-      const badge = document.getElementById('db-status-badge');
-      if (!badge) return;
-      badge.innerHTML = connected
-        ? `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>${label}</span>`
-        : `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>${label}</span>`;
-    }
-
-    // Inicializa Firebase Firestore conforme regras do ambiente
-    async function initCloudDatabase() {
-      try {
-        if (typeof __firebase_config === 'undefined') {
-          appState.psychologists = [...DEFAULT_PSYCHOLOGISTS];
-          appState.selectedPsychologistId = appState.psychologists[0].id;
-          updateDbBadge(false, 'Modo Local');
-          renderAll();
-          return;
-        }
-
-        const firebaseConfig = JSON.parse(__firebase_config);
-        appState.appId = typeof __app_id !== 'undefined' ? __app_id : 'escutatoria-60-mais';
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        appState.db = db;
-
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          const cred = await signInWithCustomToken(auth, __initial_auth_token);
-          appState.user = cred.user;
-        } else {
-          const cred = await signInAnonymously(auth);
-          appState.user = cred.user;
-        }
-
-        appState.dbReady = true;
-        updateDbBadge(true, 'Base Conectada');
-
-        // Caminhos obrigatórios /artifacts/{appId}/public/data/{collectionName}
-        const psychCol = collection(db, 'artifacts', appState.appId, 'public', 'data', 'psychologists');
-        const queueCol = collection(db, 'artifacts', appState.appId, 'public', 'data', 'appointments_queue');
-        const historyCol = collection(db, 'artifacts', appState.appId, 'public', 'data', 'attendance_history');
-        const configDoc = doc(db, 'artifacts', appState.appId, 'public', 'data', 'settings', 'admin_config');
-
-        // Listener de configurações do Admin (senha salva)
-        onSnapshot(configDoc, (snap) => {
-          if (snap.exists() && snap.data().password) {
-            appState.adminPassword = snap.data().password;
-          }
-        }, (err) => console.error('Erro config:', err));
-
-        // Listener de Psicólogos em tempo real
-        onSnapshot(psychCol, async (snapshot) => {
-          if (snapshot.empty) {
-            for (const p of DEFAULT_PSYCHOLOGISTS) {
-              await setDoc(doc(psychCol, p.id), p);
-            }
-            return;
-          }
-          appState.psychologists = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-          appState.psychologists.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-          if (!appState.selectedPsychologistId && appState.psychologists.length > 0) {
-            appState.selectedPsychologistId = appState.psychologists[0].id;
-          }
-          renderAll();
-        }, (err) => {
-          console.error('Erro psicólogos:', err);
-          updateDbBadge(false, 'Erro de sincronia');
-        });
-
-        // Listener de Fila / Agendamentos
-        onSnapshot(queueCol, (snapshot) => {
-          appState.queue = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-          appState.queue.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          renderAll();
-        }, (err) => console.error('Erro fila:', err));
-
-        // Listener de Histórico de Atendimentos
-        onSnapshot(historyCol, (snapshot) => {
-          appState.history = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-          appState.history.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          renderAll();
-        }, (err) => console.error('Erro histórico:', err));
-
-      } catch (error) {
-        console.error('Falha na inicialização:', error);
-        appState.psychologists = [...DEFAULT_PSYCHOLOGISTS];
-        appState.selectedPsychologistId = appState.psychologists[0].id;
-        updateDbBadge(false, 'Offline');
-        renderAll();
-      }
-    }
-
-    // Gera nome de sala Jitsi exclusivo por psicólogo
+    // Gera nome de sala exclusivo por psicólogo
     function getRoomNameForPsych(psych) {
       const cleanId = String(psych.id || 'sala').replace(/[^a-zA-Z0-9]/g, '');
       return `Escutatoria60Mais_Sala_${cleanId}`;
     }
 
-    function buildJitsiIframe(roomName, displayName) {
-      const config = [
-        'config.prejoinPageEnabled=false',
-        'config.startWithAudioMuted=false',
-        'config.startWithVideoMuted=false',
-        'interfaceConfig.SHOW_JITSI_WATERMARK=false',
-        `userInfo.displayName="${encodeURIComponent(displayName)}"`
-      ].join('&');
-      return `
-        <iframe
-          src="https://meet.jit.si/${roomName}#${config}"
-          allow="camera; microphone; fullscreen; display-capture; autoplay"
-          class="w-full h-full border-0"
-          title="Sala de Videochamada Escutatória 60+"
-        ></iframe>
-      `;
+    // Gerenciador de Câmera e Microfone Nativos (WebRTC / getUserMedia)
+    const mediaState = {
+      seniorStream: null,
+      psychStream: null,
+      seniorMicOn: true,
+      seniorCamOn: true,
+      psychMicOn: true,
+      psychCamOn: true
+    };
+
+    function stopMediaStream(role) {
+      const key = role === 'senior' ? 'seniorStream' : 'psychStream';
+      if (mediaState[key]) {
+        mediaState[key].getTracks().forEach(track => track.stop());
+        mediaState[key] = null;
+      }
     }
+
+    async function startNativeVideoRoom(containerId, role, localName, remoteName, roomName) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const isSenior = role === 'senior';
+      const externalUrl = `https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&userInfo.displayName="${encodeURIComponent(localName)}"`;
+
+      container.innerHTML = `
+        <div class="relative w-full h-full bg-slate-950 flex flex-col justify-between overflow-hidden">
+          <!-- Vídeo Principal (Câmera do Usuário / Sala) -->
+          <video
+            id="${role}-local-video"
+            autoplay
+            playsinline
+            muted
+            class="w-full h-full object-cover scale-x-[-1]"
+          ></video>
+
+          <!-- Fallback caso a câmera esteja bloqueada ou indisponível -->
+          <div id="${role}-camera-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/95 text-white space-y-3">
+            <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+              <i data-lucide="video-off" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-lg sm:text-xl font-extrabold">Câmera aguardando permissão</h4>
+            <p id="${role}-fallback-reason" class="text-sm text-slate-300 max-w-md">
+              Clique no ícone de cadeado ou câmera na barra de endereço do navegador e selecione <strong>Permitir</strong> para liberar vídeo e áudio.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onclick="retryCameraAccess('${role}')"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl"
+              >
+                Tentar Novamente
+              </button>
+              <a
+                href="${externalUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl"
+              >
+                Abrir Sala Externa
+              </a>
+            </div>
+          </div>
+
+          <!-- Cartão do Participante Remoto -->
+          <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white px-3.5 py-2 rounded-2xl border border-white/15 flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div class="text-xs sm:text-sm">
+              <p class="font-bold leading-tight">${isSenior ? remoteName : (remoteName || 'Aguardando paciente...')}</p>
+              <p class="text-[11px] text-emerald-300">Sala: ${roomName}</p>
+            </div>
+          </div>
+
+          <!-- Barra de Controles Grandes de Áudio e Vídeo -->
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15 shadow-lg">
+            <button
+              id="${role}-btn-mic"
+              type="button"
+              onclick="toggleRoleMic('${role}')"
+              class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition"
+            >
+              <i data-lucide="mic" class="w-4 h-4"></i>
+              <span>Microfone Ativo</span>
+            </button>
+            <button
+              id="${role}-btn-cam"
+              type="button"
+              onclick="toggleRoleCam('${role}')"
+              class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition"
+            >
+              <i data-lucide="video" class="w-4 h-4"></i>
+              <span>Câmera Ativa</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      if (window.lucide) lucide.createIcons();
+      await activateDeviceCamera(role);
+    }
+
+    async function activateDeviceCamera(role) {
+      const videoEl = document.getElementById(`${role}-local-video`);
+      const fallbackEl = document.getElementById(`${role}-camera-fallback`);
+      const reasonEl = document.getElementById(`${role}-fallback-reason`);
+      const statusTextEl = document.getElementById(`${role}-camera-status-text`);
+
+      stopMediaStream(role);
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (fallbackEl) fallbackEl.classList.remove('hidden');
+        if (reasonEl) reasonEl.textContent = 'Este navegador ou janela restrita bloqueou o acesso direto à câmera. Abra o aplicativo em uma aba normal do navegador (HTTPS) ou use o botão Sala Externa.';
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' },
+          audio: true
+        });
+        if (role === 'senior') {
+          mediaState.seniorStream = stream;
+          mediaState.seniorMicOn = true;
+          mediaState.seniorCamOn = true;
+        } else {
+          mediaState.psychStream = stream;
+          mediaState.psychMicOn = true;
+          mediaState.psychCamOn = true;
+        }
+        if (videoEl) {
+          videoEl.srcObject = stream;
+          await videoEl.play().catch(() => {});
+        }
+        if (fallbackEl) fallbackEl.classList.add('hidden');
+        if (statusTextEl) {
+          statusTextEl.innerHTML = '<strong>Câmera e microfone conectados!</strong> Você já está visível na sala de acolhimento.';
+        }
+      } catch (err) {
+        console.warn('Erro ao acessar câmera:', err);
+        if (fallbackEl) fallbackEl.classList.remove('hidden');
+        if (reasonEl) {
+          reasonEl.innerHTML = err.name === 'NotAllowedError'
+            ? 'Permissão de câmera negada. Clique no cadeado ao lado do endereço do site, permita <strong>Câmera e Microfone</strong> e clique em <strong>Tentar Novamente</strong>.'
+            : 'Não foi possível iniciar a câmera neste ambiente de prévia (iframe restrito). Abra o arquivo no navegador ou clique em <strong>Abrir Sala Externa</strong>.';
+        }
+      }
+    }
+
+    window.retryCameraAccess = function(role) {
+      activateDeviceCamera(role);
+    };
+
+    window.toggleRoleMic = function(role) {
+      const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
+      if (!stream) return;
+      const key = role === 'senior' ? 'seniorMicOn' : 'psychMicOn';
+      mediaState[key] = !mediaState[key];
+      stream.getAudioTracks().forEach(t => { t.enabled = mediaState[key]; });
+      const btn = document.getElementById(`${role}-btn-mic`);
+      if (btn) {
+        btn.className = mediaState[key]
+          ? 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition'
+          : 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs sm:text-sm font-bold transition';
+        btn.innerHTML = `<i data-lucide="${mediaState[key] ? 'mic' : 'mic-off'}" class="w-4 h-4"></i><span>${mediaState[key] ? 'Microfone Ativo' : 'Microfone Mudo'}</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+
+    window.toggleRoleCam = function(role) {
+      const stream = role === 'senior' ? mediaState.seniorStream : mediaState.psychStream;
+      if (!stream) return;
+      const key = role === 'senior' ? 'seniorCamOn' : 'psychCamOn';
+      mediaState[key] = !mediaState[key];
+      stream.getVideoTracks().forEach(t => { t.enabled = mediaState[key]; });
+      const btn = document.getElementById(`${role}-btn-cam`);
+      if (btn) {
+        btn.className = mediaState[key]
+          ? 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold transition'
+          : 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs sm:text-sm font-bold transition';
+        btn.innerHTML = `<i data-lucide="${mediaState[key] ? 'video' : 'video-off'}" class="w-4 h-4"></i><span>${mediaState[key] ? 'Câmera Ativa' : 'Câmera Pausada'}</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    };
 
     // =========================================================
     // NAVEGAÇÃO ENTRE ABAS
@@ -915,20 +944,20 @@
       const listSec = document.getElementById('senior-psych-list-section');
       const roomBox = document.getElementById('senior-active-room');
       const roomTitle = document.getElementById('senior-room-psych-name');
-      const jitsiContainer = document.getElementById('senior-jitsi-container');
 
       if (window.innerWidth < 768 && header) header.classList.add('hidden');
       if (banner) banner.classList.add('hidden');
       if (listSec) listSec.classList.add('hidden');
       if (roomTitle) roomTitle.textContent = `Conversando com ${psych.name}`;
-      if (jitsiContainer) jitsiContainer.innerHTML = buildJitsiIframe(getRoomNameForPsych(psych), seniorName);
       if (roomBox) roomBox.classList.remove('hidden');
 
+      startNativeVideoRoom('senior-jitsi-container', 'senior', seniorName, psych.name, getRoomNameForPsych(psych));
       showToast(`Conectando você com ${psych.name}...`);
     };
 
     window.endSeniorCall = async function() {
       const call = appState.activeSeniorCall;
+      stopMediaStream('senior');
       if (call && appState.dbReady && appState.user) {
         try {
           const durationMin = Math.max(1, Math.round((Date.now() - call.startedAt) / 60000));
@@ -1044,13 +1073,13 @@
       const title = document.getElementById('psych-room-title');
       const seniorInput = document.getElementById('psych-session-senior-name');
       const notesInput = document.getElementById('psych-session-notes');
-      const container = document.getElementById('psych-jitsi-container');
 
       if (title) title.textContent = `Sala de ${psych.name}`;
       if (seniorInput) seniorInput.value = seniorName;
       if (notesInput) notesInput.value = '';
-      if (container) container.innerHTML = buildJitsiIframe(getRoomNameForPsych(psych), psych.name);
       if (roomBox) roomBox.classList.remove('hidden');
+
+      startNativeVideoRoom('psych-jitsi-container', 'psych', psych.name, seniorName, getRoomNameForPsych(psych));
 
       clearInterval(appState.callTimerInterval);
       appState.callSeconds = 0;
@@ -1065,6 +1094,7 @@
 
     window.finishPsychSession = async function() {
       const psych = appState.psychologists.find(p => p.id === appState.selectedPsychologistId);
+      stopMediaStream('psych');
       const seniorName = document.getElementById('psych-session-senior-name')?.value.trim() || 'Idoso(a) Atendido(a)';
       const notes = document.getElementById('psych-session-notes')?.value.trim() || 'Escuta ativa realizada.';
       const durationMin = Math.max(1, Math.round(appState.callSeconds / 60));
@@ -1590,8 +1620,94 @@
       }
     };
 
+    // =========================================================
+    // DEMONSTRAÇÃO AUTOMÁTICA GUIADA (PARA GRAVAÇÃO DE VÍDEO)
+    // =========================================================
+    let demoTimers = [];
+
+    function clearDemoTimers() {
+      demoTimers.forEach(id => clearTimeout(id));
+      demoTimers = [];
+    }
+
+    window.startLinkedInDemo = function() {
+      clearDemoTimers();
+      const overlay = document.getElementById('demo-overlay');
+      const badge = document.getElementById('demo-step-badge');
+      const caption = document.getElementById('demo-caption-text');
+      if (!overlay || !badge || !caption) return;
+
+      overlay.classList.remove('hidden');
+
+      const steps = [
+        {
+          delay: 0,
+          label: 'Etapa 1 de 5 • Visão do Idoso',
+          text: 'Interface acessível com letras grandes: o idoso digita apenas seu primeiro nome.',
+          action: () => {
+            window.switchView('idoso');
+            const input = document.getElementById('senior-name-input');
+            if (input) input.value = 'Dona Maria';
+          }
+        },
+        {
+          delay: 5500,
+          label: 'Etapa 2 de 5 • Entrada em 1 Clique',
+          text: 'Ao clicar em "Conversar Agora", a câmera e a sala de acolhimento abrem imediatamente.',
+          action: () => {
+            window.startImmediateCall();
+          }
+        },
+        {
+          delay: 12000,
+          label: 'Etapa 3 de 5 • Visão do Psicólogo',
+          text: 'O psicólogo acompanha solicitações em tempo real, atende na sala e registra sua escuta.',
+          action: () => {
+            window.endSeniorCall();
+            window.switchView('psicologo');
+            window.openPsychOwnRoom('Dona Maria');
+          }
+        },
+        {
+          delay: 18500,
+          label: 'Etapa 4 de 5 • Painel Administrativo',
+          text: 'Coordenação com cadastro permanente de psicólogos e histórico completo de atendimentos.',
+          action: () => {
+            stopMediaStream('psych');
+            document.getElementById('psych-active-room')?.classList.add('hidden');
+            appState.adminUnlocked = true;
+            window.switchView('admin');
+          }
+        },
+        {
+          delay: 24500,
+          label: 'Etapa 5 de 5 • Escutatória 60+',
+          text: 'Tecnologia simples, humana e acessível para combater a solidão na terceira idade.',
+          action: () => {
+            window.switchView('idoso');
+          }
+        }
+      ];
+
+      steps.forEach(step => {
+        const t = setTimeout(() => {
+          badge.textContent = step.label;
+          caption.textContent = step.text;
+          step.action();
+        }, step.delay);
+        demoTimers.push(t);
+      });
+
+      const endTimer = setTimeout(() => {
+        window.stopLinkedInDemo();
+      }, 30000);
+      demoTimers.push(endTimer);
+    };
+
     window.stopLinkedInDemo = function() {
       clearDemoTimers();
+      stopMediaStream('senior');
+      stopMediaStream('psych');
       document.getElementById('demo-overlay')?.classList.add('hidden');
       window.switchView('idoso');
     };
